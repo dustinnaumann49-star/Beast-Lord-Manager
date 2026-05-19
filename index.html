@@ -2,45 +2,54 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim</title>
+  <title>Beast Lord Manager</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
     .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
-    .log { margin-top: 10px; font-size: 0.9em; color: #ffc107; }
   </style>
 </head>
 <body>
   <h1>Beast Lord Manager</h1>
-  <div class="box">
-    <select id="alphaSelect">
-      <option value="Hyaenodon">Hyaenodon (S3)</option>
-    </select>
-    <button onclick="simulate()">Kampf simulieren</button>
-    <div id="result" class="log"></div>
+  <div id="app" class="box">
+    <p>Lade Bestien-Daten...</p>
   </div>
 
   <script>
-    function simulate() {
-      const alpha = document.getElementById('alphaSelect').value;
-      const resultDiv = document.getElementById('result');
-      
-      // Kampf-Logik
-      let log = `<strong>Kampfbericht:</strong><br>`;
-      
-      if (alpha === "Hyaenodon") {
-        log += "Hyaenodon greift an...<br>";
-        // Zufällige Chance für den Skill
-        let skillChance = Math.random(); 
-        if (skillChance > 0.6) {
-          log += "💥 <span style='color:#00f0ff'>Skill aktiviert: Reißende Bisse!</span> Schaden massiv erhöht.<br>";
-        } else {
-          log += "💚 <span style='color:#00ff66'>Skill aktiviert: Heulende Heilung!</span> Truppen regeneriert.<br>";
-        }
-      }
-      
-      log += "Kampf beendet. Sieg!";
-      resultDiv.innerHTML = log;
+    // GitHub Konfiguration (Dein Token/User bleibt im localStorage)
+    const config = { 
+        token: localStorage.getItem('gh_token'), 
+        user: localStorage.getItem('gh_user'), 
+        repo: 'Beast-Lord-Manager' 
+    };
+
+    async function fetchData(file) {
+        try {
+            const res = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/${file}`, {
+                headers: {'Authorization': 'token '+config.token}
+            });
+            const json = await res.json();
+            return JSON.parse(atob(json.content));
+        } catch(e) { return []; }
     }
+
+    async function init() {
+        const beasts = await fetchData('beasts.json');
+        const alphas = await fetchData('alphas.json');
+        
+        document.getElementById('app').innerHTML = `
+            <select id="alphaSelect">
+                ${alphas.map(a => `<option>${a.name}</option>`).join('')}
+            </select>
+            <button onclick="simulate()">Kampf simulieren</button>
+            <div id="result"></div>
+        `;
+    }
+
+    function simulate() {
+      document.getElementById('result').innerHTML = "<p>Kampfbericht: Heilung erfolgreich!</p>";
+    }
+
+    window.onload = init;
   </script>
 </body>
 </html>
