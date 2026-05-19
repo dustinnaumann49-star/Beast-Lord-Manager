@@ -4,23 +4,12 @@
   <meta charset="UTF-8">
   <title>Beast Lord Kampf-Sim</title>
   <style>
-    body { 
-        margin: 0; padding: 15px; font-family: sans-serif; color: #fff;
-        /* Schöner Farbverlauf anstelle eines Bildes */
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        min-height: 100vh;
-        background-attachment: fixed;
-    }
+    body { margin: 0; padding: 15px; font-family: sans-serif; color: #fff; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; background-attachment: fixed; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); }
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-    button:hover { background-color: #e0a800; }
-    
-    #result-grid { 
-        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; 
-        font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px;
-    }
+    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
     .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; }
     .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; }
   </style>
@@ -34,7 +23,7 @@
   <div id="result-grid"></div>
 
   <script>
-    const alphas = ["Hyaenodon", "Keiner"];
+    const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
     const beasts = [
       { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" },
       { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70, type: "Allesfresser" },
@@ -51,35 +40,37 @@
     }
 
     function getStats(prefix) {
-      let atk = 0, def = 0, hp = 0, hasHyaenodon = false, hasFleischfresser = false;
+      let atk = 0, def = 0, hp = 0, alpha = document.getElementById(`${prefix}-a-1`).value;
       for (let i = 1; i <= 3; i++) {
-        let alpha = document.getElementById(`${prefix}-a-${i}`).value;
         let b = beasts.find(obj => obj.name === document.getElementById(`${prefix}-b-${i}`).value);
         let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-        let rowAtk = b.atk * count, rowDef = b.def * count, rowHp = b.hp * count;
-        if (alpha === "Hyaenodon") {
-          hasHyaenodon = true; rowHp *= 1.2; 
-          if (i === 1) { rowAtk *= 1.2; rowDef *= 1.2; }
-        }
-        if (b.type === "Fleischfresser") hasFleischfresser = true;
-        atk += rowAtk; def += rowDef; hp += rowHp;
+        atk += b.atk * count; def += b.def * count; hp += b.hp * count;
       }
-      return { atk, def, hp, hasHyaenodon, hasFleischfresser };
+      return { atk, def, hp, alpha };
     }
 
     function runBattle() {
       let A = getStats("teamA"), B = getStats("teamB");
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
+      
+      let stacksA = 0, distA = 0, stacksB = 0, distB = 0;
+
       for (let r = 1; r <= 10; r++) {
-        let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
-        let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
-        let dmgToB = Math.max(0, (A.atk * bonusA) - (B.def * 0.2));
-        let dmgToA = Math.max(0, (B.atk * bonusB) - (A.def * 0.2));
-        A.hp -= dmgToA; B.hp -= dmgToB;
-        resDiv.innerHTML += `
-            <div class="dmg-row">${Math.floor(A.atk * bonusA).toLocaleString()}${bonusA > 1 ? '⚡' : ''}</div>
-            <div class="dmg-row">${Math.floor(B.atk * bonusB).toLocaleString()}${bonusB > 1 ? '⚡' : ''}</div>`;
+        // Logik Smilodon
+        let dmgA = A.atk, dmgB = B.atk;
+        if(A.alpha === "Smilodon") {
+          if(Math.random() < 0.8) dmgA *= (2.0 + (stacksA * 0.1));
+          if(Math.random() < 0.7) dmgA *= 1.4;
+          if(Math.random() < 0.5) distA++;
+          dmgA *= (1 + (distA * 0.08));
+          stacksA++;
+        }
+        
+        A.hp -= Math.max(0, dmgB - (A.def * 0.2));
+        B.hp -= Math.max(0, dmgA - (B.def * 0.2));
+
+        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()}</div><div class="dmg-row">${Math.floor(dmgB).toLocaleString()}</div>`;
         if (A.hp <= 0 || B.hp <= 0) break;
       }
     }
