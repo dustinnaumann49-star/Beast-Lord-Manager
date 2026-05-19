@@ -24,7 +24,11 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = [{ name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" }];
+    const beasts = [
+      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
+      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 },
+      { name: "Takin", atk: 4, def: 6, hp: 80 }
+    ];
 
     function createSlots(containerId, prefix) {
       document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
@@ -39,27 +43,8 @@
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
       
-      let stacksA = 0, distA = 0, stacksB = 0, distB = 0;
-      let atkA = 8000, atkB = 8000; // Vereinfacht für das Beispiel
+      // Initialisierung für beide Seiten
+      let stats = { A: { hp: 100000, def: 1000, stacks: 0, dist: 0 }, B: { hp: 100000, def: 1000, stacks: 0, dist: 0 } };
 
       for (let r = 1; r <= 10; r++) {
-        let logA = "", logB = "";
-        let dmgA = atkA, dmgB = atkB;
-
-        // Logik Smilodon A
-        if(document.getElementById("teamA-a-1").value === "Smilodon") {
-          if(Math.random() < 0.8) { dmgA *= (2.0 + (stacksA * 0.1)); stacksA++; logA += "⚡ "; }
-          if(Math.random() < 0.7) { dmgA *= 1.4; logA += "🦷 "; }
-          if(Math.random() < 0.5) { distA++; logA += "🎯 "; }
-          dmgA *= (1 + (distA * 0.08));
-        }
-
-        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} ${logA}</div>
-                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} ${logB}</div>`;
-      }
-    }
-    createSlots("teamA", "teamA");
-    createSlots("teamB", "teamB");
-  </script>
-</body>
-</html>
+        let logA = "", logB = "", dmgA = 5000, dmgB
