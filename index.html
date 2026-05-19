@@ -1,31 +1,78 @@
-function runBattle() {
-  function getStats(prefix) {
-    let atk = 0, def = 0, hp = 0;
-    for(let i=1; i<=3; i++) {
-      let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
-      let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-      atk += b.atk * count; 
-      def += b.def * count; 
-      hp += b.hp * count;
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Beast Lord Kampf-Sim</title>
+  <style>
+    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
+    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
+    .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
+    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
+    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h3>🟦 Dein Team</h3>
+  <div class="box" id="teamA"></div>
+  <h3>🟥 Gegner Team</h3>
+  <div class="box" id="teamB"></div>
+  <button onclick="runBattle()">⚔️ Kampf starten</button>
+  <div id="result"></div>
+
+  <script>
+    const alphas = ["Hyaenodon"];
+    const beasts = [
+      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
+      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 },
+      { name: "Takin", atk: 4, def: 6, hp: 80 }
+    ];
+
+    function createSlots(containerId, prefix) {
+      document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
+        <div class="slot-row">
+          <select id="${prefix}-a-${i+1}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i+1}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
+          <input type="number" id="${prefix}-c-${i+1}" value="1000">
+        </div>`).join('');
     }
-    return {atk, def, hp};
-  }
 
-  let A = getStats("teamA"), B = getStats("teamB");
-  let log = "--- Kampf beginnt ---\n";
+    function runBattle() {
+      function getStats(prefix) {
+        let atk = 0, def = 0, hp = 0;
+        for (let i = 1; i <= 3; i++) {
+          let bName = document.getElementById(`${prefix}-b-${i}`).value;
+          let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
+          let b = beasts.find(obj => obj.name === bName);
+          atk += b.atk * count;
+          def += b.def * count;
+          hp += b.hp * count;
+        }
+        return { atk, def, hp };
+      }
 
-  for(let r=1; r<=10; r++) {
-    // Schaden: Angriff minus 20% der Verteidigung des Gegners
-    let dmgToB = Math.max(0, A.atk - (B.def * 0.2));
-    let dmgToA = Math.max(0, B.atk - (A.def * 0.2));
-    
-    A.hp -= dmgToA;
-    B.hp -= dmgToB;
+      let A = getStats("teamA");
+      let B = getStats("teamB");
+      let log = "--- Kampf gestartet ---\n";
 
-    log += `Runde ${r}: Dein Schaden: ${Math.floor(dmgToB).toLocaleString()} | Gegner Schaden: ${Math.floor(dmgToA).toLocaleString()}\n`;
-    
-    if(A.hp <= 0 || B.hp <= 0) break;
-  }
-  
-  document.getElementById('result').innerText = log + "\n--- Kampf beendet ---";
-}
+      for (let r = 1; r <= 10; r++) {
+        let dmgToB = Math.max(0, A.atk - (B.def * 0.2));
+        let dmgToA = Math.max(0, B.atk - (A.def * 0.2));
+
+        A.hp -= dmgToA;
+        B.hp -= dmgToB;
+
+        log += `Runde ${r}: Dein Schaden: ${Math.floor(dmgToB).toLocaleString()} | Gegner Schaden: ${Math.floor(dmgToA).toLocaleString()}\n`;
+
+        if (A.hp <= 0 || B.hp <= 0) break;
+      }
+
+      let winner = (A.hp > B.hp) ? "Dein Team hat gewonnen!" : "Der Gegner hat gewonnen!";
+      document.getElementById('result').innerText = log + "\n--- " + winner + " ---";
+    }
+
+    createSlots("teamA", "teamA");
+    createSlots("teamB", "teamB");
+  </script>
+</body>
+</html>
