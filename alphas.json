@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Hyaenodon (S3)",
+    "food_type": "Carnivore",
+    "level": 50,
+    "skills": [
+      {
+        "name": "Skill 1",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 2",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 3",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 4",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 5",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 6",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 7",
+        "level": 10,
+        "max_level": 10
+      },
+      {
+        "name": "Skill 8",
+        "level": 10,
+        "max_level": 10
+      }
+    ],
+    "stars": 0
+  }
+]
