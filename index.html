@@ -2,52 +2,47 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord 3vs3</title>
+  <title>Beast Lord Manager</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
-    select { background: #333; color: #fff; border: 1px solid #555; padding: 8px; width: 100%; margin-bottom: 5px; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 5px; }
-    #result { margin-top: 15px; padding: 10px; border-top: 1px solid #333; color: #ffc107; }
+    .slot-row { display: flex; gap: 5px; margin-bottom: 10px; }
+    select { background: #333; color: #fff; border: 1px solid #555; padding: 5px; flex: 1; }
+    button { background-color: #ffc107; color: #000; border: none; padding: 10px; width: 100%; font-weight: bold; }
   </style>
 </head>
 <body>
   <h3>🟦 Dein Team</h3>
   <div class="box" id="ownTeam"></div>
-
-  <h3>🟥 Gegner</h3>
-  <div class="box" id="enemyTeam"></div>
-
   <button onclick="runBattle()">⚔️ Kampf starten</button>
   <div id="result"></div>
 
   <script>
-    // Nur noch der Hyaenodon in der Liste
-    const beastList = ["Hyaenodon"];
+    const alphas = ["Hyaenodon"];
+    const beasts = ["Nordwestlicher Wolf"]; // Hier kannst du weitere Bestien ergänzen
 
-    function createDropdowns() {
-      const html = beastList.map(b => `<option value="${b}">${b}</option>`).join('');
-      
-      let ownHTML = "", enemyHTML = "";
+    function createUI() {
+      let html = "";
       for(let i=1; i<=3; i++) {
-        ownHTML += `<select id="own-${i}">${html}</select>`;
-        enemyHTML += `<select id="enemy-${i}">${html}</select>`;
+        html += `<div class="slot-row">
+          <select id="alpha-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="beast-${i}">${beasts.map(b => `<option>${b}</option>`).join('')}</select>
+        </div>`;
       }
-      document.getElementById('ownTeam').innerHTML = ownHTML;
-      document.getElementById('enemyTeam').innerHTML = enemyHTML;
+      document.getElementById('ownTeam').innerHTML = html;
     }
 
     function runBattle() {
-      let log = "<strong>Kampfbericht:</strong><br>";
+      let log = "<strong>Aufstellung:</strong><br>";
       for(let i=1; i<=3; i++) {
-        let own = document.getElementById(`own-${i}`).value;
-        let enemy = document.getElementById(`enemy-${i}`).value;
-        log += `Slot ${i}: ${own} vs ${enemy} -> ${Math.random() > 0.5 ? "Sieg! ✅" : "Niederlage! ❌"}<br>`;
+        let a = document.getElementById(`alpha-${i}`).value;
+        let b = document.getElementById(`beast-${i}`).value;
+        log += `Slot ${i}: Alpha ${a} führt ${b} an.<br>`;
       }
       document.getElementById('result').innerHTML = log;
     }
 
-    createDropdowns();
+    createUI();
   </script>
 </body>
 </html>
