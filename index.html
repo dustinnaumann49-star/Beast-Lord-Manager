@@ -1,61 +1,56 @@
 function runBattle() {
   function getTeam(prefix) {
     let team = [];
-    for(let i=1; i<=3; i++) {
+    for(let i = 1; i <= 3; i++) {
       let alpha = document.getElementById(`${prefix}-a-${i}`).value;
-      let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
+      let beastObj = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
       let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
       
-      // Basiswerte
-      let stats = { 
-        atk: b.atk * count, 
-        def: b.def * count, 
-        hp: b.hp * count, 
-        alpha: alpha, 
-        type: b.type,
-        row: i 
-      };
-
-      // Alpha-Boni anwenden (Passiv)
-      if(alpha === "Hyaenodon") {
-        stats.hp *= 1.2; // Starke Heilung LP-Bonus
-        if(i === 1) { stats.atk *= 1.2; stats.def *= 1.2; } // Pre-Krieg Fronttrupp
-      }
-      team.push(stats);
+      team.push({
+        alpha: alpha,
+        beast: beastObj.name,
+        atk: beastObj.atk * count,
+        def: beastObj.def * count,
+        hp: beastObj.hp * count,
+        type: beastObj.type,
+        row: i
+      });
     }
     return team;
   }
 
-  let teamA = getTeam("teamA"), teamB = getTeam("teamB");
+  let teamA = getTeam("teamA");
+  let teamB = getTeam("teamB");
   let log = "--- Kampf gestartet ---\n";
 
-  for(let r=1; r<=10; r++) {
-    // 1. Schaden berechnen (mit Alpha-Logik)
-    let atkA = teamA.reduce((s,t) => s + t.atk, 0);
-    let atkB = teamB.reduce((s,t) => s + t.atk, 0);
+  for (let r = 1; r <= 10; r++) {
+    let logRunde = `Runde ${r}: `;
     
-    // Fähigkeits-Checks (z.B. Meister der Nachahmung)
+    // Schaden berechnen für Team A
+    let atkA = teamA.reduce((s, t) => s + t.atk, 0);
     let bonusA = 1.0;
-    if(teamA.some(t => t.alpha === "Hyaenodon" && t.type === "Fleischfresser") && Math.random() < 0.7) {
+    if (teamA.some(t => t.alpha === "Hyaenodon" && t.type === "Fleischfresser") && Math.random() < 0.7) {
       bonusA = 1.15;
-      log += `Runde ${r}: [Hyaenodon] Meister der Nachahmung aktiviert (+15% DMG)!\n`;
+      logRunde += "[Hyaenodon: Nachahmung] ";
     }
+    let dmgToB = Math.max(0, (atkA * bonusA) - (teamB.reduce((s,t) => s + t.def, 0) / 5));
 
-    // 2. Verteidigung der Gegner einbeziehen
-    let defB = teamB.reduce((s,t) => s + t.def, 0);
-    let defA = teamA.reduce((s,t) => s + t.def, 0);
+    // Schaden berechnen für Team B
+    let atkB = teamB.reduce((s, t) => s + t.atk, 0);
+    let bonusB = 1.0;
+    if (teamB.some(t => t.alpha === "Hyaenodon" && t.type === "Fleischfresser") && Math.random() < 0.7) {
+      bonusB = 1.15;
+    }
+    let dmgToA = Math.max(0, (atkB * bonusB) - (teamA.reduce((s,t) => s + t.def, 0) / 5));
 
-    let dmgToB = Math.max(0, (atkA * bonusA) - (defB / 5));
-    let dmgToA = Math.max(0, atkB - (defA / 5));
-
-    // 3. HP abziehen
+    // HP abziehen
     teamB.forEach(t => t.hp -= (dmgToB / 3));
     teamA.forEach(t => t.hp -= (dmgToA / 3));
 
-    log += `Runde ${r}: Du machst ${Math.floor(dmgToB).toLocaleString()} DMG | Gegner macht ${Math.floor(dmgToA).toLocaleString()} DMG.\n`;
-
-    if(teamA.reduce((s,t) => s+t.hp, 0) <= 0 || teamB.reduce((s,t) => s+t.hp, 0) <= 0) break;
+    log += `${logRunde} Dein Schaden: ${Math.floor(dmgToB).toLocaleString()} | Gegner Schaden: ${Math.floor(dmgToA).toLocaleString()}\n`;
+    
+    if (teamA.reduce((s, t) => s + t.hp, 0) <= 0 || teamB.reduce((s, t) => s + t.hp, 0) <= 0) break;
   }
-  
+
   document.getElementById('result').innerText = log + "\n--- Kampf beendet ---";
 }
