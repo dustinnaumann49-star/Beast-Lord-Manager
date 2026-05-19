@@ -2,29 +2,52 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim</title>
+  <title>Beast Lord 3vs3</title>
   <style>
-    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
-    .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-    .team-box { display: flex; gap: 10px; margin-top: 10px; }
-    select { background: #333; color: #fff; border: 1px solid #555; padding: 5px; width: 100%; }
+    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
+    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
+    select { background: #333; color: #fff; border: 1px solid #555; padding: 8px; width: 100%; margin-bottom: 5px; }
+    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 5px; }
+    #result { margin-top: 15px; padding: 10px; border-top: 1px solid #333; color: #ffc107; }
   </style>
 </head>
 <body>
-  <h1>3 vs 3 Simulator</h1>
-  
-  <div class="box">
-    <h3>🟦 Dein Team</h3>
-    <div id="ownTeam" class="team-box">
-      <select id="own-1"><option value="Hyaenodon">Hyaenodon</option></select>
-      <select id="own-2"><option value="Bär">Bär</option></select>
-      <select id="own-3"><option value="Wolf">Wolf</option></select>
-    </div>
-  </div>
+  <h3>🟦 Dein Team</h3>
+  <div class="box" id="ownTeam"></div>
 
-  <div class="box">
-    <h3>🟥 Gegner</h3>
-    <div id="enemyTeam" class="team-box">
-      <select id="enemy-1"><option value="Hyaenodon">Hyaenodon</option></select>
-      <select id="enemy-2"><option value="Bär">B
+  <h3>🟥 Gegner</h3>
+  <div class="box" id="enemyTeam"></div>
+
+  <button onclick="runBattle()">⚔️ Kampf starten</button>
+  <div id="result"></div>
+
+  <script>
+    // Hier kommen später alle deine Bestien rein
+    const beastList = ["Hyaenodon", "Schwarzer Panther", "Elefant", "Nashorn"];
+
+    function createDropdowns() {
+      const html = beastList.map(b => `<option value="${b}">${b}</option>`).join('');
+      
+      let ownHTML = "", enemyHTML = "";
+      for(let i=1; i<=3; i++) {
+        ownHTML += `<select id="own-${i}">${html}</select>`;
+        enemyHTML += `<select id="enemy-${i}">${html}</select>`;
+      }
+      document.getElementById('ownTeam').innerHTML = ownHTML;
+      document.getElementById('enemyTeam').innerHTML = enemyHTML;
+    }
+
+    function runBattle() {
+      let log = "<strong>Kampfbericht:</strong><br>";
+      for(let i=1; i<=3; i++) {
+        let own = document.getElementById(`own-${i}`).value;
+        let enemy = document.getElementById(`enemy-${i}`).value;
+        log += `Slot ${i}: ${own} vs ${enemy} -> ${Math.random() > 0.5 ? "Sieg! ✅" : "Niederlage! ❌"}<br>`;
+      }
+      document.getElementById('result').innerHTML = log;
+    }
+
+    createDropdowns();
+  </script>
+</body>
+</html>
