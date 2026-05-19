@@ -21,7 +21,7 @@
   <div id="result"></div>
 
   <script>
-    const alphas = ["Hyaenodon"];
+    const alphas = ["Hyaenodon", "Keiner"];
     const beasts = [
       { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
       { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 },
@@ -37,20 +37,35 @@
         </div>`).join('');
     }
 
-    function runBattle() {
-      function getStats(prefix) {
-        let atk = 0, def = 0, hp = 0;
-        for (let i = 1; i <= 3; i++) {
-          let bName = document.getElementById(`${prefix}-b-${i}`).value;
-          let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-          let b = beasts.find(obj => obj.name === bName);
-          atk += b.atk * count;
-          def += b.def * count;
-          hp += b.hp * count;
-        }
-        return { atk, def, hp };
-      }
+    function getStats(prefix) {
+      let atk = 0, def = 0, hp = 0;
+      for (let i = 1; i <= 3; i++) {
+        let alpha = document.getElementById(`${prefix}-a-${i}`).value;
+        let bName = document.getElementById(`${prefix}-b-${i}`).value;
+        let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
+        let b = beasts.find(obj => obj.name === bName);
 
+        let rowAtk = b.atk * count;
+        let rowDef = b.def * count;
+        let rowHp = b.hp * count;
+
+        // --- Hyaenodon Fähigkeiten ---
+        if (alpha === "Hyaenodon") {
+          rowHp *= 1.2; // Starke Heilung: +20% HP
+          if (i === 1) { // Pre-Krieg: Fronttrupp-Bonus
+            rowAtk *= 1.2;
+            rowDef *= 1.2;
+          }
+        }
+        
+        atk += rowAtk;
+        def += rowDef;
+        hp += rowHp;
+      }
+      return { atk, def, hp };
+    }
+
+    function runBattle() {
       let A = getStats("teamA");
       let B = getStats("teamB");
       let log = "--- Kampf gestartet ---\n";
