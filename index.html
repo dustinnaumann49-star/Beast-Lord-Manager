@@ -1,41 +1,7 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Beast Lord Manager</title>
-  <style>
-    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
-    .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
-  </style>
-</head>
+<html>
 <body>
-  <h1>Beast Lord Manager</h1>
-  <div class="box" id="app">
-    <p>Daten werden geladen...</p>
-  </div>
-
-  <script>
-    // Feste Liste zum Testen, ob das Menü überhaupt erscheint
-    const testAlphas = [{name: "Hyaenodon (S3)"}, {name: "Alpha 2"}, {name: "Alpha 3"}];
-
-    function buildUI(data) {
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <select id="alphaSelect">
-          ${data.map(a => `<option>${a.name}</option>`).join('')}
-        </select>
-        <button onclick="simulate()">Kampf simulieren</button>
-        <div id="result"></div>
-      `;
-    }
-
-    function simulate() {
-      const alpha = document.getElementById('alphaSelect').value;
-      document.getElementById('result').innerHTML = `<p>Kampfbericht: ${alpha} hat gewonnen!</p>`;
-    }
-
-    // Startet die UI sofort mit den Testdaten
-    window.onload = () => buildUI(testAlphas);
-  </script>
+    <h1>TEST BESTANDEN</h1>
+    <p>Die Seite wird korrekt vom Server geladen!</p>
 </body>
 </html>
