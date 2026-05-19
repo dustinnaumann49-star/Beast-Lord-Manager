@@ -14,7 +14,9 @@
     .nav-tabs .nav-link { color: #aaa; border-color: #333; }
     .nav-tabs .nav-link.active { background-color: #1e1e1e; color: #ffc107; border-color: #333 #333 #1e1e1e; }
     .list-group-item { background-color: #222; border-color: #333; color: #fff; }
-    .log-round { border-left: 3px solid #ffc107; padding-left: 10px; margin-bottom: 10px; }
+    .log-round { border-left: 3px solid #ffc107; padding-left: 10px; margin-bottom: 10px; background: #1a1a1a; padding: 8px; border-radius: 4px; }
+    .text-skill { color: #00f0ff; font-weight: bold; }
+    .text-heal { color: #00ff66; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -161,7 +163,11 @@
   const PRESET_DATA = {
     "Hyaenodon (S3)": {
       name: "Hyaenodon (S3)", food_type: "Carnivore", level: 50,
-      skills: Array(8).fill(null).map((_, i) => ({ name: `Skill ${i+1}`, level: 10, max_level: 10 }))
+      skills: [
+        { name: "Dominanz (Sterne-Bonus)", type: "stat", chance: 100 },
+        { name: "Reißende Bisse", type: "damage", chance: 35, multiplier: 2.5 },
+        { name: "Heulende Heilung", type: "heal", chance: 40, heal_percent: 0.15 }
+      ]
     }
   };
 
@@ -344,8 +350,9 @@
     });
   }
 
-  function getTeamData(prefix) {
-    let totalAtk = 0, totalDef = 0, totalHp = 0, totalUnits = 0;
+  function getCompiledTeam(prefix) {
+    let baseAtk = 0, baseDef = 0, maxHp = 0, totalUnits = 0;
+    let assignedAlphas = [];
     let desc = [];
 
     for(let i=1; i<=3; i++) {
@@ -360,28 +367,31 @@
 
         if(alphaIdx !== "") {
           const alpha = alphas[alphaIdx];
-          modAtk += (alpha.stars * 50); 
-          modDef += (alpha.stars * 25);
+          modAtk += (alpha.stars * 60); 
+          modDef += (alpha.stars * 30);
+          if(!assignedAlphas.includes(alpha)) {
+            assignedAlphas.push(alpha);
+          }
         }
 
-        totalAtk += modAtk * count;
-        totalDef += modDef * count;
-        totalHp += beast.hp * count;
+        baseAtk += modAtk * count;
+        baseDef += modDef * count;
+        maxHp += beast.hp * count;
         totalUnits += count;
-        desc.push(`Slot ${i}: ${count}x ${beast.name}`);
+        desc.push(`${count}x ${beast.name}`);
       }
     }
-    return { atk: totalAtk, def: totalDef, hp: totalHp, units: totalUnits, desc: desc.join(', ') };
+    return { baseAtk, baseDef, maxHp, currentHp: maxHp, units: totalUnits, desc: desc.join(' & '), alphas: assignedAlphas };
   }
 
   function runSimulation() {
     const resEl = document.getElementById('simResult');
-    const own = getTeamData('ownTeamEditor');
-    const enemy = getTeamData('enemyTeamEditor');
+    const own = getCompiledTeam('ownTeamEditor');
+    const enemy = getCompiledTeam('enemyTeamEditor');
 
     if(own.units === 0 || enemy.units === 0) {
       resEl.className = "mt-4 p-3 border border-danger rounded text-danger bg-dark";
-      resEl.innerHTML = `<h5>⚠️ Fehler</h5><p>Bitte weise beiden Teams mindestens eine Bestie und eine Einheitenanzahl zu.</p>`;
+      resEl.innerHTML = `<h5>⚠️ Fehler</h5><p>Bitte weise beiden Teams Einheiten zu.</p>`;
       resEl.classList.remove('d-none');
       return;
     }
@@ -389,39 +399,85 @@
     resEl.className = "mt-4 p-3 border border-warning rounded text-light bg-dark";
     resEl.classList.remove('d-none');
 
-    let logHtml = `<h5>⚔️ Ausführlicher Kampfbericht</h5><hr>`;
-    logHtml += `<p class="text-primary"><strong>Dein Team:</strong> ${own.desc || 'Keine Einheiten'}<br><small>Gesamt-Atk: ${own.atk} | Gesamt-Def: ${own.def} | Gesamt-HP: ${own.hp}</small></p>`;
-    logHtml += `<p class="text-danger"><strong>Gegner Team:</strong> ${enemy.desc || 'Keine Einheiten'}<br><small>Gesamt-Atk: ${enemy.atk} | Gesamt-Def: ${enemy.def} | Gesamt-HP: ${enemy.hp}</small></p><hr>`;
+    let logHtml = `<h5>⚔️ Ausführlicher Kampfbericht (Inkl. Skills & Heilung)</h5><hr>`;
+    logHtml += `<p class="text-primary"><strong>Dein Team:</strong> ${own.desc}<br><small>Basis-Atk: ${own.baseAtk.toLocaleString()} | Def: ${own.baseDef.toLocaleString()} | Start-HP: ${own.maxHp.toLocaleString()}</small></p>`;
+    logHtml += `<p class="text-danger"><strong>Gegner Team:</strong> ${enemy.desc}<br><small>Basis-Atk: ${enemy.baseAtk.toLocaleString()} | Def: ${enemy.baseDef.toLocaleString()} | Start-HP: ${enemy.maxHp.toLocaleString()}</small></p><hr>`;
 
-    let ownHp = own.hp;
-    let enemyHp = enemy.hp;
     let round = 1;
-    const maxRounds = 10;
+    const maxRounds = 8;
 
-    while(ownHp > 0 && enemyHp > 0 && round <= maxRounds) {
-      let damageToEnemy = Math.max(100, own.atk - (enemy.def * 0.1));
-      let damageToOwn = Math.max(100, enemy.atk - (own.def * 0.1));
+    while(own.currentHp > 0 && enemy.currentHp > 0 && round <= maxRounds) {
+      logHtml += `<div class="log-round"><h6>Runde ${round}</h6>`;
 
-      enemyHp -= damageToEnemy;
-      ownHp -= damageToOwn;
+      // --- ZUG EIGENES TEAM ---
+      let ownRoundAtk = own.baseAtk * (0.95 + Math.random() * 0.1); // +/- 5% Streuung
+      let ownSkillLog = "";
+      
+      own.alphas.forEach(alpha => {
+        if(alpha.skills) {
+          alpha.skills.forEach(skill => {
+            if(skill.type === 'damage' && (Math.random() * 100) <= skill.chance) {
+              ownRoundAtk *= skill.multiplier;
+              ownSkillLog += `<br> <span class="text-skill">💥 Skill getriggert:</span> ${alpha.name} nutzt <em>${skill.name}</em> (Schaden x${skill.multiplier})`;
+            }
+          });
+        }
+      });
 
-      logHtml += `<div class="log-round">
-        <h6>Runde ${round}</h6>
-        <p class="mb-1 text-info">Dein Team verursacht <strong>${damageToEnemy.toLocaleString()}</strong> Schaden. Gegners verbleibende HP: ${Math.max(0, enemyHp).toLocaleString()}</p>
-        <p class="mb-0 text-warning">Gegner verursacht <strong>${damageToOwn.toLocaleString()}</strong> Schaden. Deine verbleibende HP: ${Math.max(0, ownHp).toLocaleString()}</p>
-      </div>`;
+      let finalDamageToEnemy = Math.max(1000, Math.floor(ownRoundAtk - (enemy.baseDef * 0.1)));
+      enemy.currentHp -= finalDamageToEnemy;
+      logHtml += `<p class="mb-1 text-info">⚔️ Dein Team schlägt zu: <strong>${finalDamageToEnemy.toLocaleString()}</strong> Schaden.${ownSkillLog}</p>`;
+
+      // --- HEILUNG TRIGGERN (z. B. Hyaenodon) ---
+      own.alphas.forEach(alpha => {
+        if(alpha.skills) {
+          alpha.skills.forEach(skill => {
+            if(skill.type === 'heal' && (Math.random() * 100) <= skill.chance) {
+              let healAmount = Math.floor((own.maxHp - own.currentHp) * skill.heal_percent);
+              if(healAmount > 0) {
+                own.currentHp += healAmount;
+                logHtml += `<p class="mb-1 text-heal">💚 Heilung getriggert: ${alpha.name} nutzt <em>${skill.name}</em> und heilt <strong>+${healAmount.toLocaleString()}</strong> HP!</p>`;
+              }
+            }
+          });
+        }
+      });
+
+      // --- ZUG GEGNER TEAM ---
+      if(enemy.currentHp > 0) {
+        let enemyRoundAtk = enemy.baseAtk * (0.95 + Math.random() * 0.1);
+        let enemySkillLog = "";
+
+        enemy.alphas.forEach(alpha => {
+          if(alpha.skills) {
+            alpha.skills.forEach(skill => {
+              if(skill.type === 'damage' && (Math.random() * 100) <= skill.chance) {
+                enemyRoundAtk *= skill.multiplier;
+                enemySkillLog += `<br> <span class="text-skill">💥 Gegner-Skill:</span> ${alpha.name} nutzt <em>${skill.name}</em> (Schaden x${skill.multiplier})`;
+              }
+            });
+          }
+        });
+
+        let finalDamageToOwn = Math.max(1000, Math.floor(enemyRoundAtk - (own.baseDef * 0.1)));
+        own.currentHp -= finalDamageToOwn;
+        logHtml += `<p class="mb-1 text-warning">💥 Gegner schlägt zu: <strong>${finalDamageToOwn.toLocaleString()}</strong> Schaden.${enemySkillLog}</p>`;
+      }
+
+      logHtml += `<p class="mt-2 mb-0 text-muted"><small>Status am Rundenende -> Deine HP: ${Math.max(0, own.currentHp).toLocaleString()} | Gegner HP: ${Math.max(0, enemy.currentHp).toLocaleString()}</small></p>`;
+      logHtml += `</div>`;
       round++;
     }
 
     logHtml += `<hr><h5>🏆 Endergebnis</h5>`;
-    if(ownHp <= 0 && enemyHp <= 0) {
-      logHtml += `<p class="text-warning fw-bold fs-5">Beide Armeen haben sich gegenseitig vernichtet! (Unentschieden)</p>`;
-    } else if(enemyHp <= 0) {
-      logHtml += `<p class="text-success fw-bold fs-5">Sieg! Dein Team hat den Kampf gewonnen.</p>`;
-    } else if(ownHp <= 0) {
-      logHtml += `<p class="text-danger fw-bold fs-5">Niederlage! Der Gegner hat deine Einheiten vernichtet.</p>`;
+    if(own.currentHp <= 0 && enemy.currentHp <= 0) {
+      logHtml += `<p class="text-warning fw-bold fs-5">Unentschieden! Beide Armeen fielen im selben Moment.</p>`;
+    } else if(enemy.currentHp <= 0) {
+      logHtml += `<p class="text-success fw-bold fs-5">Sieg! Dein Team hat triumphiert.</p>`;
+    } else if(own.currentHp <= 0) {
+      logHtml += `<p class="text-danger fw-bold fs-5">Niederlage! Deine Einheiten wurden vernichtet.</p>`;
     } else {
-      logHtml += `<p class="text-info fw-bold fs-5">Zeitlimit überschritten nach ${maxRounds} Runden. Unentschieden!</p>`;
+      logHtml += `<p class="text-info fw-bold fs-5">Kampf nach 8 Runden beendet (Zeitlimit überschritten).</p>`;
     }
 
     resEl.innerHTML = logHtml;
