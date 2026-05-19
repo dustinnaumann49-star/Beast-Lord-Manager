@@ -11,7 +11,7 @@
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
     #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
     .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; }
-    .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; }
+    .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; font-size: 0.85em; }
   </style>
 </head>
 <body>
@@ -24,11 +24,7 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" },
-      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70, type: "Allesfresser" },
-      { name: "Takin", atk: 4, def: 6, hp: 80, type: "Pflanzenfresser" }
-    ];
+    const beasts = [{ name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" }];
 
     function createSlots(containerId, prefix) {
       document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
@@ -39,39 +35,27 @@
         </div>`).join('');
     }
 
-    function getStats(prefix) {
-      let atk = 0, def = 0, hp = 0, alpha = document.getElementById(`${prefix}-a-1`).value;
-      for (let i = 1; i <= 3; i++) {
-        let b = beasts.find(obj => obj.name === document.getElementById(`${prefix}-b-${i}`).value);
-        let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-        atk += b.atk * count; def += b.def * count; hp += b.hp * count;
-      }
-      return { atk, def, hp, alpha };
-    }
-
     function runBattle() {
-      let A = getStats("teamA"), B = getStats("teamB");
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
       
       let stacksA = 0, distA = 0, stacksB = 0, distB = 0;
+      let atkA = 8000, atkB = 8000; // Vereinfacht für das Beispiel
 
       for (let r = 1; r <= 10; r++) {
-        // Logik Smilodon
-        let dmgA = A.atk, dmgB = B.atk;
-        if(A.alpha === "Smilodon") {
-          if(Math.random() < 0.8) dmgA *= (2.0 + (stacksA * 0.1));
-          if(Math.random() < 0.7) dmgA *= 1.4;
-          if(Math.random() < 0.5) distA++;
-          dmgA *= (1 + (distA * 0.08));
-          stacksA++;
-        }
-        
-        A.hp -= Math.max(0, dmgB - (A.def * 0.2));
-        B.hp -= Math.max(0, dmgA - (B.def * 0.2));
+        let logA = "", logB = "";
+        let dmgA = atkA, dmgB = atkB;
 
-        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()}</div><div class="dmg-row">${Math.floor(dmgB).toLocaleString()}</div>`;
-        if (A.hp <= 0 || B.hp <= 0) break;
+        // Logik Smilodon A
+        if(document.getElementById("teamA-a-1").value === "Smilodon") {
+          if(Math.random() < 0.8) { dmgA *= (2.0 + (stacksA * 0.1)); stacksA++; logA += "⚡ "; }
+          if(Math.random() < 0.7) { dmgA *= 1.4; logA += "🦷 "; }
+          if(Math.random() < 0.5) { distA++; logA += "🎯 "; }
+          dmgA *= (1 + (distA * 0.08));
+        }
+
+        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} ${logA}</div>
+                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} ${logB}</div>`;
       }
     }
     createSlots("teamA", "teamA");
