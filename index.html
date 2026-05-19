@@ -10,46 +10,32 @@
 </head>
 <body>
   <h1>Beast Lord Manager</h1>
-  <div id="app" class="box">
-    <p>Lade Bestien-Daten...</p>
+  <div class="box" id="app">
+    <p>Daten werden geladen...</p>
   </div>
 
   <script>
-    // GitHub Konfiguration (Dein Token/User bleibt im localStorage)
-    const config = { 
-        token: localStorage.getItem('gh_token'), 
-        user: localStorage.getItem('gh_user'), 
-        repo: 'Beast-Lord-Manager' 
-    };
+    // Feste Liste zum Testen, ob das Menü überhaupt erscheint
+    const testAlphas = [{name: "Hyaenodon (S3)"}, {name: "Alpha 2"}, {name: "Alpha 3"}];
 
-    async function fetchData(file) {
-        try {
-            const res = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/${file}`, {
-                headers: {'Authorization': 'token '+config.token}
-            });
-            const json = await res.json();
-            return JSON.parse(atob(json.content));
-        } catch(e) { return []; }
-    }
-
-    async function init() {
-        const beasts = await fetchData('beasts.json');
-        const alphas = await fetchData('alphas.json');
-        
-        document.getElementById('app').innerHTML = `
-            <select id="alphaSelect">
-                ${alphas.map(a => `<option>${a.name}</option>`).join('')}
-            </select>
-            <button onclick="simulate()">Kampf simulieren</button>
-            <div id="result"></div>
-        `;
+    function buildUI(data) {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <select id="alphaSelect">
+          ${data.map(a => `<option>${a.name}</option>`).join('')}
+        </select>
+        <button onclick="simulate()">Kampf simulieren</button>
+        <div id="result"></div>
+      `;
     }
 
     function simulate() {
-      document.getElementById('result').innerHTML = "<p>Kampfbericht: Heilung erfolgreich!</p>";
+      const alpha = document.getElementById('alphaSelect').value;
+      document.getElementById('result').innerHTML = `<p>Kampfbericht: ${alpha} hat gewonnen!</p>`;
     }
 
-    window.onload = init;
+    // Startet die UI sofort mit den Testdaten
+    window.onload = () => buildUI(testAlphas);
   </script>
 </body>
 </html>
