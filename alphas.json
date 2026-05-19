@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "name": "Hyaenodon (S3)",
+    "food_type": "Carnivore",
+    "level": 50,
+    "skills": [
+      {
+        "name": "Dominanz (Sterne-Bonus)",
+        "type": "stat",
+        "chance": 100
+      },
+      {
+        "name": "Reißende Bisse",
+        "type": "damage",
+        "chance": 35,
+        "multiplier": 2.5
+      },
+      {
+        "name": "Heulende Heilung",
+        "type": "heal",
+        "chance": 40,
+        "heal_percent": 0.15
+      }
+    ],
+    "stars": 8
+  }
+]
