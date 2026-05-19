@@ -9,7 +9,17 @@
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; font-size: 0.9em; }
+    
+    /* NEU: Übersichtliche Zweispaltigkeit */
+    #result-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 10px; 
+        margin-top: 15px; 
+        font-family: monospace;
+    }
+    .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; }
+    .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; }
   </style>
 </head>
 <body>
@@ -18,7 +28,7 @@
   <h3>🟥 Gegner Team</h3>
   <div class="box" id="teamB"></div>
   <button onclick="runBattle()">⚔️ Kampf starten</button>
-  <div id="result"></div>
+  <div id="result-grid"></div>
 
   <script>
     const alphas = ["Hyaenodon", "Keiner"];
@@ -39,57 +49,42 @@
 
     function getStats(prefix) {
       let atk = 0, def = 0, hp = 0;
-      let hasHyaenodon = false;
-      let hasFleischfresser = false;
-
+      let hasHyaenodon = false, hasFleischfresser = false;
       for (let i = 1; i <= 3; i++) {
         let alpha = document.getElementById(`${prefix}-a-${i}`).value;
-        let bName = document.getElementById(`${prefix}-b-${i}`).value;
+        let b = beasts.find(obj => obj.name === document.getElementById(`${prefix}-b-${i}`).value);
         let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-        let b = beasts.find(obj => obj.name === bName);
-
-        let rowAtk = b.atk * count;
-        let rowDef = b.def * count;
-        let rowHp = b.hp * count;
-
+        let rowAtk = b.atk * count, rowDef = b.def * count, rowHp = b.hp * count;
         if (alpha === "Hyaenodon") {
-          hasHyaenodon = true;
-          rowHp *= 1.2; 
+          hasHyaenodon = true; rowHp *= 1.2; 
           if (i === 1) { rowAtk *= 1.2; rowDef *= 1.2; }
         }
         if (b.type === "Fleischfresser") hasFleischfresser = true;
-        
         atk += rowAtk; def += rowDef; hp += rowHp;
       }
       return { atk, def, hp, hasHyaenodon, hasFleischfresser };
     }
 
     function runBattle() {
-      let A = getStats("teamA");
-      let B = getStats("teamB");
-      let log = "--- Kampf gestartet ---\n";
+      let A = getStats("teamA"), B = getStats("teamB");
+      let resDiv = document.getElementById('result-grid');
+      resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
 
       for (let r = 1; r <= 10; r++) {
-        // Jetzt berechnen wir für BEIDE Teams die Chancen auf Boni
         let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
         let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
 
         let dmgToB = Math.max(0, (A.atk * bonusA) - (B.def * 0.2));
         let dmgToA = Math.max(0, (B.atk * bonusB) - (A.def * 0.2));
 
-        A.hp -= dmgToA;
-        B.hp -= dmgToB;
+        A.hp -= dmgToA; B.hp -= dmgToB;
 
-        let logA = Math.floor(A.atk * bonusA).toLocaleString() + (bonusA > 1 ? ' (Nachahmung!)' : '');
-        let logB = Math.floor(B.atk * bonusB).toLocaleString() + (bonusB > 1 ? ' (Nachahmung!)' : '');
-
-        log += `Runde ${r}: Du: ${logA} | Gegner: ${logB}\n`;
-
+        resDiv.innerHTML += `
+            <div class="dmg-row">${Math.floor(A.atk * bonusA).toLocaleString()}${bonusA > 1 ? '⚡' : ''}</div>
+            <div class="dmg-row">${Math.floor(B.atk * bonusB).toLocaleString()}${bonusB > 1 ? '⚡' : ''}</div>
+        `;
         if (A.hp <= 0 || B.hp <= 0) break;
       }
-
-      let winner = (A.hp > B.hp) ? "Dein Team hat gewonnen!" : "Der Gegner hat gewonnen!";
-      document.getElementById('result').innerText = log + "\n--- " + winner + " ---";
     }
 
     createSlots("teamA", "teamA");
