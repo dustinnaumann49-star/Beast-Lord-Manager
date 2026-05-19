@@ -9,18 +9,15 @@
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; }
-    h3 { margin-bottom: 10px; }
+    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <h3>🟦 Dein Team</h3>
   <div class="box" id="teamA"></div>
-
   <h3>🟥 Gegner Team</h3>
   <div class="box" id="teamB"></div>
-
-  <button onclick="calculateBattle()">⚔️ Kampf berechnen</button>
+  <button onclick="runBattle()">⚔️ Kampf starten</button>
   <div id="result"></div>
 
   <script>
@@ -32,39 +29,43 @@
     ];
 
     function createSlots(containerId, prefix) {
-      const container = document.getElementById(containerId);
-      let html = "";
-      for(let i=1; i<=3; i++) {
-        html += `
-          <div class="slot-row">
-            <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-            <select id="${prefix}-b-${i}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
-            <input type="number" id="${prefix}-c-${i}" value="1000">
-          </div>`;
-      }
-      container.innerHTML = html;
+      document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
+        <div class="slot-row">
+          <select id="${prefix}-a-${i+1}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i+1}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
+          <input type="number" id="${prefix}-c-${i+1}" value="1000">
+        </div>`).join('');
     }
 
-    function calculateBattle() {
-      function getStats(prefix) {
+    function runBattle() {
+      function getTeamStats(prefix) {
         let atk = 0, def = 0, hp = 0;
         for(let i=1; i<=3; i++) {
-          let bName = document.getElementById(`${prefix}-b-${i}`).value;
+          let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
           let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-          let b = beasts.find(obj => obj.name === bName);
           atk += b.atk * count; def += b.def * count; hp += b.hp * count;
         }
         return {atk, def, hp};
       }
 
-      let sA = getStats("teamA"), sB = getStats("teamB");
+      let teamA = getTeamStats("teamA"), teamB = getTeamStats("teamB");
+      let log = "--- Kampf beginnt ---\n";
+      let round = 1;
+
+      while(teamA.hp > 0 && teamB.hp > 0 && round <= 10) {
+        let dmgA = Math.max(0, teamA.atk - (teamB.def * 0.5));
+        let dmgB = Math.max(0, teamB.atk - (teamA.def * 0.5));
+        
+        teamB.hp -= dmgA;
+        teamA.hp -= dmgB;
+
+        log += `Runde ${round}: A verursacht ${Math.floor(dmgA).toLocaleString()} Schaden. B verursacht ${Math.floor(dmgB).toLocaleString()} Schaden.\n`;
+        round++;
+      }
       
-      document.getElementById('result').innerHTML = `
-        <strong>Ergebnis:</strong><br>
-        Dein Team: ${sA.atk.toLocaleString()} ATK | ${sA.def.toLocaleString()} DEF<br>
-        Gegner: ${sB.atk.toLocaleString()} ATK | ${sB.def.toLocaleString()} DEF<br><br>
-        <em>Tipp: Wer mehr Angriffskraft hat, gewinnt meistens!</em>
-      `;
+      log += `\n--- Ergebnis ---\n`;
+      log += (teamA.hp > teamB.hp) ? "✅ Dein Team gewinnt!" : "❌ Gegner gewinnt!";
+      document.getElementById('result').innerText = log;
     }
 
     createSlots("teamA", "teamA");
