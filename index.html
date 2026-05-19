@@ -1,94 +1,61 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Beast Lord Hyaenodon Sim</title>
-  <style>
-    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
-    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
-    .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
-    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; }
-    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; background: #252525; white-space: pre-wrap; font-size: 0.85em; }
-  </style>
-</head>
-<body>
-  <h3>🟦 Dein Team</h3>
-  <div class="box" id="teamA"></div>
-  <h3>🟥 Gegner Team</h3>
-  <div class="box" id="teamB"></div>
-  <button onclick="runBattle()">⚔️ Kampf starten (mit Hyaenodon-Logik)</button>
-  <div id="result"></div>
-
-  <script>
-    const alphas = ["Hyaenodon", "Keiner"];
-    const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" },
-      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70, type: "Allesfresser" },
-      { name: "Takin", atk: 4, def: 6, hp: 80, type: "Pflanzenfresser" }
-    ];
-
-    function createSlots(containerId, prefix) {
-      document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
-        <div class="slot-row">
-          <select id="${prefix}-a-${i+1}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-          <select id="${prefix}-b-${i+1}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
-          <input type="number" id="${prefix}-c-${i+1}" value="1000">
-        </div>`).join('');
-    }
-
-    function runBattle() {
-      function getTeam(prefix) {
-        let team = [];
-        for(let i=1; i<=3; i++) {
-          let alpha = document.getElementById(`${prefix}-a-${i}`).value;
-          let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
-          let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-          
-          let atk = b.atk * count;
-          let def = b.def * count;
-          let hp = b.hp * count;
-
-          // Hyaenodon Fähigkeiten
-          if(alpha === "Hyaenodon") {
-            hp *= 1.2; // Starke Heilung: +20% LP
-            if(i === 1) { atk *= 1.2; def *= 1.2; } // Pre-Krieg: Fronttrupp Bonus
-          }
-          team.push({atk, def, hp, alpha, isFleischfresser: b.type === "Fleischfresser"});
-        }
-        return team;
-      }
-
-      let teamA = getTeam("teamA"), teamB = getTeam("teamB");
-      let log = "--- Kampf gestartet ---\n";
-
-      for(let r=1; r<=10; r++) {
-        let atkA = teamA.reduce((s,t) => s + t.atk, 0);
-        let atkB = teamB.reduce((s,t) => s + t.atk, 0);
-        
-        // Meister der Nachahmung (Hyaenodon): 70% Chance auf +15% Schaden
-        if(teamA.some(t => t.alpha === "Hyaenodon" && t.isFleischfresser)) {
-          if(Math.random() < 0.7) atkA *= 1.15;
-        }
-
-        let defTotalA = teamA.reduce((s,t) => s + t.def, 0);
-        let defTotalB = teamB.reduce((s,t) => s + t.def, 0);
-
-        let dmgA = Math.max(0, atkA - (defTotalB / 10));
-        let dmgB = Math.max(0, atkB - (defTotalA / 10));
-
-        teamB.forEach(t => t.hp -= (dmgA / 3));
-        teamA.forEach(t => t.hp -= (dmgB / 3));
-
-        log += `Runde ${r}: Team A macht ${Math.floor(dmgA).toLocaleString()} Schaden.\n`;
-        if(teamA.reduce((s,t) => s+t.hp, 0) <= 0 || teamB.reduce((s,t) => s+t.hp, 0) <= 0) break;
-      }
+function runBattle() {
+  function getTeam(prefix) {
+    let team = [];
+    for(let i=1; i<=3; i++) {
+      let alpha = document.getElementById(`${prefix}-a-${i}`).value;
+      let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
+      let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
       
-      document.getElementById('result').innerText = log + "\n--- Kampf beendet ---";
+      // Basiswerte
+      let stats = { 
+        atk: b.atk * count, 
+        def: b.def * count, 
+        hp: b.hp * count, 
+        alpha: alpha, 
+        type: b.type,
+        row: i 
+      };
+
+      // Alpha-Boni anwenden (Passiv)
+      if(alpha === "Hyaenodon") {
+        stats.hp *= 1.2; // Starke Heilung LP-Bonus
+        if(i === 1) { stats.atk *= 1.2; stats.def *= 1.2; } // Pre-Krieg Fronttrupp
+      }
+      team.push(stats);
+    }
+    return team;
+  }
+
+  let teamA = getTeam("teamA"), teamB = getTeam("teamB");
+  let log = "--- Kampf gestartet ---\n";
+
+  for(let r=1; r<=10; r++) {
+    // 1. Schaden berechnen (mit Alpha-Logik)
+    let atkA = teamA.reduce((s,t) => s + t.atk, 0);
+    let atkB = teamB.reduce((s,t) => s + t.atk, 0);
+    
+    // Fähigkeits-Checks (z.B. Meister der Nachahmung)
+    let bonusA = 1.0;
+    if(teamA.some(t => t.alpha === "Hyaenodon" && t.type === "Fleischfresser") && Math.random() < 0.7) {
+      bonusA = 1.15;
+      log += `Runde ${r}: [Hyaenodon] Meister der Nachahmung aktiviert (+15% DMG)!\n`;
     }
 
-    createSlots("teamA", "teamA");
-    createSlots("teamB", "teamB");
-  </script>
-</body>
-</html>
+    // 2. Verteidigung der Gegner einbeziehen
+    let defB = teamB.reduce((s,t) => s + t.def, 0);
+    let defA = teamA.reduce((s,t) => s + t.def, 0);
+
+    let dmgToB = Math.max(0, (atkA * bonusA) - (defB / 5));
+    let dmgToA = Math.max(0, atkB - (defA / 5));
+
+    // 3. HP abziehen
+    teamB.forEach(t => t.hp -= (dmgToB / 3));
+    teamA.forEach(t => t.hp -= (dmgToA / 3));
+
+    log += `Runde ${r}: Du machst ${Math.floor(dmgToB).toLocaleString()} DMG | Gegner macht ${Math.floor(dmgToA).toLocaleString()} DMG.\n`;
+
+    if(teamA.reduce((s,t) => s+t.hp, 0) <= 0 || teamB.reduce((s,t) => s+t.hp, 0) <= 0) break;
+  }
+  
+  document.getElementById('result').innerText = log + "\n--- Kampf beendet ---";
+}
