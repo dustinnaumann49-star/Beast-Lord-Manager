@@ -4,19 +4,23 @@
   <meta charset="UTF-8">
   <title>Beast Lord Kampf-Sim</title>
   <style>
-    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
-    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
+    body { 
+        margin: 0; padding: 15px; font-family: sans-serif; color: #fff;
+        /* Hier ist das Bild nun eingebaut */
+        background-image: url('https://lh3.googleusercontent.com/d/1J2u5S9G5wO42_fO4e45u09bE30J1_t-N'); 
+        background-size: cover; background-position: center; background-attachment: fixed;
+    }
+    body::before {
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.75); z-index: -1;
+    }
+    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: rgba(30, 30, 30, 0.85); }
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    
-    /* NEU: Übersichtliche Zweispaltigkeit */
     #result-grid { 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; 
-        gap: 10px; 
-        margin-top: 15px; 
-        font-family: monospace;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; 
+        font-family: monospace; background: rgba(0, 0, 0, 0.6); padding: 10px; border-radius: 8px;
     }
     .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; }
     .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; }
@@ -48,8 +52,7 @@
     }
 
     function getStats(prefix) {
-      let atk = 0, def = 0, hp = 0;
-      let hasHyaenodon = false, hasFleischfresser = false;
+      let atk = 0, def = 0, hp = 0, hasHyaenodon = false, hasFleischfresser = false;
       for (let i = 1; i <= 3; i++) {
         let alpha = document.getElementById(`${prefix}-a-${i}`).value;
         let b = beasts.find(obj => obj.name === document.getElementById(`${prefix}-b-${i}`).value);
@@ -69,24 +72,18 @@
       let A = getStats("teamA"), B = getStats("teamB");
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
-
       for (let r = 1; r <= 10; r++) {
         let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
         let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
-
         let dmgToB = Math.max(0, (A.atk * bonusA) - (B.def * 0.2));
         let dmgToA = Math.max(0, (B.atk * bonusB) - (A.def * 0.2));
-
         A.hp -= dmgToA; B.hp -= dmgToB;
-
         resDiv.innerHTML += `
             <div class="dmg-row">${Math.floor(A.atk * bonusA).toLocaleString()}${bonusA > 1 ? '⚡' : ''}</div>
-            <div class="dmg-row">${Math.floor(B.atk * bonusB).toLocaleString()}${bonusB > 1 ? '⚡' : ''}</div>
-        `;
+            <div class="dmg-row">${Math.floor(B.atk * bonusB).toLocaleString()}${bonusB > 1 ? '⚡' : ''}</div>`;
         if (A.hp <= 0 || B.hp <= 0) break;
       }
     }
-
     createSlots("teamA", "teamA");
     createSlots("teamB", "teamB");
   </script>
