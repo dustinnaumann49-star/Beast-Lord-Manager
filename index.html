@@ -6,7 +6,8 @@
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
     .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
-    button { background-color: #ffc107; border: none; padding: 10px; cursor: pointer; font-weight: bold; }
+    button { background-color: #ffc107; border: none; padding: 10px; cursor: pointer; font-weight: bold; color: black; }
+    #result { margin-top: 15px; padding: 10px; border-top: 1px solid #333; color: #ffc107; }
   </style>
 </head>
 <body>
@@ -16,7 +17,8 @@
       <option value="Hyaenodon">Hyaenodon (S3)</option>
     </select>
     <button onclick="simulate()">Kampf simulieren</button>
-    <div id="result" style="margin-top:15px; border-top:1px solid #333; padding-top:10px;"></div>
+    
+    <div id="result"></div>
   </div>
 
   <script>
@@ -24,16 +26,13 @@
       const alpha = document.getElementById('alphaSelect').value;
       const res = document.getElementById('result');
       
-      // Kampf-Logik ohne externe Daten
-      res.innerHTML = "<strong>Kampfbericht:</strong><br>";
+      res.innerHTML = "<strong>Kampfbericht:</strong><br>Hyaenodon greift an...<br>";
       
-      if (alpha === "Hyaenodon") {
-        let chance = Math.random();
-        if (chance > 0.5) {
-          res.innerHTML += "💥 Hyaenodon nutzt: <b>Reißende Bisse</b> (35%)!";
-        } else {
-          res.innerHTML += "💚 Hyaenodon nutzt: <b>Heulende Heilung</b> (40%)!";
-        }
+      let chance = Math.random();
+      if (chance > 0.5) {
+        res.innerHTML += "💥 Hyaenodon nutzt: <b>Reißende Bisse</b>!";
+      } else {
+        res.innerHTML += "💚 Hyaenodon nutzt: <b>Heulende Heilung</b>!";
       }
     }
   </script>
