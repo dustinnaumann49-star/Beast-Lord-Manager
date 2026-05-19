@@ -6,11 +6,11 @@
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
-    .slot-row { display: flex; gap: 5px; margin-bottom: 10px; align-items: center; }
-    select { background: #333; color: #fff; border: 1px solid #555; padding: 6px; flex: 1; }
+    .slot-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 10px; }
+    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; }
     button { background-color: #ffc107; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; }
     #result { margin-top: 15px; padding: 10px; border-top: 1px solid #333; color: #ffc107; }
-    .label { font-size: 0.75em; color: #888; }
+    .label { font-size: 0.7em; color: #888; margin-bottom: 2px; }
   </style>
 </head>
 <body>
@@ -20,7 +20,7 @@
   <div id="result"></div>
 
   <script>
-    const alphas = ["Hyaenodon"]; // Hier weitere Alphas ergänzen
+    const alphas = ["Hyaenodon"];
     const beasts = [
       { name: "Nordwestlicher Wolf", atk: 105, def: 49, hp: 13 },
       { name: "Sumatra-Orang-Utan", atk: 87, def: 49, hp: 18 },
@@ -36,6 +36,7 @@
           <div class="slot-row">
             <select id="alpha-${i}">${alphas.map(a => `<option value="${a}">${a}</option>`).join('')}</select>
             <select id="beast-${i}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
+            <input type="number" id="count-${i}" placeholder="Anzahl" value="1000">
           </div>`;
       }
       container.innerHTML = html;
@@ -46,19 +47,27 @@
       let log = "<strong>Kampf-Analyse:</strong><br>";
       
       for(let i=1; i<=3; i++) {
-        let alphaName = document.getElementById(`alpha-${i}`).value;
-        let beastName = document.getElementById(`beast-${i}`).value;
-        let b = beasts.find(obj => obj.name === beastName);
+        let alpha = document.getElementById(`alpha-${i}`).value;
+        let bName = document.getElementById(`beast-${i}`).value;
+        let count = parseInt(document.getElementById(`count-${i}`).value) || 0;
+        let b = beasts.find(obj => obj.name === bName);
         
-        totalAtk += b.atk;
-        totalDef += b.def;
-        totalHP += b.hp;
-        log += `Reihe ${i}: ${alphaName} führt ${beastName} an.<br>`;
+        let rowAtk = b.atk * count;
+        let rowDef = b.def * count;
+        let rowHP = b.hp * count;
+        
+        totalAtk += rowAtk;
+        totalDef += rowDef;
+        totalHP += rowHP;
+        
+        log += `${count}x ${bName} (angeführt von ${alpha})<br>`;
       }
       
       document.getElementById('result').innerHTML = log + `
-        <br><strong>Gesamtwerte:</strong><br>
-        Angriff: ${totalAtk} | Verteidigung: ${totalDef} | HP: ${totalHP}
+        <br><strong>Gesamt-Stärke:</strong><br>
+        Angriff: ${totalAtk.toLocaleString()}<br>
+        Verteidigung: ${totalDef.toLocaleString()}<br>
+        HP: ${totalHP.toLocaleString()}
       `;
     }
     initUI();
