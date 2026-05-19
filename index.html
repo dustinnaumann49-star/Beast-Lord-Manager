@@ -2,14 +2,14 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim</title>
+  <title>Beast Lord Hyaenodon Sim</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
-    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; font-size: 0.9em; }
+    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; }
+    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; }
+    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; background: #252525; white-space: pre-wrap; font-size: 0.85em; }
   </style>
 </head>
 <body>
@@ -17,16 +17,15 @@
   <div class="box" id="teamA"></div>
   <h3>🟥 Gegner Team</h3>
   <div class="box" id="teamB"></div>
-  <button onclick="runBattle()">⚔️ Kampf starten</button>
+  <button onclick="runBattle()">⚔️ Kampf starten (mit Hyaenodon-Logik)</button>
   <div id="result"></div>
 
   <script>
-    const alphas = ["Hyaenodon"];
-    // Angepasste Werte für realistische Simulation
+    const alphas = ["Hyaenodon", "Keiner"];
     const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
-      { name: "Takin", atk: 4, def: 6, hp: 80 },
-      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 }
+      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" },
+      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70, type: "Allesfresser" },
+      { name: "Takin", atk: 4, def: 6, hp: 80, type: "Pflanzenfresser" }
     ];
 
     function createSlots(containerId, prefix) {
@@ -39,35 +38,53 @@
     }
 
     function runBattle() {
-      function getTeamStats(prefix) {
-        let atk = 0, def = 0, hp = 0;
+      function getTeam(prefix) {
+        let team = [];
         for(let i=1; i<=3; i++) {
+          let alpha = document.getElementById(`${prefix}-a-${i}`).value;
           let b = beasts.find(o => o.name === document.getElementById(`${prefix}-b-${i}`).value);
           let count = parseInt(document.getElementById(`${prefix}-c-${i}`).value) || 0;
-          atk += b.atk * count; def += b.def * count; hp += b.hp * count;
+          
+          let atk = b.atk * count;
+          let def = b.def * count;
+          let hp = b.hp * count;
+
+          // Hyaenodon Fähigkeiten
+          if(alpha === "Hyaenodon") {
+            hp *= 1.2; // Starke Heilung: +20% LP
+            if(i === 1) { atk *= 1.2; def *= 1.2; } // Pre-Krieg: Fronttrupp Bonus
+          }
+          team.push({atk, def, hp, alpha, isFleischfresser: b.type === "Fleischfresser"});
         }
-        return {atk, def, hp};
+        return team;
       }
 
-      let teamA = getTeamStats("teamA"), teamB = getTeamStats("teamB");
+      let teamA = getTeam("teamA"), teamB = getTeam("teamB");
       let log = "--- Kampf gestartet ---\n";
-      let round = 1;
 
-      // Berechnung mit Verteidigungsfaktor: Schaden = (Angriff - Verteidigung/2)
-      while(teamA.hp > 0 && teamB.hp > 0 && round <= 20) {
-        let dmgA = Math.max(0, teamA.atk - (teamB.def / 5));
-        let dmgB = Math.max(0, teamB.atk - (teamA.def / 5));
+      for(let r=1; r<=10; r++) {
+        let atkA = teamA.reduce((s,t) => s + t.atk, 0);
+        let atkB = teamB.reduce((s,t) => s + t.atk, 0);
         
-        teamB.hp -= dmgA;
-        teamA.hp -= dmgB;
+        // Meister der Nachahmung (Hyaenodon): 70% Chance auf +15% Schaden
+        if(teamA.some(t => t.alpha === "Hyaenodon" && t.isFleischfresser)) {
+          if(Math.random() < 0.7) atkA *= 1.15;
+        }
 
-        log += `Runde ${round}: A trifft für ${Math.floor(dmgA).toLocaleString()} Schaden. B trifft für ${Math.floor(dmgB).toLocaleString()} Schaden.\n`;
-        round++;
+        let defTotalA = teamA.reduce((s,t) => s + t.def, 0);
+        let defTotalB = teamB.reduce((s,t) => s + t.def, 0);
+
+        let dmgA = Math.max(0, atkA - (defTotalB / 10));
+        let dmgB = Math.max(0, atkB - (defTotalA / 10));
+
+        teamB.forEach(t => t.hp -= (dmgA / 3));
+        teamA.forEach(t => t.hp -= (dmgB / 3));
+
+        log += `Runde ${r}: Team A macht ${Math.floor(dmgA).toLocaleString()} Schaden.\n`;
+        if(teamA.reduce((s,t) => s+t.hp, 0) <= 0 || teamB.reduce((s,t) => s+t.hp, 0) <= 0) break;
       }
       
-      log += `\n--- Ergebnis ---\n`;
-      log += (teamA.hp > teamB.hp) ? "✅ Dein Team gewinnt!" : "❌ Gegner gewinnt!";
-      document.getElementById('result').innerText = log;
+      document.getElementById('result').innerText = log + "\n--- Kampf beendet ---";
     }
 
     createSlots("teamA", "teamA");
