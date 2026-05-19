@@ -70,7 +70,7 @@
       let log = "--- Kampf gestartet ---\n";
 
       for (let r = 1; r <= 10; r++) {
-        // Meister der Nachahmung (Hyaenodon-Logik)
+        // Jetzt berechnen wir für BEIDE Teams die Chancen auf Boni
         let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
         let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
 
@@ -80,7 +80,10 @@
         A.hp -= dmgToA;
         B.hp -= dmgToB;
 
-        log += `Runde ${r}: Dein DMG: ${Math.floor(dmgToB * bonusA).toLocaleString()} ${bonusA > 1 ? '(+Nachahmung!)' : ''} | Gegner: ${Math.floor(dmgToA * bonusB).toLocaleString()}\n`;
+        let logA = Math.floor(A.atk * bonusA).toLocaleString() + (bonusA > 1 ? ' (Nachahmung!)' : '');
+        let logB = Math.floor(B.atk * bonusB).toLocaleString() + (bonusB > 1 ? ' (Nachahmung!)' : '');
+
+        log += `Runde ${r}: Du: ${logA} | Gegner: ${logB}\n`;
 
         if (A.hp <= 0 || B.hp <= 0) break;
       }
