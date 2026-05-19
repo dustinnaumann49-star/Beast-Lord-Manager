@@ -5,13 +5,38 @@
   <title>Beast Lord Manager</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
+    .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
   </style>
 </head>
 <body>
   <h1>Beast Lord Manager</h1>
-  <p id="status">Lade Status...</p>
+  <div class="box" id="app">
+    <p>Status: Lade Daten...</p>
+  </div>
+
   <script>
-    document.getElementById('status').innerText = "App ist geladen und bereit.";
+    async function init() {
+      const app = document.getElementById('app');
+      try {
+        // Wir simulieren hier den Zugriff auf die Daten
+        app.innerHTML = `
+          <p>System bereit.</p>
+          <select id="alphaSelect">
+            <option>Hyaenodon (S3)</option>
+          </select>
+          <button onclick="simulate()">Kampf simulieren</button>
+          <div id="result"></div>
+        `;
+      } catch (e) {
+        app.innerHTML = "Fehler beim Laden der App.";
+      }
+    }
+
+    function simulate() {
+      document.getElementById('result').innerHTML = "<p>Kampf gestartet: Hyaenodon aktiviert Heilung!</p>";
+    }
+
+    window.onload = init;
   </script>
 </body>
 </html>
