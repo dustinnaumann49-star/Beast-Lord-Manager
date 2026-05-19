@@ -2,41 +2,45 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Manager</title>
+  <title>Beast Lord Kampf-Sim</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
     .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
+    .log { margin-top: 10px; font-size: 0.9em; color: #ffc107; }
   </style>
 </head>
 <body>
   <h1>Beast Lord Manager</h1>
-  <div class="box" id="app">
-    <p>Status: Lade Daten...</p>
+  <div class="box">
+    <select id="alphaSelect">
+      <option value="Hyaenodon">Hyaenodon (S3)</option>
+    </select>
+    <button onclick="simulate()">Kampf simulieren</button>
+    <div id="result" class="log"></div>
   </div>
 
   <script>
-    async function init() {
-      const app = document.getElementById('app');
-      try {
-        // Wir simulieren hier den Zugriff auf die Daten
-        app.innerHTML = `
-          <p>System bereit.</p>
-          <select id="alphaSelect">
-            <option>Hyaenodon (S3)</option>
-          </select>
-          <button onclick="simulate()">Kampf simulieren</button>
-          <div id="result"></div>
-        `;
-      } catch (e) {
-        app.innerHTML = "Fehler beim Laden der App.";
-      }
-    }
-
     function simulate() {
-      document.getElementById('result').innerHTML = "<p>Kampf gestartet: Hyaenodon aktiviert Heilung!</p>";
+      const alpha = document.getElementById('alphaSelect').value;
+      const resultDiv = document.getElementById('result');
+      
+      // Kampf-Logik
+      let log = `<strong>Kampfbericht:</strong><br>`;
+      
+      if (alpha === "Hyaenodon") {
+        log += "Hyaenodon greift an...<br>";
+        // Zufällige Chance für den Skill
+        let skillChance = Math.random(); 
+        if (skillChance > 0.6) {
+          log += "💥 <span style='color:#00f0ff'>Skill aktiviert: Reißende Bisse!</span> Schaden massiv erhöht.<br>";
+        } else {
+          log += "💚 <span style='color:#00ff66'>Skill aktiviert: Heulende Heilung!</span> Truppen regeneriert.<br>";
+        }
+      }
+      
+      log += "Kampf beendet. Sieg!";
+      resultDiv.innerHTML = log;
     }
-
-    window.onload = init;
   </script>
 </body>
 </html>
