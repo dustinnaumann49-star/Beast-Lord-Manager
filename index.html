@@ -6,8 +6,8 @@
   <style>
     body { 
         margin: 0; padding: 15px; font-family: sans-serif; color: #fff;
-        /* Hier ist das Bild nun eingebaut */
-        background-image: url('https://lh3.googleusercontent.com/d/1J2u5S9G5wO42_fO4e45u09bE30J1_t-N'); 
+        /* Dein Bild als Hintergrund */
+        background-image: url('https://i.ibb.co/xtW45zFr/1000035520.jpg'); 
         background-size: cover; background-position: center; background-attachment: fixed;
     }
     body::before {
@@ -73,19 +73,4 @@
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
       for (let r = 1; r <= 10; r++) {
-        let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
-        let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
-        let dmgToB = Math.max(0, (A.atk * bonusA) - (B.def * 0.2));
-        let dmgToA = Math.max(0, (B.atk * bonusB) - (A.def * 0.2));
-        A.hp -= dmgToA; B.hp -= dmgToB;
-        resDiv.innerHTML += `
-            <div class="dmg-row">${Math.floor(A.atk * bonusA).toLocaleString()}${bonusA > 1 ? '⚡' : ''}</div>
-            <div class="dmg-row">${Math.floor(B.atk * bonusB).toLocaleString()}${bonusB > 1 ? '⚡' : ''}</div>`;
-        if (A.hp <= 0 || B.hp <= 0) break;
-      }
-    }
-    createSlots("teamA", "teamA");
-    createSlots("teamB", "teamB");
-  </script>
-</body>
-</html>
+        let bonusA
