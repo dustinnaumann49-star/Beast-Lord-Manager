@@ -2,54 +2,63 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Manager</title>
+  <title>Beast Lord Kampf-Sim</title>
   <style>
     body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 15px; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: #1e1e1e; }
-    .slot-row { display: flex; gap: 5px; margin-bottom: 5px; }
-    select { background: #333; color: #fff; border: 1px solid #555; padding: 5px; flex: 1; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; }
-    .label { font-size: 0.8em; color: #aaa; margin-bottom: 2px; }
+    .slot-row { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
+    select { background: #333; color: #fff; border: 1px solid #555; padding: 6px; flex: 1; }
+    button { background-color: #ffc107; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; }
+    #result { margin-top: 15px; padding: 10px; border-top: 1px solid #333; color: #ffc107; line-height: 1.4; }
   </style>
 </head>
 <body>
   <h3>🟦 Dein Team</h3>
-  <div class="box" id="ownTeam"></div>
-  <button onclick="runBattle()">⚔️ Kampf starten</button>
-  <div id="result" style="margin-top:15px; color:#ffc107;"></div>
+  <div class="box" id="teamContainer"></div>
+  <button onclick="calculateBattle()">⚔️ Kampf berechnen</button>
+  <div id="result"></div>
 
   <script>
-    const alphas = ["Hyaenodon"];
+    // Die Datenbank: Hier fügen wir nach und nach alle Bestien mit ihren Werten ein
     const beasts = [
-      { name: "Nordwestlicher Wolf", type: "Fleischfresser" },
-      { name: "Sumatra-Orang-Utan", type: "Allesfresser" },
-      { name: "Takin", type: "Pflanzenfresser" }
+      { name: "Nordwestlicher Wolf", type: "Fleischfresser", atk: 105, def: 49, hp: 13 }
+      // Weitere Bestien folgen hier...
     ];
 
-    function createUI() {
+    function initUI() {
+      const container = document.getElementById('teamContainer');
       let html = "";
       for(let i=1; i<=3; i++) {
         html += `
-          <div class="label">Slot ${i}</div>
           <div class="slot-row">
-            <select id="alpha-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-            <select id="beast-${i}">${beasts.map(b => `<option value="${b.name}">${b.name} (${b.type})</option>`).join('')}</select>
+            <span>Slot ${i}:</span>
+            <select id="beast-${i}">
+              ${beasts.map(b => `<option value="${i}">${b.name}</option>`).join('')}
+            </select>
           </div>`;
       }
-      document.getElementById('ownTeam').innerHTML = html;
+      container.innerHTML = html;
     }
 
-    function runBattle() {
-      let log = "<strong>Kampfbericht:</strong><br>";
+    function calculateBattle() {
+      let totalAtk = 0, totalDef = 0, totalHP = 0;
+      
       for(let i=1; i<=3; i++) {
-        let a = document.getElementById(`alpha-${i}`).value;
-        let b = document.getElementById(`beast-${i}`).value;
-        log += `Slot ${i}: ${a} führt ${b} in den Kampf.<br>`;
+        let b = beasts[0]; // Aktuell ist nur der Wolf in der Liste
+        totalAtk += b.atk;
+        totalDef += b.def;
+        totalHP += b.hp;
       }
-      document.getElementById('result').innerHTML = log;
+      
+      document.getElementById('result').innerHTML = `
+        <strong>Kampf-Analyse (Team-Werte):</strong><br>
+        Gesamt-Angriff: ${totalAtk}<br>
+        Gesamt-Verteidigung: ${totalDef}<br>
+        Gesamt-HP: ${totalHP}
+      `;
     }
 
-    createUI();
+    initUI();
   </script>
 </body>
 </html>
