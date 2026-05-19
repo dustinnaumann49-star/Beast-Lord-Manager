@@ -9,7 +9,7 @@
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; }
+    #result { margin-top: 15px; padding: 15px; border: 1px solid #555; border-radius: 8px; background: #252525; white-space: pre-wrap; font-size: 0.9em; }
   </style>
 </head>
 <body>
@@ -22,10 +22,11 @@
 
   <script>
     const alphas = ["Hyaenodon"];
+    // Angepasste Werte für realistische Simulation
     const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 105, def: 49, hp: 13 },
-      { name: "Sumatra-Orang-Utan", atk: 87, def: 49, hp: 18 },
-      { name: "Takin", atk: 70, def: 73, hp: 20 }
+      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
+      { name: "Takin", atk: 4, def: 6, hp: 80 },
+      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 }
     ];
 
     function createSlots(containerId, prefix) {
@@ -49,17 +50,18 @@
       }
 
       let teamA = getTeamStats("teamA"), teamB = getTeamStats("teamB");
-      let log = "--- Kampf beginnt ---\n";
+      let log = "--- Kampf gestartet ---\n";
       let round = 1;
 
-      while(teamA.hp > 0 && teamB.hp > 0 && round <= 10) {
-        let dmgA = Math.max(0, teamA.atk - (teamB.def * 0.5));
-        let dmgB = Math.max(0, teamB.atk - (teamA.def * 0.5));
+      // Berechnung mit Verteidigungsfaktor: Schaden = (Angriff - Verteidigung/2)
+      while(teamA.hp > 0 && teamB.hp > 0 && round <= 20) {
+        let dmgA = Math.max(0, teamA.atk - (teamB.def / 5));
+        let dmgB = Math.max(0, teamB.atk - (teamA.def / 5));
         
         teamB.hp -= dmgA;
         teamA.hp -= dmgB;
 
-        log += `Runde ${round}: A verursacht ${Math.floor(dmgA).toLocaleString()} Schaden. B verursacht ${Math.floor(dmgB).toLocaleString()} Schaden.\n`;
+        log += `Runde ${round}: A trifft für ${Math.floor(dmgA).toLocaleString()} Schaden. B trifft für ${Math.floor(dmgB).toLocaleString()} Schaden.\n`;
         round++;
       }
       
