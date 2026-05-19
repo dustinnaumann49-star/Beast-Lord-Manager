@@ -1,7 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Beast Lord Manager</title>
+  <style>
+    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
+    .box { border: 1px solid #444; padding: 15px; margin-top: 10px; border-radius: 8px; background: #1e1e1e; }
+    button { background-color: #ffc107; border: none; padding: 10px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
 <body>
-    <h1>TEST BESTANDEN</h1>
-    <p>Die Seite wird korrekt vom Server geladen!</p>
+  <h1>Beast Lord Manager</h1>
+  <div class="box">
+    <select id="alphaSelect">
+      <option value="Hyaenodon">Hyaenodon (S3)</option>
+    </select>
+    <button onclick="simulate()">Kampf simulieren</button>
+    <div id="result" style="margin-top:15px; border-top:1px solid #333; padding-top:10px;"></div>
+  </div>
+
+  <script>
+    function simulate() {
+      const alpha = document.getElementById('alphaSelect').value;
+      const res = document.getElementById('result');
+      
+      // Kampf-Logik ohne externe Daten
+      res.innerHTML = "<strong>Kampfbericht:</strong><br>";
+      
+      if (alpha === "Hyaenodon") {
+        let chance = Math.random();
+        if (chance > 0.5) {
+          res.innerHTML += "💥 Hyaenodon nutzt: <b>Reißende Bisse</b> (35%)!";
+        } else {
+          res.innerHTML += "💚 Hyaenodon nutzt: <b>Heulende Heilung</b> (40%)!";
+        }
+      }
+    }
+  </script>
 </body>
 </html>
