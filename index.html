@@ -23,9 +23,9 @@
   <script>
     const alphas = ["Hyaenodon", "Keiner"];
     const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
-      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 },
-      { name: "Takin", atk: 4, def: 6, hp: 80 }
+      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60, type: "Fleischfresser" },
+      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70, type: "Allesfresser" },
+      { name: "Takin", atk: 4, def: 6, hp: 80, type: "Pflanzenfresser" }
     ];
 
     function createSlots(containerId, prefix) {
@@ -39,6 +39,9 @@
 
     function getStats(prefix) {
       let atk = 0, def = 0, hp = 0;
+      let hasHyaenodon = false;
+      let hasFleischfresser = false;
+
       for (let i = 1; i <= 3; i++) {
         let alpha = document.getElementById(`${prefix}-a-${i}`).value;
         let bName = document.getElementById(`${prefix}-b-${i}`).value;
@@ -49,20 +52,16 @@
         let rowDef = b.def * count;
         let rowHp = b.hp * count;
 
-        // --- Hyaenodon Fähigkeiten ---
         if (alpha === "Hyaenodon") {
-          rowHp *= 1.2; // Starke Heilung: +20% HP
-          if (i === 1) { // Pre-Krieg: Fronttrupp-Bonus
-            rowAtk *= 1.2;
-            rowDef *= 1.2;
-          }
+          hasHyaenodon = true;
+          rowHp *= 1.2; 
+          if (i === 1) { rowAtk *= 1.2; rowDef *= 1.2; }
         }
+        if (b.type === "Fleischfresser") hasFleischfresser = true;
         
-        atk += rowAtk;
-        def += rowDef;
-        hp += rowHp;
+        atk += rowAtk; def += rowDef; hp += rowHp;
       }
-      return { atk, def, hp };
+      return { atk, def, hp, hasHyaenodon, hasFleischfresser };
     }
 
     function runBattle() {
@@ -71,13 +70,17 @@
       let log = "--- Kampf gestartet ---\n";
 
       for (let r = 1; r <= 10; r++) {
-        let dmgToB = Math.max(0, A.atk - (B.def * 0.2));
-        let dmgToA = Math.max(0, B.atk - (A.def * 0.2));
+        // Meister der Nachahmung (Hyaenodon-Logik)
+        let bonusA = (A.hasHyaenodon && A.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
+        let bonusB = (B.hasHyaenodon && B.hasFleischfresser && Math.random() < 0.7) ? 1.15 : 1.0;
+
+        let dmgToB = Math.max(0, (A.atk * bonusA) - (B.def * 0.2));
+        let dmgToA = Math.max(0, (B.atk * bonusB) - (A.def * 0.2));
 
         A.hp -= dmgToA;
         B.hp -= dmgToB;
 
-        log += `Runde ${r}: Dein Schaden: ${Math.floor(dmgToB).toLocaleString()} | Gegner Schaden: ${Math.floor(dmgToA).toLocaleString()}\n`;
+        log += `Runde ${r}: Dein DMG: ${Math.floor(dmgToB * bonusA).toLocaleString()} ${bonusA > 1 ? '(+Nachahmung!)' : ''} | Gegner: ${Math.floor(dmgToA * bonusB).toLocaleString()}\n`;
 
         if (A.hp <= 0 || B.hp <= 0) break;
       }
