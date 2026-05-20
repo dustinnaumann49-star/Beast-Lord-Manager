@@ -31,20 +31,53 @@
     ];
 
     function createSlots(containerId, prefix) {
-      document.getElementById(containerId).innerHTML = Array.from({length: 3}, (_, i) => `
-        <div class="slot-row">
-          <select id="${prefix}-a-${i+1}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-          <select id="${prefix}-b-${i+1}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
-          <input type="number" id="${prefix}-c-${i+1}" value="1000">
-        </div>`).join('');
+      let html = "";
+      for (let i = 1; i <= 3; i++) {
+        html += `<div class="slot-row">
+          <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
+          <input type="number" id="${prefix}-c-${i}" value="1000">
+        </div>`;
+      }
+      document.getElementById(containerId).innerHTML = html;
     }
 
     function runBattle() {
       let resDiv = document.getElementById('result-grid');
       resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
       
-      // Initialisierung für beide Seiten
-      let stats = { A: { hp: 100000, def: 1000, stacks: 0, dist: 0 }, B: { hp: 100000, def: 1000, stacks: 0, dist: 0 } };
+      let stats = { 
+        A: { stacks: 0, dist: 0, atk: 8000 }, 
+        B: { stacks: 0, dist: 0, atk: 8000 } 
+      };
 
       for (let r = 1; r <= 10; r++) {
-        let logA = "", logB = "", dmgA = 5000, dmgB
+        let logA = "", logB = "", dmgA = stats.A.atk, dmgB = stats.B.atk;
+
+        // Logik Team A
+        if(document.getElementById("teamA-a-1").value === "Smilodon") {
+          if(Math.random() < 0.8) { dmgA *= (2.0 + (stats.A.stacks * 0.1)); stats.A.stacks++; logA += "⚡ "; }
+          if(Math.random() < 0.7) { dmgA *= 1.4; logA += "🦷 "; }
+          if(Math.random() < 0.5) { stats.A.dist++; logA += "🎯 "; }
+          dmgA *= (1 + (stats.A.dist * 0.08));
+        }
+
+        // Logik Team B
+        if(document.getElementById("teamB-a-1").value === "Smilodon") {
+          if(Math.random() < 0.8) { dmgB *= (2.0 + (stats.B.stacks * 0.1)); stats.B.stacks++; logB += "⚡ "; }
+          if(Math.random() < 0.7) { dmgB *= 1.4; logB += "🦷 "; }
+          if(Math.random() < 0.5) { stats.B.dist++; logB += "🎯 "; }
+          dmgB *= (1 + (stats.B.dist * 0.08));
+        }
+
+        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} ${logA}</div>
+                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} ${logB}</div>`;
+      }
+    }
+    
+    // Initialisierung beim Laden
+    createSlots("teamA", "teamA");
+    createSlots("teamB", "teamB");
+  </script>
+</body>
+</html>
