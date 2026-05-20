@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro</title>
+  <title>Beast Lord Kampf-Sim</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -39,14 +39,13 @@
       document.getElementById(containerId).innerHTML = html;
     }
 
-    function calculateAlphaTurn(alpha, stats) {
+    // Jeder Slot prüft nun seine eigene Chance unabhängig
+    function processAlphaSlot(alpha, stats) {
       if (alpha === "Smilodon") {
-        if (Math.random() < 0.7) stats.alphaDmg += Math.floor(8000 * 1.4); // Wilde Zähne
-        if (Math.random() < 0.8) stats.alphaDmg += Math.floor(8000 * 2.0); // Comboschlag
-        stats.triggers += 1;
+        if (Math.random() < 0.7) { stats.alphaDmg += Math.floor(8000 * 1.4); stats.triggers += 1; }
+        if (Math.random() < 0.8) { stats.alphaDmg += Math.floor(8000 * 2.0); stats.triggers += 1; }
       } else if (alpha === "Hyaenodon") {
-        if (Math.random() < 0.5) stats.healing += 5000; // Starke Heilung
-        stats.triggers += 1;
+        if (Math.random() < 0.5) { stats.healing += 5000; stats.triggers += 1; }
       }
     }
 
@@ -57,17 +56,18 @@
 
       for (let r = 1; r <= 8; r++) {
         finalRound = r;
-        // Team A Aktionen
+        
+        // Team A: Jeder der 3 Slots würfelt separat
         for(let i=1; i<=3; i++) {
           statsA.beastDmg += 5000;
-          calculateAlphaTurn(document.getElementById(`teamA-a-${i}`).value, statsA);
+          processAlphaSlot(document.getElementById(`teamA-a-${i}`).value, statsA);
         }
         statsB.units -= Math.floor((statsA.alphaDmg + statsA.beastDmg - statsB.healing) / 2000);
 
-        // Team B Aktionen
+        // Team B: Jeder der 3 Slots würfelt separat
         for(let i=1; i<=3; i++) {
           statsB.beastDmg += 5000;
-          calculateAlphaTurn(document.getElementById(`teamB-a-${i}`).value, statsB);
+          processAlphaSlot(document.getElementById(`teamB-a-${i}`).value, statsB);
         }
         statsA.units = Math.min(3000, statsA.units + Math.floor(statsA.healing / 500));
         statsA.units -= Math.floor((statsB.alphaDmg + statsB.beastDmg) / 2000);
