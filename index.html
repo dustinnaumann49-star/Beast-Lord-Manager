@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v5</title>
+  <title>Beast Lord Kampf-Sim Pro v6</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -12,7 +12,6 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.7em; }
     th, td { border: 1px solid #334155; padding: 5px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
-    .round-info { margin-top: 10px; font-weight: bold; color: #fbbf24; text-align: center; }
   </style>
 </head>
 <body>
@@ -27,7 +26,8 @@
     const alphas = {
       "Keiner": { type: "Alle" },
       "Smilodon": { type: "Fleischfresser" },
-      "Hyaenodon": { type: "Fleischfresser" }
+      "Hyaenodon": { type: "Fleischfresser" },
+      "Jaguarundi": { type: "Fleischfresser" }
     };
     const beasts = {
       "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100, def: 20, hp: 100 },
@@ -39,15 +39,12 @@
       const alphaSelect = document.getElementById(`${prefix}-a-${i}`);
       const beastSelect = document.getElementById(`${prefix}-b-${i}`);
       const selectedAlphaType = alphas[alphaSelect.value].type;
-      
       const currentValue = beastSelect.value;
       beastSelect.innerHTML = "";
-      
       for (const [name, data] of Object.entries(beasts)) {
         if (selectedAlphaType === "Alle" || data.type === selectedAlphaType) {
           const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
+          opt.value = name; opt.textContent = name;
           if (name === currentValue) opt.selected = true;
           beastSelect.appendChild(opt);
         }
@@ -70,13 +67,19 @@
     }
 
     function runBattle() {
-      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 }, 
-          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 };
+      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgBuff: 0 }, 
+          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgBuff: 0 };
       
-      for(let i=1; i<=3; i++) {
-        teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value), alpha: document.getElementById(`teamA-a-${i}`).value });
-        teamB.units.push({ type: document.getElementById(`teamB-b-${i}`).value, count: parseInt(document.getElementById(`teamB-c-${i}`).value), alpha: document.getElementById(`teamB-a-${i}`).value });
-      }
+      const processTeam = (team, isA) => {
+        for(let i=1; i<=3; i++) {
+          team.units.push({ 
+            type: document.getElementById(`${isA ? 'teamA' : 'teamB'}-b-${i}`).value, 
+            count: parseInt(document.getElementById(`${isA ? 'teamA' : 'teamB'}-c-${i}`).value), 
+            alpha: document.getElementById(`${isA ? 'teamA' : 'teamB'}-a-${i}`).value 
+          });
+        }
+      };
+      processTeam(teamA, true); processTeam(teamB, false);
 
       let getStats = (team) => {
         let atk = 0, def = 0, hp = 0;
@@ -84,32 +87,35 @@
         return { totalAtk: atk, totalDef: def, totalHp: hp };
       };
 
-      let finalRound = 0;
       for (let r = 1; r <= 8; r++) {
-        finalRound = r;
         let sA = getStats(teamA), sB = getStats(teamB);
-        teamA.units.forEach(u => {
-          teamA.beastDmg += (u.count * beasts[u.type].atk);
-          if(u.alpha === "Smilodon" && Math.random() < 0.7) { teamA.alphaDmg += Math.floor(sA.totalAtk * 0.2); teamA.triggers++; }
-          if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { teamA.healing += Math.floor(sA.totalHp * 0.05); teamA.triggers++; }
+        [teamA, teamB].forEach((team, idx) => {
+          let sEnemy = (idx === 0) ? sB : sA;
+          team.units.forEach(u => {
+            let baseAtk = u.count * beasts[u.type].atk;
+            if(u.alpha === "Jaguarundi") baseAtk *= 1.8;
+            team.beastDmg += baseAtk;
+            
+            if(u.alpha === "Smilodon" && Math.random() < 0.7) { team.alphaDmg += Math.floor(sA.totalAtk * 0.2); team.triggers++; }
+            if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { team.healing += Math.floor(sA.totalHp * 0.05); team.triggers++; }
+            if(u.alpha === "Jaguarundi") {
+              if(Math.random() < 0.7) { team.alphaDmg += Math.floor(baseAtk * 2.5); team.triggers++; team.dmgBuff = 0.3; }
+              if(Math.random() < 0.6) { team.beastDmg += Math.floor(baseAtk * 0.5); team.triggers++; }
+            }
+          });
         });
-        teamB.units.forEach(u => {
-          teamB.beastDmg += (u.count * beasts[u.type].atk);
-          if(u.alpha === "Smilodon" && Math.random() < 0.7) { teamB.alphaDmg += Math.floor(sB.totalAtk * 0.2); teamB.triggers++; }
-          if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { teamB.healing += Math.floor(sB.totalHp * 0.05); teamB.triggers++; }
-        });
-        let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - sB.totalDef);
-        let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - sA.totalDef);
+        
+        let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - (sB.totalDef * (1 - teamA.dmgBuff)));
+        let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - (sA.totalDef * (1 - teamB.dmgBuff)));
         teamB.units.forEach(u => u.count -= Math.floor((dmgA / 3) / beasts[u.type].hp));
         teamA.units.forEach(u => u.count -= Math.floor((dmgB / 3) / beasts[u.type].hp));
-        if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
       }
       let cA = teamA.units.reduce((s, u) => s + u.count, 0), cB = teamB.units.reduce((s, u) => s + u.count, 0);
       document.getElementById("report").innerHTML = `<table>
         <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
         <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.beastDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${Math.max(0, cA)}</td><td>${cA > cB ? "Sieg" : "Niederlage"}</td></tr>
         <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, cB)}</td><td>${cB > cA ? "Sieg" : "Niederlage"}</td></tr>
-      </table><div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
+      </table>`;
     }
     createSlots("teamA", "teamA");
     createSlots("teamB", "teamB");
