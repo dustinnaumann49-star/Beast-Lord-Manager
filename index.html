@@ -2,15 +2,15 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim</title>
+  <title>Beast Lord Kampf-Sim Pro</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
     .slot-row { display: grid; grid-template-columns: 1fr 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
     select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.8em; }
     button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.8em; }
-    th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.75em; }
+    th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
     .round-info { margin-top: 10px; font-weight: bold; color: #fbbf24; text-align: center; }
   </style>
@@ -39,35 +39,46 @@
       document.getElementById(containerId).innerHTML = html;
     }
 
+    function calculateAlphaTurn(alpha, stats) {
+      if (alpha === "Smilodon") {
+        if (Math.random() < 0.7) stats.alphaDmg += Math.floor(8000 * 1.4); // Wilde Zähne
+        if (Math.random() < 0.8) stats.alphaDmg += Math.floor(8000 * 2.0); // Comboschlag
+        stats.triggers += 1;
+      } else if (alpha === "Hyaenodon") {
+        if (Math.random() < 0.5) stats.healing += 5000; // Starke Heilung
+        stats.triggers += 1;
+      }
+    }
+
     function runBattle() {
-      let stats = { A: { alphaDmg: 0, beastDmg: 0, triggers: 0, units: 3000 }, 
-                    B: { alphaDmg: 0, beastDmg: 0, triggers: 0, units: 3000 } };
+      let statsA = { alphaDmg: 0, beastDmg: 0, triggers: 0, healing: 0, units: 3000 };
+      let statsB = { alphaDmg: 0, beastDmg: 0, triggers: 0, healing: 0, units: 3000 };
       let finalRound = 0;
 
       for (let r = 1; r <= 8; r++) {
         finalRound = r;
-        ["A", "B"].forEach(t => {
-          let target = (t === "A") ? "B" : "A";
-          for(let i=1; i<=3; i++) {
-            let alpha = document.getElementById(`team${t}-a-${i}`).value;
-            stats[t].beastDmg += 5000;
-            if(alpha === "Smilodon" && Math.random() < 0.7) {
-              stats[t].alphaDmg += Math.floor(8000 * 1.4);
-              stats[t].triggers += 1;
-            }
-          }
-          stats[target].units -= Math.floor((stats[t].alphaDmg + stats[t].beastDmg) / 2000);
-        });
-        if (stats.A.units <= 0 || stats.B.units <= 0) break;
+        // Team A Aktionen
+        for(let i=1; i<=3; i++) {
+          statsA.beastDmg += 5000;
+          calculateAlphaTurn(document.getElementById(`teamA-a-${i}`).value, statsA);
+        }
+        statsB.units -= Math.floor((statsA.alphaDmg + statsA.beastDmg - statsB.healing) / 2000);
+
+        // Team B Aktionen
+        for(let i=1; i<=3; i++) {
+          statsB.beastDmg += 5000;
+          calculateAlphaTurn(document.getElementById(`teamB-a-${i}`).value, statsB);
+        }
+        statsA.units = Math.min(3000, statsA.units + Math.floor(statsA.healing / 500));
+        statsA.units -= Math.floor((statsB.alphaDmg + statsB.beastDmg) / 2000);
+
+        if (statsA.units <= 0 || statsB.units <= 0) break;
       }
 
-      let statusA = stats.A.units > stats.B.units ? "Sieg" : (stats.B.units > stats.A.units ? "Niederlage" : "Unentschieden");
-      let statusB = stats.B.units > stats.A.units ? "Sieg" : (stats.A.units > stats.B.units ? "Niederlage" : "Unentschieden");
-
       let html = `<table>
-        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Fähigkeiten</th><th>Rest 🐾</th><th>Status</th></tr>
-        <tr><td>🟦 Dein</td><td>${stats.A.alphaDmg.toLocaleString()}</td><td>${stats.A.beastDmg.toLocaleString()}</td><td>${stats.A.triggers}x</td><td>${Math.max(0, stats.A.units)}</td><td>${statusA}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${stats.B.alphaDmg.toLocaleString()}</td><td>${stats.B.beastDmg.toLocaleString()}</td><td>${stats.B.triggers}x</td><td>${Math.max(0, stats.B.units)}</td><td>${statusB}</td></tr>
+        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
+        <tr><td>🟦 Dein</td><td>${statsA.alphaDmg.toLocaleString()}</td><td>${statsA.beastDmg.toLocaleString()}</td><td>${statsA.healing.toLocaleString()}</td><td>${statsA.triggers}x</td><td>${Math.max(0, statsA.units)}</td><td>${statsA.units > statsB.units ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${statsB.alphaDmg.toLocaleString()}</td><td>${statsB.beastDmg.toLocaleString()}</td><td>${statsB.healing.toLocaleString()}</td><td>${statsB.triggers}x</td><td>${Math.max(0, statsB.units)}</td><td>${statsB.units > statsA.units ? "Sieg" : "Niederlage"}</td></tr>
       </table>
       <div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
       document.getElementById("report").innerHTML = html;
