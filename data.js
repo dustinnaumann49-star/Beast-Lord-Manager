@@ -28,9 +28,18 @@ export const alphas = {
                 skill6: { type: "passive", effect: "increase_atk_and_alpha_dmg", atk_value: 0.5, alpha_dmg_value: 0.5 }
             }
         },
-        "S2": {},
+        "S2": {
+            "Titanis": {
+                skill1: { type: "aura", effect: "increase_all_rows_atk", value: 1.8, target: "all_rows" },
+                skill2: { type: "passive", effect: "increase_def", value: 0.48 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.48 },
+                skill4: { type: "active", rounds: 3, chance: 0.75, dmg_multiplier: 1.0, target: "two_random_rows" },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.20 },
+                skill6: { type: "special", rounds: 3, chance: 1.0, trigger: "on_front_row_damage_taken", dmg_multiplier: 1.8 }
+            }
+        },
         "S3": {},
         "S4": {}
     },
-    // ... restliche Struktur
+    // ... Allesfresser & Pflanzenfresser
 };
