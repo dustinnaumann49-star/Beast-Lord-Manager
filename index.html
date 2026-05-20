@@ -10,9 +10,9 @@
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
     button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
     #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
-    .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; }
-    .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; font-size: 0.85em; }
-    .win-msg { font-weight: bold; font-size: 1.2em; padding: 10px; text-align: center; color: #ffc107; }
+    .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; font-size: 0.8em; }
+    .dmg-row { border-bottom: 1px solid #333; padding: 6px 0; font-size: 0.85em; }
+    .win-msg { font-weight: bold; font-size: 1.2em; padding: 15px; text-align: center; color: #ffc107; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -25,11 +25,7 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = [
-      { name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 },
-      { name: "Sumatra-Orang-Utan", atk: 6, def: 6, hp: 70 },
-      { name: "Takin", atk: 4, def: 6, hp: 80 }
-    ];
+    const beasts = [{ name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 }];
 
     function createSlots(containerId, prefix) {
       let html = "";
@@ -45,7 +41,7 @@
 
     function runBattle() {
       let resDiv = document.getElementById('result-grid');
-      resDiv.innerHTML = `<div class="col-header">🟦 Dein Team (Bestien)</div><div class="col-header">🟥 Gegner (Bestien)</div>`;
+      resDiv.innerHTML = `<div class="col-header">🟦 Schaden | Bestien</div><div class="col-header">🟥 Schaden | Bestien</div>`;
       
       let state = { 
         A: { count: 3000, stacks: 0, dist: 0 }, 
@@ -53,31 +49,34 @@
       };
 
       for (let r = 1; r <= 10; r++) {
-        let logA = "", logB = "", dmgA = 500, dmgB = 500;
+        let logA = "", logB = "", dmgA = 0, dmgB = 0;
 
-        // Berechnung Schaden (vereinfacht auf Basis der überlebenden Bestien)
+        // Schaden berechnen (alle 3 Slots)
         for(let i=1; i<=3; i++) {
             if(document.getElementById("teamA-a-"+i).value === "Smilodon") {
-                if(Math.random() < 0.8) { dmgA *= 2.0; state.A.stacks++; logA += "⚡ "; }
-                dmgA *= (1 + (state.A.dist * 0.08));
+                let d = 500;
+                if(Math.random() < 0.8) { d *= 2.0; state.A.stacks++; logA += "⚡ "; }
+                if(Math.random() < 0.5) { state.A.dist++; logA += "🎯 "; }
+                dmgA += d;
             }
             if(document.getElementById("teamB-a-"+i).value === "Smilodon") {
-                if(Math.random() < 0.8) { dmgB *= 2.0; state.B.stacks++; logB += "⚡ "; }
-                dmgB *= (1 + (state.B.dist * 0.08));
+                let d = 500;
+                if(Math.random() < 0.8) { d *= 2.0; state.B.stacks++; logB += "⚡ "; }
+                if(Math.random() < 0.5) { state.B.dist++; logB += "🎯 "; }
+                dmgB += d;
             }
         }
 
-        // Bestien abziehen
         state.A.count -= Math.floor(dmgB / 10);
         state.B.count -= Math.floor(dmgA / 10);
 
-        resDiv.innerHTML += `<div class="dmg-row">${state.A.count} ${logA}</div>
-                             <div class="dmg-row">${state.B.count} ${logB}</div>`;
+        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} DMG | ${state.A.count} 🐾 ${logA}</div>
+                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} DMG | ${state.B.count} 🐾 ${logB}</div>`;
 
         if (state.A.count <= 0 || state.B.count <= 0) break;
       }
 
-      let winner = state.A.count > state.B.count ? "🟦 DU HAST GEWONNEN!" : "🟥 GEGNER HAT GEWONNEN!";
+      let winner = state.A.count > state.B.count ? "🟦 DEIN TEAM HAT GEWONNEN!" : "🟥 GEGNER HAT GEWONNEN!";
       resDiv.innerHTML += `<div class="win-msg" style="grid-column: span 2;">${winner}</div>`;
     }
     
