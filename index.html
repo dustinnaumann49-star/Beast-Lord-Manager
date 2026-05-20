@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim</title>
+  <title>Beast Lord Kampf-Sim Pro v3</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -25,63 +25,72 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = ["Nordwestlicher Wolf", "Sumatra-Orang-Utan", "Takin"];
+    const beasts = {
+      "Nordwestlicher Wolf": { atk: 100, def: 20, hp: 100 },
+      "Sumatra-Orang-Utan": { atk: 60, def: 50, hp: 150 },
+      "Takin": { atk: 30, def: 100, hp: 250 }
+    };
 
     function createSlots(containerId, prefix) {
       let html = "";
       for (let i = 1; i <= 3; i++) {
         html += `<div class="slot-row">
           <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-          <select id="${prefix}-b-${i}">${beasts.map(b => `<option>${b}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i}">${Object.keys(beasts).map(b => `<option>${b}</option>`).join('')}</select>
           <input type="number" id="${prefix}-c-${i}" value="1000">
         </div>`;
       }
       document.getElementById(containerId).innerHTML = html;
     }
 
-    // Jeder Slot prüft nun seine eigene Chance unabhängig
-    function processAlphaSlot(alpha, stats) {
+    function calculateAlphaTurn(alpha, stats, teamStats) {
       if (alpha === "Smilodon") {
-        if (Math.random() < 0.7) { stats.alphaDmg += Math.floor(8000 * 1.4); stats.triggers += 1; }
-        if (Math.random() < 0.8) { stats.alphaDmg += Math.floor(8000 * 2.0); stats.triggers += 1; }
+        if (Math.random() < 0.7) { stats.alphaDmg += Math.floor(teamStats.totalAtk * 0.5); stats.triggers += 1; }
+        if (Math.random() < 0.8) { stats.alphaDmg += Math.floor(teamStats.totalAtk * 0.8); stats.triggers += 1; }
       } else if (alpha === "Hyaenodon") {
-        if (Math.random() < 0.5) { stats.healing += 5000; stats.triggers += 1; }
+        if (Math.random() < 0.5) { stats.healing += Math.floor(teamStats.totalHp * 0.1); stats.triggers += 1; }
       }
     }
 
     function runBattle() {
-      let statsA = { alphaDmg: 0, beastDmg: 0, triggers: 0, healing: 0, units: 3000 };
-      let statsB = { alphaDmg: 0, beastDmg: 0, triggers: 0, healing: 0, units: 3000 };
-      let finalRound = 0;
-
-      for (let r = 1; r <= 8; r++) {
-        finalRound = r;
-        
-        // Team A: Jeder der 3 Slots würfelt separat
-        for(let i=1; i<=3; i++) {
-          statsA.beastDmg += 5000;
-          processAlphaSlot(document.getElementById(`teamA-a-${i}`).value, statsA);
-        }
-        statsB.units -= Math.floor((statsA.alphaDmg + statsA.beastDmg - statsB.healing) / 2000);
-
-        // Team B: Jeder der 3 Slots würfelt separat
-        for(let i=1; i<=3; i++) {
-          statsB.beastDmg += 5000;
-          processAlphaSlot(document.getElementById(`teamB-a-${i}`).value, statsB);
-        }
-        statsA.units = Math.min(3000, statsA.units + Math.floor(statsA.healing / 500));
-        statsA.units -= Math.floor((statsB.alphaDmg + statsB.beastDmg) / 2000);
-
-        if (statsA.units <= 0 || statsB.units <= 0) break;
+      let teamA = { units: [], alphaDmg: 0, healing: 0, triggers: 0 }, teamB = { units: [], alphaDmg: 0, healing: 0, triggers: 0 };
+      
+      // Init Daten laden
+      for(let i=1; i<=3; i++) {
+        teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value) });
+        teamB.units.push({ type: document.getElementById(`teamB-b-${i}`).value, count: parseInt(document.getElementById(`teamB-c-${i}`).value) });
       }
 
-      let html = `<table>
-        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
-        <tr><td>🟦 Dein</td><td>${statsA.alphaDmg.toLocaleString()}</td><td>${statsA.beastDmg.toLocaleString()}</td><td>${statsA.healing.toLocaleString()}</td><td>${statsA.triggers}x</td><td>${Math.max(0, statsA.units)}</td><td>${statsA.units > statsB.units ? "Sieg" : "Niederlage"}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${statsB.alphaDmg.toLocaleString()}</td><td>${statsB.beastDmg.toLocaleString()}</td><td>${statsB.healing.toLocaleString()}</td><td>${statsB.triggers}x</td><td>${Math.max(0, statsB.units)}</td><td>${statsB.units > statsA.units ? "Sieg" : "Niederlage"}</td></tr>
-      </table>
-      <div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
-      document.getElementById("report").innerHTML = html;
+      let getStats = (team) => {
+        let atk = 0, def = 0, hp = 0;
+        team.units.forEach(u => { atk += u.count * beasts[u.type].atk; def += u.count * beasts[u.type].def; hp += u.count * beasts[u.type].hp; });
+        return { totalAtk: atk, totalDef: def, totalHp: hp };
+      };
+
+      let finalRound = 0;
+      for (let r = 1; r <= 8; r++) {
+        finalRound = r;
+        let statsA = getStats(teamA), statsB = getStats(teamB);
+
+        // A greift B an
+        for(let i=1; i<=3; i++) calculateAlphaTurn(document.getElementById(`teamA-a-${i}`).value, teamA, statsA);
+        let dmgA = Math.max(0, (statsA.totalAtk + teamA.alphaDmg) - statsB.totalDef);
+        teamB.units.forEach(u => u.count -= Math.floor((dmgA / teamB.units.length) / beasts[u.type].hp));
+
+        // B greift A an
+        for(let i=1; i<=3; i++) calculateAlphaTurn(document.getElementById(`teamB-a-${i}`).value, teamB, statsB);
+        let dmgB = Math.max(0, (statsB.totalAtk + teamB.alphaDmg) - statsA.totalDef);
+        teamA.units.forEach(u => u.count -= Math.floor((dmgB / teamA.units.length) / beasts[u.type].hp));
+
+        if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
+      }
+
+      let countA = teamA.units.reduce((sum, u) => sum + u.count, 0), countB = teamB.units.reduce((sum, u) => sum + u.count, 0);
+      document.getElementById("report").innerHTML = `<table>
+        <tr><th>Team</th><th>Alpha DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
+        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${Math.max(0, countA)}</td><td>${countA > countB ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, countB)}</td><td>${countB > countA ? "Sieg" : "Niederlage"}</td></tr>
+      </table><div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
     }
 
     createSlots("teamA", "teamA");
