@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v8</title>
+  <title>Beast Lord Kampf-Sim Pro v9</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -31,9 +31,9 @@
       "Jaguarundi": { type: "Fleischfresser" }
     };
     const beasts = {
-      "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100, def: 20, hp: 100 },
-      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60, def: 50, hp: 150 },
-      "Takin": { type: "Pflanzenfresser", atk: 30, def: 100, hp: 250 }
+      "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100, def: 20, hp: 1000 },
+      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60, def: 50, hp: 1500 },
+      "Takin": { type: "Pflanzenfresser", atk: 30, def: 100, hp: 2500 }
     };
 
     function updateBeastOptions(prefix, i) {
@@ -103,17 +103,20 @@
         let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - sB.totalDef);
         let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - sA.totalDef);
         
-        teamB.units.forEach(u => u.count = Math.max(0, Math.ceil(u.count - ((dmgA / 3) / beasts[u.type].hp))));
-        teamA.units.forEach(u => u.count = Math.max(0, Math.ceil(u.count - ((dmgB / 3) / beasts[u.type].hp))));
+        teamB.units.forEach(u => u.count = Math.max(0, Math.ceil((u.count * beasts[u.type].hp - (dmgA / 3)) / beasts[u.type].hp)));
+        teamA.units.forEach(u => u.count = Math.max(0, Math.ceil((u.count * beasts[u.type].hp - (dmgB / 3)) / beasts[u.type].hp)));
 
         if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
       }
 
       let cA = teamA.units.reduce((s, u) => s + u.count, 0), cB = teamB.units.reduce((s, u) => s + u.count, 0);
+      let statusA = cA > cB ? "Sieg" : (cB > cA ? "Niederlage" : "Unentschieden");
+      let statusB = cB > cA ? "Sieg" : (cA > cB ? "Niederlage" : "Unentschieden");
+      
       document.getElementById("report").innerHTML = `<table>
         <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
-        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.beastDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${Math.max(0, cA)}</td><td>${cA > cB ? "Sieg" : "Niederlage"}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, cB)}</td><td>${cB > cA ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.beastDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${cA.toLocaleString()}</td><td>${statusA}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${cB.toLocaleString()}</td><td>${statusB}</td></tr>
       </table><div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
     }
     createSlots("teamA", "teamA");
