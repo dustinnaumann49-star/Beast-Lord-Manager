@@ -5,47 +5,53 @@
   <title>Beast Lord Kampf-Sim</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
-    th, td { border: 1px solid #334155; padding: 10px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.85em; }
+    th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
-    .dmg-highlight { color: #f87171; font-weight: bold; }
-    .stat-row { font-size: 0.9em; }
+    .dmg-alpha { color: #fbbf24; font-weight: bold; }
+    .status-win { color: #22c55e; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h3>Beast Lord Simulator (Alpha Report)</h3>
+  <h3>Beast Lord Kampf-Simulator</h3>
   <div id="setup">
-    </div>
+    <p>Simuliere Smilodon Kampf-Report...</p>
+  </div>
   <button onclick="simulate()">Kampf simulieren</button>
   <div id="report"></div>
 
   <script>
     function simulate() {
+      let unitsA = 3000, unitsB = 3000;
       let html = `
         <table>
           <tr>
             <th>Runde</th>
-            <th>Alpha Aktion</th>
+            <th>Fähigkeit</th>
             <th>Schaden (Alpha)</th>
             <th>Truppen Rest</th>
           </tr>
       `;
 
-      let units = 3000;
-      for(let r = 1; r <= 5; r++) {
-        let alphaDmg = Math.floor(Math.random() * 5000) + 2000;
-        units -= Math.floor(alphaDmg / 100);
+      for(let r = 1; r <= 8; r++) {
+        // Smilodon Logik: 70% Chance auf 140% Schaden
+        let trigger = Math.random() < 0.7;
+        let alphaDmg = trigger ? Math.floor(8000 * 1.4) : 0;
+        let skillName = trigger ? "🦷 Wilde Zähne" : "-";
+        
+        unitsB -= Math.floor(alphaDmg / 100);
         
         html += `
-          <tr class="stat-row">
+          <tr>
             <td>${r}</td>
-            <td>⚡ Tödlicher Comboschlag</td>
-            <td class="dmg-highlight">${alphaDmg.toLocaleString()}</td>
-            <td>${units} 🐾</td>
+            <td>${skillName}</td>
+            <td class="dmg-alpha">${alphaDmg.toLocaleString()}</td>
+            <td>${unitsB > 0 ? unitsB : 0} 🐾</td>
           </tr>
         `;
       }
-      html += "</table>";
+      
+      html += `</table><p class="status-win">Sieg: Dein Team hat gewonnen!</p>`;
       document.getElementById('report').innerHTML = html;
     }
   </script>
