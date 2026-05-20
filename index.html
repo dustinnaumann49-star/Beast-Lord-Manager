@@ -6,9 +6,9 @@
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
-    .slot-row { display: grid; grid-template-columns: 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
-    select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; }
-    button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    .slot-row { display: grid; grid-template-columns: 1fr 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
+    select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.8em; }
+    button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.8em; }
     th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
@@ -24,11 +24,14 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
+    const beasts = ["Nordwestlicher Wolf", "Sumatra-Orang-Utan", "Takin"];
+
     function createSlots(containerId, prefix) {
       let html = "";
       for (let i = 1; i <= 3; i++) {
         html += `<div class="slot-row">
           <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i}">${beasts.map(b => `<option>${b}</option>`).join('')}</select>
           <input type="number" id="${prefix}-c-${i}" value="1000">
         </div>`;
       }
@@ -40,28 +43,26 @@
                     B: { alphaDmg: 0, beastDmg: 0, triggers: 0, units: 3000 } };
 
       for (let r = 1; r <= 8; r++) {
-        // Logik pro Runde: Beide Teams greifen sich an
         ["A", "B"].forEach(t => {
           let target = (t === "A") ? "B" : "A";
           for(let i=1; i<=3; i++) {
             let alpha = document.getElementById(`team${t}-a-${i}`).value;
-            // Bestien-Basis-Schaden
+            // Bestien-Schaden (Basis)
             stats[t].beastDmg += 5000;
-            // Alpha-Schaden (Smilodon 140% Logik)
+            // Smilodon-Alpha-Schaden (70% Chance auf 140%)
             if(alpha === "Smilodon" && Math.random() < 0.7) {
               stats[t].alphaDmg += Math.floor(8000 * 1.4);
               stats[t].triggers += 1;
             }
           }
-          // Bestien-Verlust berechnen
           stats[target].units -= Math.floor((stats[t].alphaDmg + stats[t].beastDmg) / 2000);
         });
       }
 
       let html = `<table>
         <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Fähigkeiten</th><th>Rest 🐾</th><th>Status</th></tr>
-        <tr><td>🟦 Dein</td><td>${stats.A.alphaDmg.toLocaleString()}</td><td>${stats.A.beastDmg.toLocaleString()}</td><td>${stats.A.triggers}x</td><td>${stats.A.units}</td><td>${stats.A.units > stats.B.units ? "Sieg" : "Niederlage"}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${stats.B.alphaDmg.toLocaleString()}</td><td>${stats.B.beastDmg.toLocaleString()}</td><td>${stats.B.triggers}x</td><td>${stats.B.units}</td><td>${stats.B.units > stats.A.units ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟦 Dein</td><td>${stats.A.alphaDmg.toLocaleString()}</td><td>${stats.A.beastDmg.toLocaleString()}</td><td>${stats.A.triggers}x</td><td>${Math.max(0, stats.A.units)}</td><td>${stats.A.units > stats.B.units ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${stats.B.alphaDmg.toLocaleString()}</td><td>${stats.B.beastDmg.toLocaleString()}</td><td>${stats.B.triggers}x</td><td>${Math.max(0, stats.B.units)}</td><td>${stats.B.units > stats.A.units ? "Sieg" : "Niederlage"}</td></tr>
       </table>`;
       document.getElementById("report").innerHTML = html;
     }
