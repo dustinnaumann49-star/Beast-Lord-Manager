@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Beast Lord Kampf-Sim</title>
   <style>
-    body { margin: 0; padding: 15px; font-family: sans-serif; color: #fff; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; background-attachment: fixed; }
+    body { margin: 0; padding: 15px; font-family: sans-serif; color: #fff; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; }
     .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); }
     .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
     select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
@@ -12,7 +12,6 @@
     #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
     .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; font-size: 0.8em; }
     .dmg-row { border-bottom: 1px solid #333; padding: 6px 0; font-size: 0.85em; }
-    .win-msg { font-weight: bold; font-size: 1.2em; padding: 15px; text-align: center; color: #ffc107; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -41,43 +40,44 @@
 
     function runBattle() {
       let resDiv = document.getElementById('result-grid');
-      resDiv.innerHTML = `<div class="col-header">🟦 Schaden | Bestien</div><div class="col-header">🟥 Schaden | Bestien</div>`;
+      resDiv.innerHTML = `<div class="col-header">🟦 DMG (Alpha+Bestie) | Rest</div><div class="col-header">🟥 DMG (Alpha+Bestie) | Rest</div>`;
       
-      let state = { 
-        A: { count: 3000, stacks: 0, dist: 0 }, 
-        B: { count: 3000, stacks: 0, dist: 0 } 
-      };
+      let state = { A: { count: 3000, stacks: 0, dist: 0 }, B: { count: 3000, stacks: 0, dist: 0 } };
 
       for (let r = 1; r <= 10; r++) {
-        let logA = "", logB = "", dmgA = 0, dmgB = 0;
+        let logA = "", logB = "", dmgA = 0, dmgB = 0, alphaDmgA = 0, alphaDmgB = 0;
 
-        // Schaden berechnen (alle 3 Slots)
         for(let i=1; i<=3; i++) {
+            let teamAtkSum = 8000; // Vereinfachter Basiswert der Bestien
+            
+            // Logik Team A
             if(document.getElementById("teamA-a-"+i).value === "Smilodon") {
-                let d = 500;
-                if(Math.random() < 0.8) { d *= 2.0; state.A.stacks++; logA += "⚡ "; }
+                if(Math.random() < 0.8) { alphaDmgA += teamAtkSum * 2.0; state.A.stacks++; logA += "⚡ "; }
+                if(Math.random() < 0.7) { alphaDmgA += teamAtkSum * 1.4; logA += "🦷 "; }
                 if(Math.random() < 0.5) { state.A.dist++; logA += "🎯 "; }
-                dmgA += d;
             }
+            
+            // Logik Team B
             if(document.getElementById("teamB-a-"+i).value === "Smilodon") {
-                let d = 500;
-                if(Math.random() < 0.8) { d *= 2.0; state.B.stacks++; logB += "⚡ "; }
+                if(Math.random() < 0.8) { alphaDmgB += teamAtkSum * 2.0; state.B.stacks++; logB += "⚡ "; }
+                if(Math.random() < 0.7) { alphaDmgB += teamAtkSum * 1.4; logB += "🦷 "; }
                 if(Math.random() < 0.5) { state.B.dist++; logB += "🎯 "; }
-                dmgB += d;
             }
         }
 
-        state.A.count -= Math.floor(dmgB / 10);
-        state.B.count -= Math.floor(dmgA / 10);
+        dmgA = (8000 + alphaDmgA);
+        dmgB = (8000 + alphaDmgB);
 
-        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} DMG | ${state.A.count} 🐾 ${logA}</div>
-                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} DMG | ${state.B.count} 🐾 ${logB}</div>`;
+        state.A.count -= Math.floor(dmgB / 500);
+        state.B.count -= Math.floor(dmgA / 500);
+
+        resDiv.innerHTML += `<div class="dmg-row">
+            ${Math.floor(dmgA).toLocaleString()} (${Math.floor(alphaDmgA).toLocaleString()} α) | ${state.A.count}🐾 ${logA}</div>
+            <div class="dmg-row">
+            ${Math.floor(dmgB).toLocaleString()} (${Math.floor(alphaDmgB).toLocaleString()} α) | ${state.B.count}🐾 ${logB}</div>`;
 
         if (state.A.count <= 0 || state.B.count <= 0) break;
       }
-
-      let winner = state.A.count > state.B.count ? "🟦 DEIN TEAM HAT GEWONNEN!" : "🟥 GEGNER HAT GEWONNEN!";
-      resDiv.innerHTML += `<div class="win-msg" style="grid-column: span 2;">${winner}</div>`;
     }
     
     createSlots("teamA", "teamA");
