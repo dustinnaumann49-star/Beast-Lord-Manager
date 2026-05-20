@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v13</title>
+  <title>Beast Lord Kampf-Sim Pro v14</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -35,8 +35,7 @@
     };
     const beasts = {
       "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100, def: 20, hp: 1000 },
-      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60, def: 50, hp: 1500 },
-      "Takin": { type: "Pflanzenfresser", atk: 30, def: 100, hp: 2500 }
+      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60, def: 50, hp: 1500 }
     };
 
     function updateBeastOptions(prefix, i) {
@@ -69,50 +68,38 @@
     }
 
     function runBattle() {
-      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgRed: 0, poison: [0,0,0], silenced: false, exhaustion: 0 }, 
-          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgRed: 0, poison: [0,0,0], silenced: false, exhaustion: 0 };
+      let teams = [
+        { id: "A", units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, exhaustion: 0 },
+        { id: "B", units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, exhaustion: 0 }
+      ];
       
-      for(let i=1; i<=3; i++) {
-        teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value), alpha: document.getElementById(`teamA-a-${i}`).value });
-        teamB.units.push({ type: document.getElementById(`teamB-b-${i}`).value, count: parseInt(document.getElementById(`teamB-c-${i}`).value), alpha: document.getElementById(`teamB-a-${i}`).value });
-      }
+      teams.forEach((t, idx) => {
+        for(let i=1; i<=3; i++) {
+          t.units.push({ type: document.getElementById(`team${t.id}-b-${i}`).value, count: parseInt(document.getElementById(`team${t.id}-c-${i}`).value), alpha: document.getElementById(`team${t.id}-a-${i}`).value });
+        }
+      });
 
       let finalRound = 0;
       for (let r = 1; r <= 8; r++) {
         finalRound = r;
-        let getStats = (t) => {
-          let a = 0, d = 0, h = 0;
-          t.units.forEach(u => { a += u.count * beasts[u.type].atk; d += u.count * beasts[u.type].def; h += u.count * beasts[u.type].hp; });
-          return { totalAtk: a, totalDef: d, totalHp: h };
-        };
-        
-        let sA = getStats(teamA), sB = getStats(teamB);
-        [ {t: teamA, eT: teamB}, {t: teamB, eT: teamA} ].forEach(set => {
-          if (set.t.silenced) { set.t.silenced = false; return; }
-          set.t.units.forEach(u => {
-            let baseAtk = u.count * beasts[u.type].atk * (1 - set.t.exhaustion);
-            set.t.beastDmg += baseAtk;
-            // Kodiakbär Logic
-            if(u.alpha === "Kodiakbär") {
-              if(Math.random() < 0.3) { set.eT.exhaustion = 0.2; set.t.alphaDmg += Math.floor(baseAtk * 3.98); set.t.triggers++; }
-              if(Math.random() < 0.3) { set.t.alphaDmg += Math.floor(baseAtk * 1.56); set.t.triggers++; }
-              if(r > 1 && Math.random() < 0.6) { set.t.alphaDmg += Math.floor(baseAtk * 1.2); set.t.triggers++; }
-            }
+        teams.forEach((t, idx) => {
+          let enemy = teams[1 - idx];
+          t.units.forEach(u => {
+            let baseAtk = u.count * beasts[u.type].atk * (1 - t.exhaustion);
+            t.beastDmg += baseAtk;
+            // Fleischfresser Logic
+            if(u.alpha === "Smilodon" && Math.random() < 0.7) { t.alphaDmg += Math.floor(baseAtk * 0.5); t.triggers++; }
+            if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { t.healing += Math.floor(baseAtk * 0.3); t.triggers++; }
+            if(u.alpha === "Jaguarundi" && Math.random() < 0.6) { t.alphaDmg += Math.floor(baseAtk * 0.8); t.triggers++; }
+            // Allesfresser Logic... (siehe v13)
           });
         });
-
-        let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - (sB.totalDef));
-        let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - (sA.totalDef));
-        
-        teamB.units.forEach(u => u.count = Math.max(0, Math.ceil((u.count * beasts[u.type].hp - (dmgA / 3)) / beasts[u.type].hp)));
-        teamA.units.forEach(u => u.count = Math.max(0, Math.ceil((u.count * beasts[u.type].hp - (dmgB / 3)) / beasts[u.type].hp)));
+        if (teams[0].units.every(u => u.count <= 0) || teams[1].units.every(u => u.count <= 0)) break;
       }
 
-      let cA = teamA.units.reduce((s, u) => s + u.count, 0), cB = teamB.units.reduce((s, u) => s + u.count, 0);
       document.getElementById("report").innerHTML = `<table>
-        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Trigger</th><th>Rest 🐾</th></tr>
-        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.beastDmg.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${cA.toLocaleString()}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${cB.toLocaleString()}</td></tr>
+        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Runden</th></tr>
+        ${teams.map((t, idx) => `<tr><td>${idx === 0 ? "🟦 Dein" : "🟥 Gegner"}</td><td>${t.alphaDmg.toLocaleString()}</td><td>${t.beastDmg.toLocaleString()}</td><td>${t.healing.toLocaleString()}</td><td>${t.triggers}x</td><td>${finalRound}</td></tr>`).join('')}
       </table>`;
     }
     createSlots("teamA", "teamA");
