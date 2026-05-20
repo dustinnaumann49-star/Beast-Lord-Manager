@@ -2,15 +2,15 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v15</title>
+  <title>Beast Lord Kampf-Sim Pro v17</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
     .slot-row { display: grid; grid-template-columns: 1fr 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
     select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.8em; }
     button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.7em; }
-    th, td { border: 1px solid #334155; padding: 5px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.8em; }
+    th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
   </style>
 </head>
@@ -27,40 +27,60 @@
       "Smilodon": { type: "Fleischfresser" }, "Hyaenodon": { type: "Fleischfresser" }, "Jaguarundi": { type: "Fleischfresser" },
       "Geierschildkröte": { type: "Allesfresser" }, "Klapperschlange": { type: "Allesfresser" }, "Kodiakbär": { type: "Allesfresser" }
     };
-    const beasts = { "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100 }, "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60 } };
+    const beasts = {
+      "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100 },
+      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60 }
+    };
+
+    function updateBeastOptions(prefix, i) {
+      const alphaVal = document.getElementById(`${prefix}-a-${i}`).value;
+      const beastSel = document.getElementById(`${prefix}-b-${i}`);
+      const type = alphas[alphaVal].type;
+      beastSel.innerHTML = "";
+      Object.entries(beasts).forEach(([name, data]) => {
+        if (data.type === type) {
+          beastSel.innerHTML += `<option value="${name}">${name}</option>`;
+        }
+      });
+    }
 
     function createSlots(containerId, prefix) {
       let html = "";
       for (let i = 1; i <= 3; i++) {
-        html += `<div class="slot-row"><select id="${prefix}-a-${i}">` + Object.keys(alphas).map(a => `<option>${a}</option>`).join('') + `</select><select id="${prefix}-b-${i}"><option>Nordwestlicher Wolf</option><option>Sumatra-Orang-Utan</option></select><input type="number" id="${prefix}-c-${i}" value="100000"></div>`;
+        html += `<div class="slot-row">
+          <select id="${prefix}-a-${i}" onchange="updateBeastOptions('${prefix}', ${i})">${Object.keys(alphas).map(a => `<option>${a}</option>`).join('')}</select>
+          <select id="${prefix}-b-${i}"></select>
+          <input type="number" id="${prefix}-c-${i}" value="100000">
+        </div>`;
       }
       document.getElementById(containerId).innerHTML = html;
+      for(let i=1; i<=3; i++) updateBeastOptions(prefix, i);
     }
 
     function runBattle() {
       let teams = [{ id: "A", alphaDmg: 0, beastDmg: 0, heal: 0, trg: 0 }, { id: "B", alphaDmg: 0, beastDmg: 0, heal: 0, trg: 0 }];
-      
-      teams.forEach((t, idx) => {
+      teams.forEach((t) => {
         for(let i=1; i<=3; i++) {
           let alpha = document.getElementById(`team${t.id}-a-${i}`).value;
           let count = parseInt(document.getElementById(`team${t.id}-c-${i}`).value);
-          let atk = count * 100; // Vereinfacht
+          let atk = count * 100;
           t.beastDmg += atk;
           
-          // Logik Fleischfresser
           if(alpha === "Smilodon") { t.alphaDmg += Math.floor(atk * 0.5); t.trg++; }
-          if(alpha === "Hyaenodon") { t.heal += Math.floor(atk * 0.3); t.trg++; }
-          // Logik Allesfresser (Korrektur)
-          if(alpha === "Geierschildkröte") { t.alphaDmg += Math.floor(atk * 2.3); t.trg++; }
-          if(alpha === "Klapperschlange") { t.alphaDmg += Math.floor(atk * 2.2); t.trg++; }
-          if(alpha === "Kodiakbär") { t.alphaDmg += Math.floor(atk * 3.9); t.trg++; }
+          else if(alpha === "Hyaenodon") { t.heal += Math.floor(atk * 0.3); t.trg++; }
+          else if(alpha === "Jaguarundi") { t.alphaDmg += Math.floor(atk * 0.8); t.trg++; }
+          else if(alpha === "Geierschildkröte") { t.alphaDmg += Math.floor(atk * 2.3); t.trg++; }
+          else if(alpha === "Klapperschlange") { t.alphaDmg += Math.floor(atk * 2.2); t.trg++; }
+          else if(alpha === "Kodiakbär") { t.alphaDmg += Math.floor(atk * 3.9); t.trg++; }
         }
       });
 
-      document.getElementById("report").innerHTML = `<table>
-        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th></tr>
-        ${teams.map((t, idx) => `<tr><td>${idx === 0 ? "🟦 Dein" : "🟥 Gegner"}</td><td>${t.alphaDmg.toLocaleString()}</td><td>${t.beastDmg.toLocaleString()}</td><td>${t.heal.toLocaleString()}</td><td>${t.trg}x</td></tr>`).join('')}
-      </table><p style="text-align:center; font-weight:bold;">Runden: 8</p>`;
+      document.getElementById("report").innerHTML = `
+        <table>
+          <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th></tr>
+          ${teams.map((t, i) => `<tr><td>${i === 0 ? "🟦 Dein" : "🟥 Gegner"}</td><td>${t.alphaDmg.toLocaleString()}</td><td>${t.beastDmg.toLocaleString()}</td><td>${t.heal.toLocaleString()}</td><td>${t.trg}x</td></tr>`).join('')}
+        </table>
+        <p style="text-align:center; font-weight:bold; color:#fbbf24;">Simulierte Runden: 8</p>`;
     }
     createSlots("teamA", "teamA"); createSlots("teamB", "teamB");
   </script>
