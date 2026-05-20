@@ -9,8 +9,8 @@
     .slot-row { display: grid; grid-template-columns: 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
     select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; }
     button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
-    th, td { border: 1px solid #334155; padding: 10px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.85em; }
+    th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
   </style>
 </head>
@@ -24,6 +24,7 @@
 
   <script>
     const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
+    
     function createSlots(containerId, prefix) {
       let html = "";
       for (let i = 1; i <= 3; i++) {
@@ -36,14 +37,24 @@
     }
 
     function runBattle() {
-      // Vereinfachte Simulation: Summen über den Kampf
-      let res = { A: { alphaDmg: 25000, beastDmg: 40000, remaining: 1800, wins: true },
-                  B: { alphaDmg: 18000, beastDmg: 35000, remaining: 400, wins: false } };
+      let teams = { A: { alphaDmg: 0, triggers: 0 }, B: { alphaDmg: 0, triggers: 0 } };
+
+      // Simulation für 8 Runden
+      for (let r = 1; r <= 8; r++) {
+        ["A", "B"].forEach(t => {
+          for(let i=1; i<=3; i++) {
+            if(document.getElementById(`team${t}-a-${i}`).value === "Smilodon" && Math.random() < 0.7) {
+              teams[t].alphaDmg += 5600;
+              teams[t].triggers += 1;
+            }
+          }
+        });
+      }
 
       let html = `<table>
-        <tr><th>Team</th><th>Alpha Schaden</th><th>Bestien Schaden</th><th>Rest Bestien</th><th>Ergebnis</th></tr>
-        <tr><td>🟦 Dein Team</td><td>${res.A.alphaDmg.toLocaleString()}</td><td>${res.A.beastDmg.toLocaleString()}</td><td>${res.A.remaining}</td><td>${res.A.wins ? "Sieg" : "Niederlage"}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${res.B.alphaDmg.toLocaleString()}</td><td>${res.B.beastDmg.toLocaleString()}</td><td>${res.B.remaining}</td><td>${res.B.wins ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><th>Team</th><th>Alpha DMG</th><th>Fähigkeiten</th><th>Ergebnis</th></tr>
+        <tr><td>🟦 Dein Team</td><td>${teams.A.alphaDmg.toLocaleString()}</td><td>${teams.A.triggers}x genutzt</td><td>${teams.A.alphaDmg > teams.B.alphaDmg ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${teams.B.alphaDmg.toLocaleString()}</td><td>${teams.B.triggers}x genutzt</td><td>${teams.B.alphaDmg > teams.A.alphaDmg ? "Sieg" : "Niederlage"}</td></tr>
       </table>`;
       document.getElementById("report").innerHTML = html;
     }
