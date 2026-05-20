@@ -4,84 +4,50 @@
   <meta charset="UTF-8">
   <title>Beast Lord Kampf-Sim</title>
   <style>
-    body { margin: 0; padding: 15px; font-family: sans-serif; color: #fff; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; }
-    .box { border: 1px solid #444; padding: 10px; margin-bottom: 15px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); }
-    .slot-row { display: grid; grid-template-columns: 1fr 1.5fr 0.7fr; gap: 5px; margin-bottom: 8px; }
-    select, input { background: #333; color: #fff; border: 1px solid #555; padding: 6px; font-size: 0.9em; }
-    button { background-color: #ffc107; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-    #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
-    .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; font-size: 0.8em; }
-    .dmg-row { border-bottom: 1px solid #333; padding: 6px 0; font-size: 0.85em; }
+    body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; }
+    th, td { border: 1px solid #334155; padding: 10px; text-align: center; }
+    th { background: #334155; color: #fbbf24; }
+    .dmg-highlight { color: #f87171; font-weight: bold; }
+    .stat-row { font-size: 0.9em; }
   </style>
 </head>
 <body>
-  <h3>🟦 Dein Team</h3>
-  <div class="box" id="teamA"></div>
-  <h3>🟥 Gegner Team</h3>
-  <div class="box" id="teamB"></div>
-  <button onclick="runBattle()">⚔️ Kampf starten</button>
-  <div id="result-grid"></div>
+  <h3>Beast Lord Simulator (Alpha Report)</h3>
+  <div id="setup">
+    </div>
+  <button onclick="simulate()">Kampf simulieren</button>
+  <div id="report"></div>
 
   <script>
-    const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = [{ name: "Nordwestlicher Wolf", atk: 8, def: 2, hp: 60 }];
+    function simulate() {
+      let html = `
+        <table>
+          <tr>
+            <th>Runde</th>
+            <th>Alpha Aktion</th>
+            <th>Schaden (Alpha)</th>
+            <th>Truppen Rest</th>
+          </tr>
+      `;
 
-    function createSlots(containerId, prefix) {
-      let html = "";
-      for (let i = 1; i <= 3; i++) {
-        html += `<div class="slot-row">
-          <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-          <select id="${prefix}-b-${i}">${beasts.map(b => `<option value="${b.name}">${b.name}</option>`).join('')}</select>
-          <input type="number" id="${prefix}-c-${i}" value="1000">
-        </div>`;
+      let units = 3000;
+      for(let r = 1; r <= 5; r++) {
+        let alphaDmg = Math.floor(Math.random() * 5000) + 2000;
+        units -= Math.floor(alphaDmg / 100);
+        
+        html += `
+          <tr class="stat-row">
+            <td>${r}</td>
+            <td>⚡ Tödlicher Comboschlag</td>
+            <td class="dmg-highlight">${alphaDmg.toLocaleString()}</td>
+            <td>${units} 🐾</td>
+          </tr>
+        `;
       }
-      document.getElementById(containerId).innerHTML = html;
+      html += "</table>";
+      document.getElementById('report').innerHTML = html;
     }
-
-    function runBattle() {
-      let resDiv = document.getElementById('result-grid');
-      resDiv.innerHTML = `<div class="col-header">🟦 DMG (Alpha+Bestie) | Rest</div><div class="col-header">🟥 DMG (Alpha+Bestie) | Rest</div>`;
-      
-      let state = { A: { count: 3000, stacks: 0, dist: 0 }, B: { count: 3000, stacks: 0, dist: 0 } };
-
-      for (let r = 1; r <= 10; r++) {
-        let logA = "", logB = "", dmgA = 0, dmgB = 0, alphaDmgA = 0, alphaDmgB = 0;
-
-        for(let i=1; i<=3; i++) {
-            let teamAtkSum = 8000; // Vereinfachter Basiswert der Bestien
-            
-            // Logik Team A
-            if(document.getElementById("teamA-a-"+i).value === "Smilodon") {
-                if(Math.random() < 0.8) { alphaDmgA += teamAtkSum * 2.0; state.A.stacks++; logA += "⚡ "; }
-                if(Math.random() < 0.7) { alphaDmgA += teamAtkSum * 1.4; logA += "🦷 "; }
-                if(Math.random() < 0.5) { state.A.dist++; logA += "🎯 "; }
-            }
-            
-            // Logik Team B
-            if(document.getElementById("teamB-a-"+i).value === "Smilodon") {
-                if(Math.random() < 0.8) { alphaDmgB += teamAtkSum * 2.0; state.B.stacks++; logB += "⚡ "; }
-                if(Math.random() < 0.7) { alphaDmgB += teamAtkSum * 1.4; logB += "🦷 "; }
-                if(Math.random() < 0.5) { state.B.dist++; logB += "🎯 "; }
-            }
-        }
-
-        dmgA = (8000 + alphaDmgA);
-        dmgB = (8000 + alphaDmgB);
-
-        state.A.count -= Math.floor(dmgB / 500);
-        state.B.count -= Math.floor(dmgA / 500);
-
-        resDiv.innerHTML += `<div class="dmg-row">
-            ${Math.floor(dmgA).toLocaleString()} (${Math.floor(alphaDmgA).toLocaleString()} α) | ${state.A.count}🐾 ${logA}</div>
-            <div class="dmg-row">
-            ${Math.floor(dmgB).toLocaleString()} (${Math.floor(alphaDmgB).toLocaleString()} α) | ${state.B.count}🐾 ${logB}</div>`;
-
-        if (state.A.count <= 0 || state.B.count <= 0) break;
-      }
-    }
-    
-    createSlots("teamA", "teamA");
-    createSlots("teamB", "teamB");
   </script>
 </body>
 </html>
