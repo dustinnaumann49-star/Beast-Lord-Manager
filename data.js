@@ -18,6 +18,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.7, dmg_multiplier: 2.5, target: "front_row", debuff: "increase_alpha_dmg_taken", debuff_value: 0.3 },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
                 skill6: { type: "special", chance: 0.6, effect: "double_attack", duration_rounds: 1 }
+            },
+            "Weißer Löwe": {
+                skill1: { type: "active", chance: 0.6, dmg_multiplier: 3.0, target: "front_row" },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", chance: 0.6, dmg_multiplier: 2.5, target: "two_random_rows" },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill6: { type: "passive", effect: "increase_atk_and_alpha_dmg", atk_value: 0.5, alpha_dmg_value: 0.5 }
             }
         },
         "S2": {},
