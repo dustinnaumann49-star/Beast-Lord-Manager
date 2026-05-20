@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v7</title>
+  <title>Beast Lord Kampf-Sim Pro v8</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -68,8 +68,8 @@
     }
 
     function runBattle() {
-      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgBuff: 0 }, 
-          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0, dmgBuff: 0 };
+      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 }, 
+          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 };
       
       for(let i=1; i<=3; i++) {
         teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value), alpha: document.getElementById(`teamA-a-${i}`).value });
@@ -91,8 +91,8 @@
             let baseAtk = u.count * beasts[u.type].atk;
             if(u.alpha === "Jaguarundi") baseAtk *= 1.8;
             set.t.beastDmg += baseAtk;
-            if(u.alpha === "Smilodon" && Math.random() < 0.7) { set.t.alphaDmg += Math.floor(set.t.beastDmg * 0.2); set.t.triggers++; }
-            if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { set.t.healing += Math.floor(set.t.beastDmg * 0.1); set.t.triggers++; }
+            if(u.alpha === "Smilodon" && Math.random() < 0.7) { set.t.alphaDmg += Math.floor(baseAtk * 0.2); set.t.triggers++; }
+            if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { set.t.healing += Math.floor(baseAtk * 0.1); set.t.triggers++; }
             if(u.alpha === "Jaguarundi") {
               if(Math.random() < 0.7) { set.t.alphaDmg += Math.floor(baseAtk * 2.5); set.t.triggers++; }
               if(Math.random() < 0.6) { set.t.beastDmg += Math.floor(baseAtk * 0.5); set.t.triggers++; }
@@ -103,8 +103,8 @@
         let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - sB.totalDef);
         let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - sA.totalDef);
         
-        teamB.units.forEach(u => u.count = Math.max(0, u.count - Math.floor((dmgA / 3) / beasts[u.type].hp)));
-        teamA.units.forEach(u => u.count = Math.max(0, u.count - Math.floor((dmgB / 3) / beasts[u.type].hp)));
+        teamB.units.forEach(u => u.count = Math.max(0, Math.ceil(u.count - ((dmgA / 3) / beasts[u.type].hp))));
+        teamA.units.forEach(u => u.count = Math.max(0, Math.ceil(u.count - ((dmgB / 3) / beasts[u.type].hp))));
 
         if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
       }
