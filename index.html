@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v17</title>
+  <title>Beast Lord Kampf-Sim Pro v18</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -59,6 +59,7 @@
 
     function runBattle() {
       let teams = [{ id: "A", alphaDmg: 0, beastDmg: 0, heal: 0, trg: 0 }, { id: "B", alphaDmg: 0, beastDmg: 0, heal: 0, trg: 0 }];
+      
       teams.forEach((t) => {
         for(let i=1; i<=3; i++) {
           let alpha = document.getElementById(`team${t.id}-a-${i}`).value;
@@ -66,12 +67,15 @@
           let atk = count * 100;
           t.beastDmg += atk;
           
-          if(alpha === "Smilodon") { t.alphaDmg += Math.floor(atk * 0.5); t.trg++; }
-          else if(alpha === "Hyaenodon") { t.heal += Math.floor(atk * 0.3); t.trg++; }
-          else if(alpha === "Jaguarundi") { t.alphaDmg += Math.floor(atk * 0.8); t.trg++; }
-          else if(alpha === "Geierschildkröte") { t.alphaDmg += Math.floor(atk * 2.3); t.trg++; }
-          else if(alpha === "Klapperschlange") { t.alphaDmg += Math.floor(atk * 2.2); t.trg++; }
-          else if(alpha === "Kodiakbär") { t.alphaDmg += Math.floor(atk * 3.9); t.trg++; }
+          // Simulation von 8 Runden mit Zufallskomponente pro Klick
+          for(let r = 1; r <= 8; r++) {
+            if(alpha === "Smilodon" && Math.random() < 0.7) { t.alphaDmg += Math.floor(atk * 0.2); t.trg++; }
+            else if(alpha === "Hyaenodon" && Math.random() < 0.5) { t.heal += Math.floor(atk * 0.1); t.trg++; }
+            else if(alpha === "Jaguarundi" && Math.random() < 0.6) { t.alphaDmg += Math.floor(atk * 0.3); t.trg++; }
+            else if(alpha === "Geierschildkröte" && Math.random() < 0.5) { t.alphaDmg += Math.floor(atk * 0.4); t.trg++; }
+            else if(alpha === "Klapperschlange" && Math.random() < 0.6) { t.alphaDmg += Math.floor(atk * 0.4); t.trg++; }
+            else if(alpha === "Kodiakbär" && Math.random() < 0.4) { t.alphaDmg += Math.floor(atk * 0.5); t.trg++; }
+          }
         }
       });
 
@@ -82,7 +86,9 @@
         </table>
         <p style="text-align:center; font-weight:bold; color:#fbbf24;">Simulierte Runden: 8</p>`;
     }
-    createSlots("teamA", "teamA"); createSlots("teamB", "teamB");
+
+    createSlots("teamA", "teamA"); 
+    createSlots("teamB", "teamB");
   </script>
 </body>
 </html>
