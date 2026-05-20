@@ -12,6 +12,7 @@
     #result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-family: monospace; background: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 8px; }
     .col-header { font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #ffc107; }
     .dmg-row { border-bottom: 1px solid #333; padding: 4px 0; font-size: 0.85em; }
+    .win-msg { font-weight: bold; font-size: 1.2em; padding: 10px; text-align: center; color: #ffc107; }
   </style>
 </head>
 <body>
@@ -44,41 +45,40 @@
 
     function runBattle() {
       let resDiv = document.getElementById('result-grid');
-      resDiv.innerHTML = `<div class="col-header">🟦 Dein Schaden</div><div class="col-header">🟥 Gegner Schaden</div>`;
+      resDiv.innerHTML = `<div class="col-header">🟦 Dein Team (Bestien)</div><div class="col-header">🟥 Gegner (Bestien)</div>`;
       
-      let state = { A: { stacks: 0, dist: 0 }, B: { stacks: 0, dist: 0 } };
+      let state = { 
+        A: { count: 3000, stacks: 0, dist: 0 }, 
+        B: { count: 3000, stacks: 0, dist: 0 } 
+      };
 
       for (let r = 1; r <= 10; r++) {
-        let dmgA = 0, dmgB = 0, logA = "", logB = "";
+        let logA = "", logB = "", dmgA = 500, dmgB = 500;
 
-        // Berechne Schaden für alle 3 Slots pro Team
+        // Berechnung Schaden (vereinfacht auf Basis der überlebenden Bestien)
         for(let i=1; i<=3; i++) {
-            // Team A
-            let alphaA = document.getElementById(`teamA-a-${i}`).value;
-            let atkA = 8000; // Basiswert für Test
-            if(alphaA === "Smilodon") {
-                if(Math.random() < 0.8) { atkA *= (2.0 + (state.A.stacks * 0.1)); state.A.stacks++; logA += "⚡ "; }
-                if(Math.random() < 0.7) { atkA *= 1.4; logA += "🦷 "; }
-                if(Math.random() < 0.5) { state.A.dist++; logA += "🎯 "; }
-                atkA *= (1 + (state.A.dist * 0.08));
+            if(document.getElementById("teamA-a-"+i).value === "Smilodon") {
+                if(Math.random() < 0.8) { dmgA *= 2.0; state.A.stacks++; logA += "⚡ "; }
+                dmgA *= (1 + (state.A.dist * 0.08));
             }
-            dmgA += atkA;
-
-            // Team B
-            let alphaB = document.getElementById(`teamB-a-${i}`).value;
-            let atkB = 8000;
-            if(alphaB === "Smilodon") {
-                if(Math.random() < 0.8) { atkB *= (2.0 + (state.B.stacks * 0.1)); state.B.stacks++; logB += "⚡ "; }
-                if(Math.random() < 0.7) { atkB *= 1.4; logB += "🦷 "; }
-                if(Math.random() < 0.5) { state.B.dist++; logB += "🎯 "; }
-                atkB *= (1 + (state.B.dist * 0.08));
+            if(document.getElementById("teamB-a-"+i).value === "Smilodon") {
+                if(Math.random() < 0.8) { dmgB *= 2.0; state.B.stacks++; logB += "⚡ "; }
+                dmgB *= (1 + (state.B.dist * 0.08));
             }
-            dmgB += atkB;
         }
 
-        resDiv.innerHTML += `<div class="dmg-row">${Math.floor(dmgA).toLocaleString()} ${logA}</div>
-                             <div class="dmg-row">${Math.floor(dmgB).toLocaleString()} ${logB}</div>`;
+        // Bestien abziehen
+        state.A.count -= Math.floor(dmgB / 10);
+        state.B.count -= Math.floor(dmgA / 10);
+
+        resDiv.innerHTML += `<div class="dmg-row">${state.A.count} ${logA}</div>
+                             <div class="dmg-row">${state.B.count} ${logB}</div>`;
+
+        if (state.A.count <= 0 || state.B.count <= 0) break;
       }
+
+      let winner = state.A.count > state.B.count ? "🟦 DU HAST GEWONNEN!" : "🟥 GEGNER HAT GEWONNEN!";
+      resDiv.innerHTML += `<div class="win-msg" style="grid-column: span 2;">${winner}</div>`;
     }
     
     createSlots("teamA", "teamA");
