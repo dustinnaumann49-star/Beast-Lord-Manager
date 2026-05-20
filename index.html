@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v4</title>
+  <title>Beast Lord Kampf-Sim Pro v5</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
@@ -24,23 +24,49 @@
   <div id="report"></div>
 
   <script>
-    const alphas = ["Smilodon", "Hyaenodon", "Keiner"];
-    const beasts = {
-      "Nordwestlicher Wolf": { atk: 100, def: 20, hp: 100 },
-      "Sumatra-Orang-Utan": { atk: 60, def: 50, hp: 150 },
-      "Takin": { atk: 30, def: 100, hp: 250 }
+    const alphas = {
+      "Keiner": { type: "Alle" },
+      "Smilodon": { type: "Fleischfresser" },
+      "Hyaenodon": { type: "Fleischfresser" }
     };
+    const beasts = {
+      "Nordwestlicher Wolf": { type: "Fleischfresser", atk: 100, def: 20, hp: 100 },
+      "Sumatra-Orang-Utan": { type: "Allesfresser", atk: 60, def: 50, hp: 150 },
+      "Takin": { type: "Pflanzenfresser", atk: 30, def: 100, hp: 250 }
+    };
+
+    function updateBeastOptions(prefix, i) {
+      const alphaSelect = document.getElementById(`${prefix}-a-${i}`);
+      const beastSelect = document.getElementById(`${prefix}-b-${i}`);
+      const selectedAlphaType = alphas[alphaSelect.value].type;
+      
+      const currentValue = beastSelect.value;
+      beastSelect.innerHTML = "";
+      
+      for (const [name, data] of Object.entries(beasts)) {
+        if (selectedAlphaType === "Alle" || data.type === selectedAlphaType) {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          if (name === currentValue) opt.selected = true;
+          beastSelect.appendChild(opt);
+        }
+      }
+    }
 
     function createSlots(containerId, prefix) {
       let html = "";
       for (let i = 1; i <= 3; i++) {
         html += `<div class="slot-row">
-          <select id="${prefix}-a-${i}">${alphas.map(a => `<option>${a}</option>`).join('')}</select>
-          <select id="${prefix}-b-${i}">${Object.keys(beasts).map(b => `<option>${b}</option>`).join('')}</select>
+          <select id="${prefix}-a-${i}" onchange="updateBeastOptions('${prefix}', ${i})">
+            ${Object.keys(alphas).map(a => `<option>${a}</option>`).join('')}
+          </select>
+          <select id="${prefix}-b-${i}"></select>
           <input type="number" id="${prefix}-c-${i}" value="1000">
         </div>`;
       }
       document.getElementById(containerId).innerHTML = html;
+      for (let i = 1; i <= 3; i++) updateBeastOptions(prefix, i);
     }
 
     function runBattle() {
@@ -62,31 +88,22 @@
       for (let r = 1; r <= 8; r++) {
         finalRound = r;
         let sA = getStats(teamA), sB = getStats(teamB);
-
-        // Team A Aktionen
         teamA.units.forEach(u => {
           teamA.beastDmg += (u.count * beasts[u.type].atk);
-          if(u.alpha === "Smilodon") { if(Math.random() < 0.7) { teamA.alphaDmg += Math.floor(sA.totalAtk * 0.2); teamA.triggers++; } }
-          if(u.alpha === "Hyaenodon") { if(Math.random() < 0.5) { teamA.healing += Math.floor(sA.totalHp * 0.05); teamA.triggers++; } }
+          if(u.alpha === "Smilodon" && Math.random() < 0.7) { teamA.alphaDmg += Math.floor(sA.totalAtk * 0.2); teamA.triggers++; }
+          if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { teamA.healing += Math.floor(sA.totalHp * 0.05); teamA.triggers++; }
         });
-        
-        // Team B Aktionen
         teamB.units.forEach(u => {
           teamB.beastDmg += (u.count * beasts[u.type].atk);
-          if(u.alpha === "Smilodon") { if(Math.random() < 0.7) { teamB.alphaDmg += Math.floor(sB.totalAtk * 0.2); teamB.triggers++; } }
-          if(u.alpha === "Hyaenodon") { if(Math.random() < 0.5) { teamB.healing += Math.floor(sB.totalHp * 0.05); teamB.triggers++; } }
+          if(u.alpha === "Smilodon" && Math.random() < 0.7) { teamB.alphaDmg += Math.floor(sB.totalAtk * 0.2); teamB.triggers++; }
+          if(u.alpha === "Hyaenodon" && Math.random() < 0.5) { teamB.healing += Math.floor(sB.totalHp * 0.05); teamB.triggers++; }
         });
-
-        // Schaden verrechnen
         let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - sB.totalDef);
         let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - sA.totalDef);
-        
         teamB.units.forEach(u => u.count -= Math.floor((dmgA / 3) / beasts[u.type].hp));
         teamA.units.forEach(u => u.count -= Math.floor((dmgB / 3) / beasts[u.type].hp));
-
         if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
       }
-
       let cA = teamA.units.reduce((s, u) => s + u.count, 0), cB = teamB.units.reduce((s, u) => s + u.count, 0);
       document.getElementById("report").innerHTML = `<table>
         <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
@@ -94,7 +111,6 @@
         <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, cB)}</td><td>${cB > cA ? "Sieg" : "Niederlage"}</td></tr>
       </table><div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
     }
-
     createSlots("teamA", "teamA");
     createSlots("teamB", "teamB");
   </script>
