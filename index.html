@@ -2,15 +2,15 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Beast Lord Kampf-Sim Pro v3</title>
+  <title>Beast Lord Kampf-Sim Pro v4</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #e2e8f0; padding: 15px; }
     .box { border: 1px solid #334155; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #1e293b; }
     .slot-row { display: grid; grid-template-columns: 1fr 1fr 1fr 0.5fr; gap: 5px; margin-bottom: 5px; }
     select, input { background: #334155; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.8em; }
     button { background: #fbbf24; color: black; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.75em; }
-    th, td { border: 1px solid #334155; padding: 6px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #1e293b; font-size: 0.7em; }
+    th, td { border: 1px solid #334155; padding: 5px; text-align: center; }
     th { background: #334155; color: #fbbf24; }
     .round-info { margin-top: 10px; font-weight: bold; color: #fbbf24; text-align: center; }
   </style>
@@ -43,22 +43,13 @@
       document.getElementById(containerId).innerHTML = html;
     }
 
-    function calculateAlphaTurn(alpha, stats, teamStats) {
-      if (alpha === "Smilodon") {
-        if (Math.random() < 0.7) { stats.alphaDmg += Math.floor(teamStats.totalAtk * 0.5); stats.triggers += 1; }
-        if (Math.random() < 0.8) { stats.alphaDmg += Math.floor(teamStats.totalAtk * 0.8); stats.triggers += 1; }
-      } else if (alpha === "Hyaenodon") {
-        if (Math.random() < 0.5) { stats.healing += Math.floor(teamStats.totalHp * 0.1); stats.triggers += 1; }
-      }
-    }
-
     function runBattle() {
-      let teamA = { units: [], alphaDmg: 0, healing: 0, triggers: 0 }, teamB = { units: [], alphaDmg: 0, healing: 0, triggers: 0 };
+      let teamA = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 }, 
+          teamB = { units: [], alphaDmg: 0, beastDmg: 0, healing: 0, triggers: 0 };
       
-      // Init Daten laden
       for(let i=1; i<=3; i++) {
-        teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value) });
-        teamB.units.push({ type: document.getElementById(`teamB-b-${i}`).value, count: parseInt(document.getElementById(`teamB-c-${i}`).value) });
+        teamA.units.push({ type: document.getElementById(`teamA-b-${i}`).value, count: parseInt(document.getElementById(`teamA-c-${i}`).value), alpha: document.getElementById(`teamA-a-${i}`).value });
+        teamB.units.push({ type: document.getElementById(`teamB-b-${i}`).value, count: parseInt(document.getElementById(`teamB-c-${i}`).value), alpha: document.getElementById(`teamB-a-${i}`).value });
       }
 
       let getStats = (team) => {
@@ -70,26 +61,37 @@
       let finalRound = 0;
       for (let r = 1; r <= 8; r++) {
         finalRound = r;
-        let statsA = getStats(teamA), statsB = getStats(teamB);
+        let sA = getStats(teamA), sB = getStats(teamB);
 
-        // A greift B an
-        for(let i=1; i<=3; i++) calculateAlphaTurn(document.getElementById(`teamA-a-${i}`).value, teamA, statsA);
-        let dmgA = Math.max(0, (statsA.totalAtk + teamA.alphaDmg) - statsB.totalDef);
-        teamB.units.forEach(u => u.count -= Math.floor((dmgA / teamB.units.length) / beasts[u.type].hp));
+        // Team A Aktionen
+        teamA.units.forEach(u => {
+          teamA.beastDmg += (u.count * beasts[u.type].atk);
+          if(u.alpha === "Smilodon") { if(Math.random() < 0.7) { teamA.alphaDmg += Math.floor(sA.totalAtk * 0.2); teamA.triggers++; } }
+          if(u.alpha === "Hyaenodon") { if(Math.random() < 0.5) { teamA.healing += Math.floor(sA.totalHp * 0.05); teamA.triggers++; } }
+        });
+        
+        // Team B Aktionen
+        teamB.units.forEach(u => {
+          teamB.beastDmg += (u.count * beasts[u.type].atk);
+          if(u.alpha === "Smilodon") { if(Math.random() < 0.7) { teamB.alphaDmg += Math.floor(sB.totalAtk * 0.2); teamB.triggers++; } }
+          if(u.alpha === "Hyaenodon") { if(Math.random() < 0.5) { teamB.healing += Math.floor(sB.totalHp * 0.05); teamB.triggers++; } }
+        });
 
-        // B greift A an
-        for(let i=1; i<=3; i++) calculateAlphaTurn(document.getElementById(`teamB-a-${i}`).value, teamB, statsB);
-        let dmgB = Math.max(0, (statsB.totalAtk + teamB.alphaDmg) - statsA.totalDef);
-        teamA.units.forEach(u => u.count -= Math.floor((dmgB / teamA.units.length) / beasts[u.type].hp));
+        // Schaden verrechnen
+        let dmgA = Math.max(0, (teamA.beastDmg + teamA.alphaDmg) - sB.totalDef);
+        let dmgB = Math.max(0, (teamB.beastDmg + teamB.alphaDmg) - sA.totalDef);
+        
+        teamB.units.forEach(u => u.count -= Math.floor((dmgA / 3) / beasts[u.type].hp));
+        teamA.units.forEach(u => u.count -= Math.floor((dmgB / 3) / beasts[u.type].hp));
 
         if (teamA.units.every(u => u.count <= 0) || teamB.units.every(u => u.count <= 0)) break;
       }
 
-      let countA = teamA.units.reduce((sum, u) => sum + u.count, 0), countB = teamB.units.reduce((sum, u) => sum + u.count, 0);
+      let cA = teamA.units.reduce((s, u) => s + u.count, 0), cB = teamB.units.reduce((s, u) => s + u.count, 0);
       document.getElementById("report").innerHTML = `<table>
-        <tr><th>Team</th><th>Alpha DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
-        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${Math.max(0, countA)}</td><td>${countA > countB ? "Sieg" : "Niederlage"}</td></tr>
-        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, countB)}</td><td>${countB > countA ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><th>Team</th><th>Alpha DMG</th><th>Bestien DMG</th><th>Heilung</th><th>Trigger</th><th>Rest 🐾</th><th>Status</th></tr>
+        <tr><td>🟦 Dein</td><td>${teamA.alphaDmg.toLocaleString()}</td><td>${teamA.beastDmg.toLocaleString()}</td><td>${teamA.healing.toLocaleString()}</td><td>${teamA.triggers}x</td><td>${Math.max(0, cA)}</td><td>${cA > cB ? "Sieg" : "Niederlage"}</td></tr>
+        <tr><td>🟥 Gegner</td><td>${teamB.alphaDmg.toLocaleString()}</td><td>${teamB.beastDmg.toLocaleString()}</td><td>${teamB.healing.toLocaleString()}</td><td>${teamB.triggers}x</td><td>${Math.max(0, cB)}</td><td>${cB > cA ? "Sieg" : "Niederlage"}</td></tr>
       </table><div class="round-info">Kampf beendet nach ${finalRound} Runden</div>`;
     }
 
