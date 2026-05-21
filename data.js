@@ -156,7 +156,16 @@ export const alphas = {
                 skill6: { type: "special", effect: "increase_beast_dmg", value: 0.10, recurring_dmg: 1.0, target_count: 2, frequency: "every_round" }
             }
         },
-        "S2": {},
+        "S2": {
+            "Doedicurus": {
+                skill1: { type: "aura", duration_rounds: 3, effect: "prevent_enemy_attacks", damage_reduction: 0.5 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.48 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.48 },
+                skill4: { type: "active", chance: 0.5, dmg_multiplier: 2.2, target: "one_random_row", effect: "silence", duration: 1 },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.20 },
+                skill6: { type: "special", rounds: [2, 4, 6], dmg_multiplier: 3.0, target: "two_random_rows" }
+            }
+        },
         "S3": {}
     }
 };
