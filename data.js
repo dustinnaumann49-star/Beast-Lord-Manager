@@ -146,6 +146,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.8, dmg_multiplier: 2.1, target: "one_random_row", effect: "disarm", disarm_chance: 0.5, duration: 1 },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
                 skill6: { type: "aura", rounds: 4, effect: "reduce_alpha_ability_dmg_taken", value: 0.20 }
+            },
+            "Yak": {
+                skill1: { type: "active", chance: 0.8, prepare_rounds: 1, attacks: [1.2, 2.4, 4.8], target: "enemy_beasts" },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "passive", effect: "increase_alpha_ability_dmg", value: 0.10, stackable: true, max: 0.8 },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill6: { type: "special", effect: "increase_beast_dmg", value: 0.10, recurring_dmg: 1.0, target_count: 2, frequency: "every_round" }
             }
         },
         "S2": {},
