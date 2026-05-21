@@ -39,6 +39,54 @@ const Omnivores = {
       "skill5": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
       "skill6": { "name": "Gnadenlose Ernte", "type": "active_combat", "range": 5, "effects": [{ "target": "all_enemy_units_in_3_rows", "type": "alpha_damage", "chance": 0.50, "multiplier": 1.30, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "all_enemy_units_in_3_rows", "type": "bonus_skill_dmg_if_poisoned", "value": 0.50 }] }
     }
+  },
+  // --- S2 Allesfresser ---
+  "Hoehlenbaer": {
+    "id": "hoehlenbaer_01",
+    "class": "Allesfresser",
+    "skills": {
+      "skill1": { "name": "Wütende Natur", "type": "pre_combat_buff" },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
+      "skill4": { "name": "Instinkt des Ausweichens", "type": "pre_combat_buff" },
+      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.20 }] },
+      "skill6": { "name": "Wilder Ansturm", "type": "pre_combat_buff" }
+    }
+  },
+  "Riesenbiber": {
+    "id": "riesenbiber_01",
+    "class": "Allesfresser",
+    "skills": {
+      "skill1": { 
+        "name": "Schwachstellenschlag", 
+        "type": "active_combat", 
+        "range": 4,
+        "effects": [
+          { "target": "two_random_enemy_rows", "type": "alpha_damage", "chance": 0.50, "multiplier": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } },
+          { "target": "two_random_enemy_units", "type": "apply_debuff", "duration": 2, "value": 0.30, "stats": ["atk", "def"] }
+        ] 
+      },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
+      "skill4": { 
+        "name": "Umfassende Taktiken", 
+        "type": "active_combat", 
+        "preparation_rounds": 1,
+        "effects": [
+          { "target": "all_enemy_units", "type": "alpha_damage", "chance": 0.60, "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.02 } },
+          { "target": "all_friendly_units", "type": "healing", "chance": 0.60, "multiplier": 3.00 }
+        ] 
+      },
+      "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill6": { 
+        "name": "Zündung des Kriegsfads", 
+        "type": "pre_combat_buff", 
+        "effects": [
+          { "target": "all_friendly_units", "type": "atk_def_stackable_buff", "chance": 0.75, "value": 0.30 },
+          { "target": "all_friendly_units", "type": "control_resistance", "value": 0.25, "duration": 2 }
+        ] 
+      }
+    }
   }
 };
 
