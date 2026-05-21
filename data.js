@@ -182,6 +182,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.5, dmg_multiplier: 3.8, target: "one_random_row", effect: "confusion", duration: 1 },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.26 },
                 skill6: { type: "special", frequency: "once_per_round", effect: "increase_def_and_incoming_heal", def_value: 0.20, heal_value: 0.075, stackable: true }
+            },
+            "Meiolania": {
+                skill1: { type: "active", chance: 1.0, dmg_multiplier: 0.7, target: "all_rows", self_dmg: 0.20 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill4: { type: "special", trigger: "on_beasts_damaged_9_times", effect: "activate_shield", immunize: true, reflect_dmg: 3.5 },
+                skill5: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill6: { type: "active", chance: 0.8, heal_rate: 1.5, target_count: 2, reduce_next_alpha_ability_dmg: 0.20 }
             }
         }
     }
