@@ -23,8 +23,20 @@ const Alphas = {
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.38 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
       "skill4": { "name": "Schwachstellenfang", "type": "trigger", "trigger": "after_normal_attack", "chance": 0.70, "range": 4, "effects": [{ "target": "enemy_front_row", "type": "alpha_damage", "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "enemy_front_row", "type": "debuff_increase_taken_skill_dmg", "value": 0.30, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
-      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.15 }] },
+      "skill5": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
       "skill6": { "name": "Schneller Stoß", "type": "active_round_start", "chance": 0.60, "duration": 1, "range": 2, "effects": [{ "target": "two_random_friendly_rows", "type": "add_extra_normal_attack", "value": 1 }] }
+    }
+  },
+  "WeisserLoewe": {
+    "id": "weisser_loewe_01",
+    "class": "Fleischfresser",
+    "skills": {
+      "skill1": { "name": "Heftiger Angriff", "type": "trigger", "trigger": "after_normal_attack", "chance": 0.60, "range": 5, "effects": [{ "target": "enemy_front_row", "type": "alpha_damage", "multiplier": 3.00, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.38 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
+      "skill4": { "name": "Aggressiver Biss", "type": "trigger", "trigger": "after_normal_attack", "chance": 0.60, "range": 5, "effects": [{ "target": "two_random_enemy_rows", "type": "alpha_damage", "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
+      "skill5": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
+      "skill6": { "name": "Kampferprobt", "type": "passive_stat", "effects": [{ "type": "atk_dmg_buff_total", "value": 0.50 }, { "type": "skill_dmg_buff_total", "value": 0.50 }] }
     }
   }
 };
