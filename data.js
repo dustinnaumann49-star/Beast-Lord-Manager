@@ -122,7 +122,16 @@ export const alphas = {
         }
     },
     "Pflanzenfresser": {
-        "S1": {},
+        "S1": {
+            "Hebriden-Schaf": {
+                skill1: { type: "special", trigger: "on_damage_taken", chance: 1.0, effect: "counter_attack", dmg_multiplier: 1.1, buff_beast_dmg: 0.3, stackable: true },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", effect: "reduce_enemy_dmg", value: 0.25, heal_if_beast_count_below_50_pct: 5.5 },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill6: { type: "aura", effect: "reduce_alpha_dmg", rounds: 3, value: 0.20, after_round_3_effect: "increase_beast_dmg", after_round_3_value: 0.30, end_round: 8 }
+            }
+        },
         "S2": {},
         "S3": {}
     }
