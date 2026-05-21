@@ -46,8 +46,40 @@ export const alphas = {
                 skill6: { type: "special", trigger: "on_own_beast_damage_taken", effect: "reflect_damage", value: 0.15 }
             }
         },
+        "S3": {
+            "Hyaenodon": {
+                skill1: { type: "active", dmg_multiplier: 0.2, effect: "reduce_damage_taken", value: 0.2 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill4: { type: "active", chance: 0.7, effect: "copy_third_row_alpha_skill" },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.26 },
+                skill6: { type: "special", hp_bonus: 0.20, chance: 0.5, effect: "increase_def_on_skill", def_buff: 0.3, heal: 1.0, stackable: true }
+            }
+        },
+        "S4": {}
+    },
+    "Allesfresser": {
+        "S1": {},
+        "S2": {},
         "S3": {},
         "S4": {}
     },
-    // ...
+    "Pflanzenfresser": {
+        "S1": {},
+        "S2": {},
+        "S3": {},
+        "S4": {}
+    }
+};
+
+export const beasts = {
+    "Fleischfresser": {
+        "Nordwestlicher Wolf": { atk: 120, def: 30, hp: 1000 }
+    },
+    "Allesfresser": {
+        "Sumatra-Orang-Utan": { atk: 90, def: 60, hp: 1500 }
+    },
+    "Pflanzenfresser": {
+        "Takin": { atk: 60, def: 120, hp: 2500 }
+    }
 };
