@@ -66,7 +66,16 @@ export const alphas = {
         }
     },
     "Allesfresser": {
-        "S1": {},
+        "S1": {
+            "Geierschildkröte": {
+                skill1: { type: "active", effect: "heal", heal_rate: 2.1 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", chance: 0.5, effect: "reduce_enemy_atk_and_alpha_dmg", duration_rounds: 1 },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
+                skill6: { type: "active", dmg_multiplier: 2.3, target: "front_row" }
+            }
+        },
         "S2": {},
         "S3": {}
     },
