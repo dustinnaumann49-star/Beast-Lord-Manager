@@ -82,6 +82,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.8, prepare_rounds: 1, dmg_multiplier: 3.5, target: "two_random_rows", effect: "silence_if_poisoned" },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
                 skill6: { type: "aura", rounds: 4, effect: "increase_all_alpha_dmg", value: 0.35 }
+            },
+            "Komodowaran": {
+                skill1: { type: "active", chance: 0.8, dmg_multiplier: 2.8, effect: "increase_beast_atk", buff_duration: 2, buff_value: 0.5 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", chance: 0.8, prepare_rounds: 1, dmg_multiplier: 2.0, target: "all_rows", effect: "poison", poison_dmg: 1.5, poison_duration: 1 },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill6: { type: "active", chance: 0.5, dmg_multiplier: 1.3, target: "all_rows", bonus_dmg_if_poisoned: 0.5 }
             }
         },
         "S2": {},
