@@ -1,6 +1,5 @@
 /**
- * Engine Datenkonfiguration für Alphas
- * Inklusive S1 und S2 Fleischfresser
+ * Engine Datenkonfiguration: Alle Fleischfresser-Alphas (S1 & S2)
  */
 
 const Alphas = {
@@ -46,28 +45,24 @@ const Alphas = {
     "id": "titanis_01",
     "class": "Fleischfresser",
     "skills": {
-      "skill1": { 
-        "name": "Kraft des Raubvogels", 
-        "type": "pre_battle", 
-        "duration": 3, 
-        "effects": [{ "target": "all_friendly_flesh_eaters", "type": "atk_buff_percentage", "value": 0.80 }, { "target": "all_friendly_flesh_eaters", "type": "normal_atk_dmg_buff_percentage", "value": 1.00 }] 
-      },
+      "skill1": { "name": "Kraft des Raubvogels", "type": "pre_battle", "duration": 3, "effects": [{ "target": "all_friendly_flesh_eaters", "type": "atk_buff_percentage", "value": 0.80 }, { "target": "all_friendly_flesh_eaters", "type": "normal_atk_dmg_buff_percentage", "value": 1.00 }] },
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
-      "skill4": { 
-        "name": "Spritzen-Schlag", 
-        "type": "pre_battle", 
-        "duration": 3, 
-        "chance": 0.75, 
-        "effects": [{ "target": "all_friendly_flesh_eaters", "type": "apply_splash_damage", "multiplier": 1.00, "targets": 2 }] 
-      },
-      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.20 }] },
-      "skill6": { 
-        "name": "Wütende Vergeltung", 
-        "type": "pre_battle", 
-        "duration": 3, 
-        "effects": [{ "target": "friendly_front_row", "type": "counter_attack", "chance": 1.00, "multiplier": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] 
-      }
+      "skill4": { "name": "Spritzen-Schlag", "type": "pre_battle", "duration": 3, "chance": 0.75, "effects": [{ "target": "all_friendly_flesh_eaters", "type": "apply_splash_damage", "multiplier": 1.00, "targets": 2 }] },
+      "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill6": { "name": "Wütende Vergeltung", "type": "pre_battle", "duration": 3, "effects": [{ "target": "friendly_front_row", "type": "counter_attack", "chance": 1.00, "multiplier": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] }
+    }
+  },
+  "AmerikanischerLoewe": {
+    "id": "amerik_loewe_01",
+    "class": "Fleischfresser",
+    "skills": {
+      "skill1": { "name": "Instinkt der Bewahrung", "type": "active_combat", "chance": 0.70, "range": 2, "effects": [{ "target": "two_random_friendly_rows", "type": "cleanse_debuffs", "value": 1.00 }, { "target": "two_random_friendly_rows", "type": "stat_buff_def_hp", "value": 0.40, "duration": 2 }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
+      "skill4": { "name": "Rasche Angriffe", "type": "pre_battle", "duration": 3, "range": 2, "effects": [{ "target": "two_random_friendly_rows", "type": "speed_buff", "value": 60 }, { "target": "two_random_friendly_rows", "type": "add_extra_normal_attack", "value": 1, "chance": 1.00 }] },
+      "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill6": { "name": "Taktische Verfolgung", "type": "passive_trigger", "effects": [{ "target": "enemy_rows", "type": "debuff_increase_taken_damage", "value": 0.15, "stack_limit": 0.60 }] }
     }
   }
 };
