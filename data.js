@@ -54,6 +54,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.7, effect: "copy_third_row_alpha_skill" },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.26 },
                 skill6: { type: "special", hp_bonus: 0.20, chance: 0.5, effect: "increase_def_on_skill", def_buff: 0.3, heal: 1.0, stackable: true }
+            },
+            "Smilodon": {
+                skill1: { type: "active", chance: 0.8, effect: "double_attack", dmg_multiplier: 2.2, mark: "vulnerability", mark_value: 0.1, stackable: true },
+                skill2: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill4: { type: "active", chance: 0.7, target: "all_rows", dmg_multiplier: 1.0 },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill6: { type: "special", frequency: "once_per_round", effect: "increase_distance", dmg_bonus_per_distance: 0.08 }
             }
         },
         "S4": {}
