@@ -118,6 +118,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.8, prepare_rounds: 1, dmg_multiplier: 3.5, target: "two_random_rows", effect: "silence", silence_chance: 0.5, silence_duration: 1 },
                 skill5: { type: "passive", effect: "increase_def", value: 0.60 },
                 skill6: { type: "special", rounds: [2, 4, 6, 8], dmg_multiplier: 2.7, target: "all_rows", effect: "bonus_dmg_on_dodge", bonus_val: 0.10, stackable: true }
+            },
+            "Dinopithecus": {
+                skill1: { type: "active", chance: 0.7, dmg_multiplier: 2.8, target: "two_random_rows" },
+                skill2: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill4: { type: "active", chance: 0.8, prepare_rounds: 1, dmg_multiplier: 3.4, target: "all_rows", debuff: "reduce_healing", debuff_value: 0.4, duration: 1 },
+                skill5: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill6: { type: "passive", effect: "increase_dodge", value: 0.10 }
             }
         }
     },
