@@ -63,20 +63,17 @@ export const alphas = {
                 skill5: { type: "passive", effect: "increase_atk", value: 0.60 },
                 skill6: { type: "special", frequency: "once_per_round", effect: "increase_distance", dmg_bonus_per_distance: 0.08 }
             }
-        },
-        "S4": {}
+        }
     },
     "Allesfresser": {
         "S1": {},
         "S2": {},
-        "S3": {},
-        "S4": {}
+        "S3": {}
     },
     "Pflanzenfresser": {
         "S1": {},
         "S2": {},
-        "S3": {},
-        "S4": {}
+        "S3": {}
     }
 };
 
