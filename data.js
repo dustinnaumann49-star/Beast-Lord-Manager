@@ -1,8 +1,10 @@
 /**
  * Engine Datenkonfiguration für Alphas
+ * Inklusive S1 und S2 Fleischfresser
  */
 
 const Alphas = {
+  // --- S1 Fleischfresser ---
   "Tibetdogge": {
     "id": "tibetdogge_01",
     "class": "Fleischfresser",
@@ -37,6 +39,35 @@ const Alphas = {
       "skill4": { "name": "Aggressiver Biss", "type": "trigger", "trigger": "after_normal_attack", "chance": 0.60, "range": 5, "effects": [{ "target": "two_random_enemy_rows", "type": "alpha_damage", "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
       "skill5": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
       "skill6": { "name": "Kampferprobt", "type": "passive_stat", "effects": [{ "type": "atk_dmg_buff_total", "value": 0.50 }, { "type": "skill_dmg_buff_total", "value": 0.50 }] }
+    }
+  },
+  // --- S2 Fleischfresser ---
+  "Titanis": {
+    "id": "titanis_01",
+    "class": "Fleischfresser",
+    "skills": {
+      "skill1": { 
+        "name": "Kraft des Raubvogels", 
+        "type": "pre_battle", 
+        "duration": 3, 
+        "effects": [{ "target": "all_friendly_flesh_eaters", "type": "atk_buff_percentage", "value": 0.80 }, { "target": "all_friendly_flesh_eaters", "type": "normal_atk_dmg_buff_percentage", "value": 1.00 }] 
+      },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
+      "skill4": { 
+        "name": "Spritzen-Schlag", 
+        "type": "pre_battle", 
+        "duration": 3, 
+        "chance": 0.75, 
+        "effects": [{ "target": "all_friendly_flesh_eaters", "type": "apply_splash_damage", "multiplier": 1.00, "targets": 2 }] 
+      },
+      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.20 }] },
+      "skill6": { 
+        "name": "Wütende Vergeltung", 
+        "type": "pre_battle", 
+        "duration": 3, 
+        "effects": [{ "target": "friendly_front_row", "type": "counter_attack", "chance": 1.00, "multiplier": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] 
+      }
     }
   }
 };
