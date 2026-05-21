@@ -174,7 +174,16 @@ export const alphas = {
                 skill6: { type: "active", dmg_multiplier: 2.5, target: "one_random_row", frequency: "every_round" }
             }
         },
-        "S3": {}
+        "S3": {
+            "Riesiges Sivatherium": {
+                skill1: { type: "special", rounds: [2, 4, 6, 8], reduce_dmg: 0.20, trigger: "on_alpha_skill_damage_taken", chance: 0.7, heal: 1.7 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.60 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.60 },
+                skill4: { type: "active", chance: 0.5, dmg_multiplier: 3.8, target: "one_random_row", effect: "confusion", duration: 1 },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.26 },
+                skill6: { type: "special", frequency: "once_per_round", effect: "increase_def_and_incoming_heal", def_value: 0.20, heal_value: 0.075, stackable: true }
+            }
+        }
     }
 };
 
