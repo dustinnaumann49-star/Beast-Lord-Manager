@@ -1,5 +1,5 @@
 /**
- * Engine Datenkonfiguration: Alle Fleischfresser-Alphas (S1 & S2)
+ * Engine Datenkonfiguration: Alle Fleischfresser-Alphas (S1, S2 & S3)
  */
 
 const Alphas = {
@@ -63,6 +63,19 @@ const Alphas = {
       "skill4": { "name": "Rasche Angriffe", "type": "pre_battle", "duration": 3, "range": 2, "effects": [{ "target": "two_random_friendly_rows", "type": "speed_buff", "value": 60 }, { "target": "two_random_friendly_rows", "type": "add_extra_normal_attack", "value": 1, "chance": 1.00 }] },
       "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
       "skill6": { "name": "Taktische Verfolgung", "type": "passive_trigger", "effects": [{ "target": "enemy_rows", "type": "debuff_increase_taken_damage", "value": 0.15, "stack_limit": 0.60 }] }
+    }
+  },
+  // --- S3 Fleischfresser ---
+  "Hyaenodon": {
+    "id": "hyaenodon_01",
+    "class": "Fleischfresser",
+    "skills": {
+      "skill1": { "name": "Siegesstrategie", "type": "pre_battle", "effects": [{ "target": "self_unit", "type": "conditional_buff", "condition": "first_attack", "value": 0.20, "buff_type": "damage_increase" }, { "target": "self_unit", "type": "conditional_buff", "condition": "second_attack", "value": 0.20, "buff_type": "damage_reduction" }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.60 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.60 }] },
+      "skill4": { "name": "Meister der Nachahmung", "type": "combat_trigger", "chance": 0.70, "range": 5, "effects": [{ "target": "copy_from_back_row", "type": "trigger_skill_effect", "multiplier_bonus": 0.15 }] },
+      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.26 }] },
+      "skill6": { "name": "Starke Heilung", "type": "active_combat", "range": 2, "effects": [{ "target": "all_friendly_rows", "type": "hp_buff", "value": 0.20 }, { "target": "self_row", "type": "def_buff_stackable", "value": 0.30, "chance": 0.50 }, { "target": "self_row", "type": "heal_base", "value": 1.00 }] }
     }
   }
 };
