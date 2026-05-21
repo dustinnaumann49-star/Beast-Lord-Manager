@@ -74,6 +74,14 @@ export const alphas = {
                 skill4: { type: "active", chance: 0.5, effect: "reduce_enemy_atk_and_alpha_dmg", duration_rounds: 1 },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
                 skill6: { type: "active", dmg_multiplier: 2.3, target: "front_row" }
+            },
+            "Klapperschlange": {
+                skill1: { type: "active", chance: 0.6, effect: "poison", dmg_multiplier: 1.5, duration: 2 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", chance: 0.8, prepare_rounds: 1, dmg_multiplier: 3.5, target: "two_random_rows", effect: "silence_if_poisoned" },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
+                skill6: { type: "aura", rounds: 4, effect: "increase_all_alpha_dmg", value: 0.35 }
             }
         },
         "S2": {},
