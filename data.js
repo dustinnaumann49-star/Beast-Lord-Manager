@@ -92,7 +92,16 @@ export const alphas = {
                 skill6: { type: "active", chance: 0.5, dmg_multiplier: 1.3, target: "all_rows", bonus_dmg_if_poisoned: 0.5 }
             }
         },
-        "S2": {},
+        "S2": {
+            "Höhlenbär": {
+                skill1: { type: "aura", effect: "increase_all_beast_atk", value: 1.0 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.48 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.48 },
+                skill4: { type: "passive", effect: "increase_dodge", value: 0.20 },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.20 },
+                skill6: { type: "special", rounds: [2, 4, 6], chance: 0.5, effect: "buff_random_alpha_skill4_chance", target_count: 2, new_chance: 1.0 }
+            }
+        },
         "S3": {}
     },
     "Pflanzenfresser": {
