@@ -138,6 +138,14 @@ export const alphas = {
                 skill4: { type: "active", effect: "reduce_enemy_dmg", value: 0.25, heal_if_beast_count_below_50_pct: 5.5 },
                 skill5: { type: "passive", effect: "increase_atk", value: 0.38 },
                 skill6: { type: "aura", effect: "reduce_alpha_dmg", rounds: 3, value: 0.20, after_round_3_effect: "increase_beast_dmg", after_round_3_value: 0.30, end_round: 8 }
+            },
+            "Weißes Rentier": {
+                skill1: { type: "active", effect: "heal", heal_rate: 1.5, target_count: 2 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.38 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.38 },
+                skill4: { type: "active", chance: 0.8, dmg_multiplier: 2.1, target: "one_random_row", effect: "disarm", disarm_chance: 0.5, duration: 1 },
+                skill5: { type: "passive", effect: "increase_hp", value: 0.15 },
+                skill6: { type: "aura", rounds: 4, effect: "reduce_alpha_ability_dmg_taken", value: 0.20 }
             }
         },
         "S2": {},
