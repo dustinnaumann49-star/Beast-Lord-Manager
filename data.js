@@ -36,10 +36,18 @@ export const alphas = {
                 skill4: { type: "active", rounds: 3, chance: 0.75, dmg_multiplier: 1.0, target: "two_random_rows" },
                 skill5: { type: "passive", effect: "increase_hp", value: 0.20 },
                 skill6: { type: "special", rounds: 3, chance: 1.0, trigger: "on_front_row_damage_taken", dmg_multiplier: 1.8 }
+            },
+            "Amerikanischer Löwe": {
+                skill1: { type: "active", chance: 0.7, effect: "remove_debuffs", lp_bonus: 0.4 },
+                skill2: { type: "passive", effect: "increase_def", value: 0.48 },
+                skill3: { type: "passive", effect: "increase_atk", value: 0.48 },
+                skill4: { type: "special", rounds: 3, chance: 1.0, effect: "combo_attack" },
+                skill5: { type: "passive", effect: "increase_def", value: 0.48 },
+                skill6: { type: "special", trigger: "on_own_beast_damage_taken", effect: "reflect_damage", value: 0.15 }
             }
         },
         "S3": {},
         "S4": {}
     },
-    // ... Allesfresser & Pflanzenfresser
+    // ...
 };
