@@ -77,6 +77,18 @@ const Alphas = {
       "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.26 }] },
       "skill6": { "name": "Starke Heilung", "type": "active_combat", "range": 2, "effects": [{ "target": "all_friendly_rows", "type": "hp_buff", "value": 0.20 }, { "target": "self_row", "type": "def_buff_stackable", "value": 0.30, "chance": 0.50 }, { "target": "self_row", "type": "heal_base", "value": 1.00 }] }
     }
+  },
+  "Smilodon": {
+    "id": "smilodon_01",
+    "class": "Fleischfresser",
+    "skills": {
+      "skill1": { "name": "Tödlicher Comboschlag", "type": "active_combat", "chance": 0.80, "range": 6, "effects": [{ "target": "one_random_enemy_row", "type": "alpha_damage", "multiplier": 2.00, "attacks": 2 }, { "target": "one_random_enemy_row", "type": "apply_vulnerability_stack", "value": 0.10 }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.60 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.60 }] },
+      "skill4": { "name": "Wilde Zähne", "type": "active_combat", "chance": 0.70, "range": 6, "effects": [{ "target": "three_random_enemy_rows", "type": "alpha_damage", "multiplier": 1.30, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
+      "skill5": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.60 }] },
+      "skill6": { "name": "Taktischer Fernschlag", "type": "pre_battle_per_round", "chance": 0.50, "effects": [{ "type": "increase_position_distance", "value": 1 }, { "type": "dmg_bonus_per_distance", "value": 0.08 }] }
+    }
   }
 };
 
