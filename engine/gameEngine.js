@@ -1,11 +1,12 @@
-// gameEngine.js
+// Importe der Truppendaten
 import CarnivoreTroops from '../data/troops/carnivore_troops.js';
 import HerbivoreTroops from '../data/troops/herbivore_troops.js';
 import OmnivoreTroops from '../data/troops/omnivore_troops.js';
 
+// Importe der Alpha-Daten
 import CarnivoreAlphas from '../data/alphas/carnivores.js';
 import HerbivoreAlphas from '../data/alphas/herbivores.js';
-import OmnivoreAlphas from '../data/alphas/omnivores.js';
+import OmnivoreAlphas from '../data/omnivores.js';
 
 const GameEngine = {
     // Zentrale Alpha-Registry
@@ -13,7 +14,8 @@ const GameEngine = {
 
     /**
      * PHASE: Pre-Combat (Statische Boni)
-     * Verarbeitet alle Skill-Typen "passive_stat" (Skill 2, 3, 5)
+     * Wird einmalig vor Kampfbeginn aufgerufen, um passive Boni (Skill 2, 3, 5) 
+     * auf die Truppen-Stats zu addieren.
      */
     applyPassiveBonuses: function(alphaId, baseStats) {
         const alpha = this.allAlphas[alphaId];
@@ -40,36 +42,56 @@ const GameEngine = {
 
     /**
      * PHASE: In-Combat (Dynamische Skills)
-     * Verarbeitet Skills 1, 4 und 6 basierend auf ihrem Typ
+     * Führt Skills (1, 4, 6) aus.
      */
-    executeCombatSkill: function(alphaId, skillKey, gameState, currentRound) {
+    executeCombatSkill: function(alphaId, skillKey, attackerRow, enemyRows, currentRound) {
         const alpha = this.allAlphas[alphaId];
         const skill = alpha?.skills[skillKey];
         
         if (!skill || skill.type === 'passive_stat') return;
 
-        // Prüfung: Vorbereitungsrunden (z.B. für Skill 4)
+        // Vorbereitungsrunden-Prüfung
         if (skill.preparation_rounds && currentRound <= skill.preparation_rounds) return;
 
-        // Ausführung der Effekte
+        // Effekte verarbeiten
         skill.effects.forEach(effect => {
-            this.handleEffect(effect, gameState);
+            switch (effect.type) {
+                case 'alpha_damage':
+                    this.handleDamage(effect, attackerRow, enemyRows);
+                    break;
+                case 'debuff_atk_def':
+                    this.handleDebuff(effect, enemyRows);
+                    break;
+                case 'heal_percentage':
+                    // Heilungslogik hier ergänzen
+                    break;
+            }
         });
     },
 
-    handleEffect: function(effect, gameState) {
-        // Hier wird die Logik für jeden Effekt-Typ zentral gesteuert
-        switch (effect.type) {
-            case 'alpha_damage':
-                // Berechne Schaden basierend auf effect.value
-                break;
-            case 'debuff_atk_def':
-                // Registriere Debuff im gameState
-                break;
-            case 'heal_percentage':
-                // Führe Heilung aus
-                break;
-        }
+    /**
+     * Schadensberechnung: (ATK * Anzahl) * Multiplikator
+     */
+    handleDamage: function(effect, attackerRow, enemyRows) {
+        // Chance prüfen
+        if (effect.chance && Math.random() > effect.chance) return;
+
+        const baseAtk = attackerRow.troopStats.atk;
+        const troopCount = attackerRow.currentCount;
+        const multiplier = effect.value || effect.multiplier;
+        
+        const rawDamage = (baseAtk * troopCount) * multiplier;
+
+        // Targeting (Beispiel für eine zufällige Reihe)
+        const target = enemyRows[Math.floor(Math.random() * enemyRows.length)];
+        
+        console.log(`Schaden an Reihe ${target.id}: ${rawDamage}`);
+        // target.hp -= rawDamage; // Logik zur HP-Reduzierung
+    },
+
+    handleDebuff: function(effect, enemyRows) {
+        // Logik zur Debuff-Registrierung im gameState
+        console.log(`Debuff angewendet: ${effect.type} für ${effect.duration} Runden`);
     }
 };
 
