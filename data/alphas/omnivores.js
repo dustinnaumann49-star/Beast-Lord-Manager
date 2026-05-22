@@ -7,7 +7,7 @@ const Omnivores = {
   "Geierschildkroete": {
     "id": "geierschildkroete_01",
     "class": "Allesfresser",
-    "skills": {
+    "skills": {p
       "skill1": { "name": "Heilungsmoor", "type": "active_combat_per_round", "effects": [{ "target": "self_unit", "type": "heal_percentage", "value": 2.10, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.38 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.38 }] },
