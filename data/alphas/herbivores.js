@@ -57,4 +57,39 @@ const Herbivores = {
     "id": "wollnashorn_01",
     "class": "Pflanzenfresser",
     "skills": {
-      "skill1": { "name": "Brutale Zerstörung", "type": "active_combat", "range": 5, "effects": [{ "target": "highest_strength_enemy_unit", "type": "alpha_damage", "chance": 0.50, "multiplier": 3.50, "scaling": { "type": "per_alpha_level
+      "skill1": { "name": "Brutale Zerstörung", "type": "active_combat", "range": 5, "effects": [{ "target": "highest_strength_enemy_unit", "type": "alpha_damage", "chance": 0.50, "multiplier": 3.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "highest_strength_enemy_unit", "type": "suppress", "chance": 0.50, "duration": 1 }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "def_buff", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.48 }] },
+      "skill4": { "name": "Rasendes Fegen", "type": "active_combat_phase", "range": 5, "effects": [{ "target": "all_enemy_units", "type": "phased_damage", "rounds": [1, 3, 5, 7], "chance": 0.60, "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
+      "skill5": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.48 }] },
+      "skill6": { "name": "Impulsschlag", "type": "active_combat", "range": 5, "effects": [{ "target": "one_random_enemy_row", "type": "dot_damage", "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "one_random_enemy_row", "type": "bonus_damage_if_cc", "value": 3.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] }
+    }
+  },
+  // --- S3 Pflanzenfresser ---
+  "Riesen-Sivatherium": {
+    "id": "sivatherium_01",
+    "class": "Pflanzenfresser",
+    "skills": {
+      "skill1": { "name": "Schutz des Geisterhorns", "type": "active_combat_reaction", "effects": [{ "target": "self_unit", "type": "dmg_reduction_percentage", "rounds": [2, 4, 6, 8], "value": 0.20 }, { "target": "self_unit", "type": "emergency_heal_on_skill_dmg", "chance": 0.70, "heal_multiplier": 1.70 }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "def_buff", "value": 0.60 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.60 }] },
+      "skill4": { "name": "Chaotisches Stampfen", "type": "active_combat", "range": 5, "effects": [{ "target": "one_random_enemy_row", "type": "alpha_damage", "chance": 0.50, "multiplier": 3.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "one_random_enemy_row", "type": "confusion", "chance": 0.50, "duration": 1 }] },
+      "skill5": { "name": "Lebenspunkte-Bonus", "type": "passive_attribute_buff", "effects": [{ "target": "self_unit", "type": "hp_buff", "value": 0.26 }] },
+      "skill6": { "name": "Regenerationsbarriere", "type": "pre_war_buff", "effects": [{ "target": "all_friendly_units", "type": "def_buff_stackable", "value": 0.20, "frequency": "per_round" }, { "target": "all_friendly_units", "type": "heal_received_buff", "value": 0.075 }] }
+    }
+  },
+  "Meiolania": {
+    "id": "meiolania_01",
+    "class": "Pflanzenfresser",
+    "skills": {
+      "skill1": { "name": "Stachelige Rüstung", "type": "active_combat", "range": 5, "effects": [{ "target": "all_enemy_units", "type": "aoe_damage", "chance": 1.00, "multiplier": 0.70, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "all_friendly_units", "type": "self_damage", "value": 0.20 }] },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "def_buff", "value": 0.60 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.60 }] },
+      "skill4": { "name": "Schildkrötenschutz", "type": "active_combat_trigger", "range": 5, "effects": [{ "target": "one_random_friendly_unit", "type": "shield_and_counter", "trigger": "after_9_times_damage_taken_by_allies", "immunity_duration": "next_instance", "counter_multiplier": 3.50 }] },
+      "skill5": { "name": "Bestien-Verteidigung", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "def_buff", "value": 0.60 }] },
+      "skill6": { "name": "Schildrüstung-Heilung", "type": "active_combat", "range": 5, "effects": [{ "target": "two_random_friendly_rows", "type": "heal_and_dmg_reduction", "chance": 0.80, "heal_multiplier": 1.50, "dmg_reduction": 0.20 }] }
+    }
+  }
+};
+
+export default Herbivores;
