@@ -13,9 +13,8 @@ const GameEngine = {
     allAlphas: { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas },
 
     /**
-     * PHASE: Pre-Combat (Statische Boni)
-     * Wird einmalig vor Kampfbeginn aufgerufen, um passive Boni (Skill 2, 3, 5) 
-     * auf die Truppen-Stats zu addieren.
+     * PHASE 1: Pre-Combat (Statische Boni)
+     * Wird einmalig vor Kampfbeginn aufgerufen (Skill 2, 3, 5).
      */
     applyPassiveBonuses: function(alphaId, baseStats) {
         const alpha = this.allAlphas[alphaId];
@@ -41,7 +40,7 @@ const GameEngine = {
     },
 
     /**
-     * PHASE: In-Combat (Dynamische Skills)
+     * PHASE 2: In-Combat (Dynamische Skills)
      * Führt Skills (1, 4, 6) aus.
      */
     executeCombatSkill: function(alphaId, skillKey, attackerRow, enemyRows, currentRound) {
@@ -62,18 +61,14 @@ const GameEngine = {
                 case 'debuff_atk_def':
                     this.handleDebuff(effect, enemyRows);
                     break;
-                case 'heal_percentage':
-                    // Heilungslogik hier ergänzen
-                    break;
             }
         });
     },
 
     /**
-     * Schadensberechnung: (ATK * Anzahl) * Multiplikator
+     * Schadensformel: (ATK * Anzahl) * Multiplikator
      */
     handleDamage: function(effect, attackerRow, enemyRows) {
-        // Chance prüfen
         if (effect.chance && Math.random() > effect.chance) return;
 
         const baseAtk = attackerRow.troopStats.atk;
@@ -82,16 +77,39 @@ const GameEngine = {
         
         const rawDamage = (baseAtk * troopCount) * multiplier;
 
-        // Targeting (Beispiel für eine zufällige Reihe)
         const target = enemyRows[Math.floor(Math.random() * enemyRows.length)];
-        
         console.log(`Schaden an Reihe ${target.id}: ${rawDamage}`);
-        // target.hp -= rawDamage; // Logik zur HP-Reduzierung
     },
 
     handleDebuff: function(effect, enemyRows) {
-        // Logik zur Debuff-Registrierung im gameState
         console.log(`Debuff angewendet: ${effect.type} für ${effect.duration} Runden`);
+    },
+
+    /**
+     * KAMPFENDE-LOGIK
+     * Prüft, ob der Kampf nach 8 Runden oder durch Truppenverlust endet.
+     */
+    checkBattleEnd: function(gameState) {
+        if (gameState.currentRound >= 8) return { finished: true, reason: 'round_limit' };
+        
+        const playerAlive = gameState.playerRows.some(r => r.currentCount > 0);
+        const enemyAlive = gameState.enemyRows.some(r => r.currentCount > 0);
+        
+        if (!playerAlive || !enemyAlive) return { finished: true, reason: 'units_eliminated' };
+        
+        return { finished: false };
+    },
+
+    /**
+     * Ermittelt Gewinner basierend auf Gesamtzahl der verbleibenden Truppen.
+     */
+    determineWinner: function(gameState) {
+        const playerTotal = gameState.playerRows.reduce((sum, r) => sum + r.currentCount, 0);
+        const enemyTotal = gameState.enemyRows.reduce((sum, r) => sum + r.currentCount, 0);
+
+        if (playerTotal > enemyTotal) return 'Player';
+        if (enemyTotal > playerTotal) return 'Enemy';
+        return 'Draw';
     }
 };
 
