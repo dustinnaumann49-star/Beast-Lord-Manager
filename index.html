@@ -1,12 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
+    <meta charset="UTF-8">
     <title>Clan Kampf-Simulator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .input-group { margin-bottom: 15px; }
+        button { padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; }
+        #ergebnis { margin-top: 20px; font-weight: bold; padding: 10px; border: 1px solid #ccc; }
+    </style>
 </head>
 <body>
-    <h1>Clan Kampf-Simulator</h1>
-    <p>Hier können wir bald Truppen und Alphas wählen!</p>
 
-    <button onclick="alert('Berechnung startet...')">Kampf simulieren</button>
+    <h1>Clan Kampf-Simulator</h1>
+    
+    <div class="input-group">
+        <label>Eigene Truppenstärke:</label><br>
+        <input type="number" id="eigeneTruppen" placeholder="z.B. 1000">
+    </div>
+
+    <div class="input-group">
+        <label>Gegnerische Truppenstärke:</label><br>
+        <input type="number" id="gegnerTruppen" placeholder="z.B. 1000">
+    </div>
+
+    <button onclick="berechneKampf()">Kampf simulieren</button>
+
+    <div id="ergebnis">Ergebnis erscheint hier...</div>
+
+    <script>
+        function berechneKampf() {
+            let eigene = document.getElementById('eigeneTruppen').value;
+            let gegner = document.getElementById('gegnerTruppen').value;
+            let ausgabe = document.getElementById('ergebnis');
+
+            if(eigene > gegner) {
+                ausgabe.innerText = "Sieg! Du hast " + (eigene - gegner) + " Truppen übrig.";
+                ausgabe.style.color = "green";
+            } else if (eigene < gegner) {
+                ausgabe.innerText = "Niederlage! Der Gegner ist zu stark.";
+                ausgabe.style.color = "red";
+            } else {
+                ausgabe.innerText = "Unentschieden! Alle Truppen vernichtet.";
+                ausgabe.style.color = "orange";
+            }
+        }
+    </script>
 </body>
 </html>
