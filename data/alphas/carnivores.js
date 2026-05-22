@@ -49,7 +49,7 @@ const FleshEaters = {
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
       "skill4": { "name": "Spritzen-Schlag", "type": "pre_battle", "duration": 3, "chance": 0.75, "effects": [{ "target": "all_friendly_flesh_eaters", "type": "apply_splash_damage", "multiplier": 1.00, "targets": 2 }] },
-      "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill5": { "name": "Basis-LP", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.20 }] },
       "skill6": { "name": "Wütende Vergeltung", "type": "pre_battle", "duration": 3, "effects": [{ "target": "friendly_front_row", "type": "counter_attack", "chance": 1.00, "multiplier": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] }
     }
   },
