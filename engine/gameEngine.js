@@ -6,7 +6,7 @@ import OmnivoreTroops from '../data/troops/omnivore_troops.js';
 // Importe der Alpha-Daten
 import CarnivoreAlphas from '../data/alphas/carnivores.js';
 import HerbivoreAlphas from '../data/alphas/herbivores.js';
-import OmnivoreAlphas from '../data/omnivores.js';
+import OmnivoreAlphas from '../data/alphas/omnivores.js';
 
 const GameEngine = {
     // Zentrale Alpha-Registry
