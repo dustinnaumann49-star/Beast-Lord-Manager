@@ -1,34 +1,38 @@
 // index.js
 import BattleManager from './engine/battleManager.js';
 
-// Import Truppen
+// Import Truppen (Diese Pfade sind korrekt)
 import CarnivoreTroops from './data/troops/carnivore_troops.js';
 import HerbivoreTroops from './data/troops/herbivore_troops.js';
 import OmnivoreTroops from './data/troops/omnivore_troops.js';
 
-// Import Alphas
-import CarnivoreAlphas from './data/alphas/carnivore_alphas.js';
-import HerbivoreAlphas from './data/alphas/herbivore_alphas.js';
-import OmnivoreAlphas from './data/alphas/omnivore_alphas.js';
+// Import Alphas (Hier war der Fehler: Die Dateien heißen nur carnivores.js etc.)
+import CarnivoreAlphas from './data/alphas/carnivores.js';
+import HerbivoreAlphas from './data/alphas/herbivores.js';
+import OmnivoreAlphas from './data/alphas/omnivores.js';
 
 /**
- * 3-Reihen-Konfiguration für beide Teams
+ * Armee-Konfiguration
  */
 const playerArmy = [
-    { id: "P_Reihe_1", alphaId: "alpha_01", troopStats: CarnivoreTroops["T10"]["Säbelzahnkatze"].stats, count: 500 },
-    { id: "P_Reihe_2", alphaId: "alpha_02", troopStats: CarnivoreTroops["T9"]["Wolf"].stats, count: 600 },
-    { id: "P_Reihe_3", alphaId: "alpha_03", troopStats: CarnivoreTroops["T8"]["Luchs"].stats, count: 700 }
+    { id: "P_Reihe_1", alphaId: "alpha_1", troopStats: CarnivoreTroops["T10"]["BritishColumbiaWolf"].stats, count: 500 },
+    { id: "P_Reihe_2", alphaId: "alpha_2", troopStats: CarnivoreTroops["T9"]["NordwestlicherWolf"].stats, count: 600 },
+    { id: "P_Reihe_3", alphaId: "alpha_3", troopStats: CarnivoreTroops["T8"]["Polarwolf"].stats, count: 700 }
 ];
 
 const enemyArmy = [
-    { id: "E_Reihe_1", alphaId: "enemy_01", troopStats: HerbivoreTroops["T10"]["Elefant"].stats, count: 200 },
-    { id: "E_Reihe_2", alphaId: "enemy_02", troopStats: HerbivoreTroops["T9"]["Nashorn"].stats, count: 300 },
-    { id: "E_Reihe_3", alphaId: "enemy_03", troopStats: HerbivoreTroops["T8"]["Bison"].stats, count: 400 }
+    { id: "E_Reihe_1", alphaId: "alpha_4", troopStats: HerbivoreTroops["T10"]["AmerikanischerBison"].stats, count: 200 },
+    { id: "E_Reihe_2", alphaId: "alpha_5", troopStats: HerbivoreTroops["T9"]["Takin"].stats, count: 300 },
+    { id: "E_Reihe_3", alphaId: "alpha_6", troopStats: HerbivoreTroops["T8"]["AfrikanischerBüffel"].stats, count: 400 }
 ];
 
-// Initialisierung
-console.log("Initialisiere Kampf mit 3 Reihen pro Seite...");
-const gameState = BattleManager.initializeBattleState(playerArmy, enemyArmy);
+// Start der Simulation
+console.log("--- System bereit: Starte Kampf-Simulation ---");
 
-// Start
-BattleManager.runBattle(gameState);
+try {
+    const gameState = BattleManager.initializeBattleState(playerArmy, enemyArmy);
+    BattleManager.runBattle(gameState);
+    console.log("--- Kampf beendet ---");
+} catch (error) {
+    console.error("Fehler während der Simulation:", error);
+}
