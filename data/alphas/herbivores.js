@@ -1,4 +1,9 @@
-const herbivores = {
+/**
+ * Pflanzenfresser-Alphas
+ */
+
+const Herbivores = {
+  // --- S1 Pflanzenfresser ---
   "Hebridenschaf": {
     "id": "hebridenschaf_01",
     "class": "Pflanzenfresser",
@@ -35,6 +40,7 @@ const herbivores = {
       "skill6": { "name": "Vorteilhafte Verfolgung", "type": "active_combat_buff_and_dot", "range": 5, "effects": [{ "target": "self_unit", "type": "herbivore_atk_buff", "value": 0.10 }, { "target": "two_random_enemy_units", "type": "dot_damage", "multiplier": 1.00, "scaling": { "type": "per_alpha_level", "value": 0.02 }, "frequency": "each_round" }] }
     }
   },
+  // --- S2 Pflanzenfresser ---
   "Doedicurus": {
     "id": "doedicurus_01",
     "class": "Pflanzenfresser",
@@ -51,12 +57,4 @@ const herbivores = {
     "id": "wollnashorn_01",
     "class": "Pflanzenfresser",
     "skills": {
-      "skill1": { "name": "Brutale Zerstörung", "type": "active_combat", "range": 5, "effects": [{ "target": "highest_strength_enemy_unit", "type": "alpha_damage", "chance": 0.50, "multiplier": 3.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "highest_strength_enemy_unit", "type": "suppress", "chance": 0.50, "duration": 1 }] },
-      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "def_buff", "value": 0.48 }] },
-      "skill3": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.48 }] },
-      "skill4": { "name": "Rasendes Fegen", "type": "active_combat_phase", "range": 5, "effects": [{ "target": "all_enemy_units", "type": "phased_damage", "rounds": [1, 3, 5, 7], "chance": 0.60, "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] },
-      "skill5": { "name": "Bestien-Angriff", "type": "passive_attribute_buff", "effects": [{ "target": "beast_units", "type": "atk_buff", "value": 0.48 }] },
-      "skill6": { "name": "Impulsschlag", "type": "active_combat", "range": 5, "effects": [{ "target": "one_random_enemy_row", "type": "dot_damage", "multiplier": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "one_random_enemy_row", "type": "bonus_damage_if_cc", "value": 3.50, "scaling": { "type": "per_alpha_level", "value": 0.01 } }] }
-    }
-  }
-};
+      "skill1": { "name": "Brutale Zerstörung", "type": "active_combat", "range": 5, "effects": [{ "target": "highest_strength_enemy_unit", "type": "alpha_damage", "chance": 0.50, "multiplier": 3.50, "scaling": { "type": "per_alpha_level
