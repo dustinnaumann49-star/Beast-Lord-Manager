@@ -40,6 +40,43 @@ const Omnivores = {
       "skill6": { "name": "Gnadenlose Ernte", "type": "active_combat", "range": 5, "effects": [{ "target": "all_enemy_units_in_3_rows", "type": "alpha_damage", "chance": 0.50, "multiplier": 1.30, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "all_enemy_units_in_3_rows", "type": "bonus_skill_dmg_if_poisoned", "value": 0.50 }] }
     }
   },
+
+  // --- S2 Allesfresser ---
+  "Hoehlenbaer": {
+    "id": "hoehlenbaer_01",
+    "class": "Allesfresser",
+    "skills": {
+      "skill1": { 
+        "name": "Wütende Natur", 
+        "type": "pre_combat_buff", 
+        "range": 2, 
+        "effects": [
+          { "target": "all_friendly_omnivore_units", "type": "skill_dmg_buff", "value": 0.42, "level_10_value": 0.60 }, 
+          { "target": "all_friendly_omnivore_units", "type": "normal_atk_dmg_reduction", "value": 0.22, "level_10_value": 0.40 }
+        ] 
+      },
+      "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
+      "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
+      "skill4": { 
+        "name": "Instinkt des Ausweichens", 
+        "type": "pre_combat_buff", 
+        "range": 1, 
+        "effects": [{ "target": "self_unit", "type": "evasion_rate", "value": 0.11, "level_10_value": 0.20 }] 
+      },
+      "skill5": { "name": "Bestien-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.20 }] },
+      "skill6": { 
+        "name": "Wilder Ansturm", 
+        "type": "pre_combat_buff", 
+        "range": 2, 
+        "rounds": [2, 4, 6], 
+        "effects": [
+          { "target": "two_friendly_random_omnivore_rows", "type": "increase_skill_5_trigger_chance", "value": 1.00, "chance": 0.32, "level_10_value_chance": 0.50 }, 
+          { "target": "two_friendly_random_omnivore_units", "type": "skip_preparation_round", "chance": 0.42, "level_10_value_chance": 0.60 }
+        ] 
+      }
+    }
+  },
+
   // --- S3 Allesfresser ---
   "Metridiochoerus": {
     "id": "metridiochoerus_01",
