@@ -39,24 +39,24 @@
     <button id="kampfBtn">Kampf starten</button>
 
     <script>
-        // 1. Hilfsfunktion zum Auslesen der Daten
-        function getSlotData(id) {
-            const el = document.getElementById(id);
-            return {
-                id: id,
-                alpha: el.querySelector('.aSel').value,
-                troop: el.querySelector('.tSel').value,
-                count: parseInt(el.querySelector('.cIn').value) || 0
+        // Hilfsfunktion: Stat-Lookup für den BattleManager
+        function getTroopStats(className, troopName) {
+            const allTroopsData = { 
+                "Fleischfresser": window.CarnivoreTroops, 
+                "Pflanzenfresser": window.HerbivoreTroops, 
+                "Allesfresser": window.OmnivoreTroops 
             };
+            const classData = allTroopsData[className];
+            if (!classData) return { atk: 0, def: 0, hp: 0, speed: 0 };
+            
+            for (let tier in classData) {
+                if (classData[tier][troopName]) return classData[tier][troopName].stats;
+            }
+            return { atk: 0, def: 0, hp: 0, speed: 0 };
         }
 
         window.onload = function() {
-            const allAlphas = { 
-                ...window.CarnivoreAlphas, 
-                ...window.Herbivores, 
-                ...window.Omnivores 
-            };
-            
+            const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
             const troopMapping = { 
                 "Fleischfresser": window.CarnivoreTroops, 
                 "Pflanzenfresser": window.HerbivoreTroops, 
@@ -67,8 +67,6 @@
 
             function setupSlot(id) {
                 const el = document.getElementById(id);
-                if (!el) return;
-                
                 el.innerHTML = `
                     <select class="aSel"><option value="">Wähle Alpha</option></select>
                     <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
@@ -89,12 +87,10 @@
                 aSel.onchange = function() {
                     tSel.innerHTML = '<option value="">Wähle Truppe</option>';
                     const selectedClass = this.options[this.selectedIndex].dataset.class;
-                    
                     if (selectedClass && troopMapping[selectedClass]) {
                         tSel.disabled = false;
-                        const troops = troopMapping[selectedClass];
-                        Object.keys(troops).forEach(tier => {
-                            Object.keys(troops[tier]).forEach(troopName => {
+                        Object.keys(troopMapping[selectedClass]).forEach(tier => {
+                            Object.keys(troopMapping[selectedClass][tier]).forEach(troopName => {
                                 let o = document.createElement('option');
                                 o.value = troopName;
                                 o.textContent = `${troopName} (${tier})`;
@@ -103,30 +99,40 @@
                         });
                     } else {
                         tSel.disabled = true;
-                        tSel.innerHTML = '<option>Nicht kompatibel</option>';
                     }
                 };
             }
 
             ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
-            // 2. Button Event - Übergibt Daten an den BattleManager
             document.getElementById('kampfBtn').onclick = () => {
-                const team1 = ['p1', 'p2', 'p3'].map(getSlotData);
-                const team2 = ['e1', 'e2', 'e3'].map(getSlotData);
+                function collectTeam(ids) {
+                    return ids.map(id => {
+                        const el = document.getElementById(id);
+                        const aSel = el.querySelector('.aSel');
+                        return {
+                            id: id,
+                            alphaId: aSel.value,
+                            troopStats: getTroopStats(aSel.options[aSel.selectedIndex]?.dataset.class, el.querySelector('.tSel').value),
+                            count: parseInt(el.querySelector('.cIn').value) || 0
+                        };
+                    });
+                }
 
-                if (team1.some(s => !s.alpha) || team2.some(s => !s.alpha)) {
+                const team1 = collectTeam(['p1', 'p2', 'p3']);
+                const team2 = collectTeam(['e1', 'e2', 'e3']);
+
+                if (team1.some(s => !s.alphaId) || team2.some(s => !s.alphaId)) {
                     alert("Bitte wähle in jedem Slot einen Alpha aus!");
                     return;
                 }
 
-                // Aufruf der korrekten runBattle Funktion aus deiner battleManager.js
                 if (typeof window.BattleManager !== 'undefined' && typeof window.BattleManager.runBattle === 'function') {
-                    const ergebnis = window.BattleManager.runBattle(team1, team2);
-                    alert("Kampf beendet! Ergebnis: " + ergebnis);
+                    const result = window.BattleManager.runBattle(team1, team2);
+                    alert("Kampf beendet! Ergebnis: " + result);
                 } else {
-                    console.error("BattleManager.runBattle nicht gefunden!");
-                    alert("Kampf-Logik konnte nicht gestartet werden. Prüfe die Konsole (F12).");
+                    console.error("BattleManager oder runBattle nicht gefunden.");
+                    alert("Kampf-Logik nicht gefunden. Prüfe die Konsole (F12).");
                 }
             };
         };
