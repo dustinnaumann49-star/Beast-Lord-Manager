@@ -2,7 +2,6 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clan Kampf-Simulator 3v3</title>
 
     <script src="data/alphas/carnivores.js"></script>
@@ -16,11 +15,8 @@
     <script src="engine/battleManager.js"></script>
 
     <style>
-        body { font-family: sans-serif; padding: 15px; background-color: #f4f4f9; }
-        .slot { background: white; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; }
-        select, input { padding: 10px; width: 100%; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; }
-        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
-        #ergebnis { margin-top: 20px; padding: 15px; background: #fff; border: 2px solid #28a745; font-weight: bold; text-align: center; border-radius: 5px; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .slot { background: white; padding: 10px; border: 1px solid #ccc; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -38,10 +34,15 @@
     <div id="e3" class="slot"></div>
 
     <button id="kampfBtn">Kampf starten</button>
-    <div id="ergebnis"></div>
 
     <script>
         window.onload = function() {
+            // Sicherstellen, dass die Engine existiert
+            if (typeof GameEngine === 'undefined') {
+                console.error("GameEngine wurde nicht geladen!");
+                return;
+            }
+
             // Daten zusammenführen
             const allAlphas = { 
                 ...window.CarnivoreAlphas, 
@@ -51,23 +52,24 @@
             
             GameEngine.allAlphas = allAlphas;
 
-            function setupSlot(id) {
+            const slots = ['p1','p2','p3','e1','e2','e3'];
+            slots.forEach(id => {
                 const el = document.getElementById(id);
-                if (!el) return; // Verhindert Fehler, falls ein ID fehlt
-                
-                el.innerHTML = `
-                    <select class="aSel"><option>Wähle Alpha</option></select>
-                    <select class="tSel"><option>Wähle Truppe</option></select>
-                    <input type="number" class="cIn" placeholder="Anzahl">
-                `;
-            }
-
-            // Alle Slots initialisieren
-            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
-
-            document.getElementById('kampfBtn').onclick = () => {
-                alert("Simulation gestartet!");
-            };
+                if (el) {
+                    el.innerHTML = `
+                        <select class="aSel"><option>Wähle Alpha</option></select>
+                        <select class="tSel"><option>Wähle Truppe</option></select>
+                        <input type="number" placeholder="Anzahl">
+                    `;
+                    const aSel = el.querySelector('.aSel');
+                    Object.keys(allAlphas).forEach(name => {
+                        let o = document.createElement('option');
+                        o.value = name;
+                        o.textContent = name;
+                        aSel.appendChild(o);
+                    });
+                }
+            });
         };
     </script>
 </body>
