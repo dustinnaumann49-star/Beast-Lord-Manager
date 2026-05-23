@@ -1,26 +1,28 @@
-<script type="module">
-    import CarnivoreAlphas from './data/alphas/carnivores.js';
-    import HerbivoreAlphas from './data/alphas/herbivores.js';
-    import OmnivoreAlphas from './data/alphas/omnivores.js';
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Clan Kampf-Simulator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
+    </style>
+</head>
+<body>
 
-    console.log("Import check:", { CarnivoreAlphas, HerbivoreAlphas, OmnivoreAlphas });
+    <h1>Clan Kampf-Simulator</h1>
+    <p>Die Seite wird geladen...</p>
 
-    const pSelect = document.getElementById('playerAlphaSelect');
-    const eSelect = document.getElementById('enemyAlphaSelect');
-    
-    // Alphas kombinieren
-    const allAlphas = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
-    
-    // Dropdowns leeren
-    pSelect.innerHTML = '';
-    eSelect.innerHTML = '';
+    <div class="input-group">
+        <label>Test-Alpha:</label>
+        <select id="playerAlphaSelect">
+            <option value="test">Test-Alpha geladen</option>
+        </select>
+    </div>
 
-    // Befüllen
-    Object.entries(allAlphas).forEach(([name, data]) => {
-        let opt1 = document.createElement('option');
-        opt1.value = data.id;
-        opt1.textContent = name;
-        pSelect.appendChild(opt1);
-        eSelect.appendChild(opt1.cloneNode(true));
-    });
-</script>
+    <script>
+        console.log("Seite wurde geladen!");
+        document.querySelector('p').innerText = "Seite erfolgreich geladen.";
+    </script>
+</body>
+</html>
