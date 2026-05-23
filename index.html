@@ -5,10 +5,11 @@
     <title>Clan Kampf-Simulator 3v3</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
-        .side-container { display: flex; gap: 20px; }
+        .side-container { display: flex; gap: 40px; }
         .input-group { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 250px; margin-bottom: 10px; }
         select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
-        button { padding: 15px 30px; background: #d9534f; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 1.2em; margin-top: 20px; }
+        button { padding: 15px 30px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 1.2em; margin-top: 20px; }
+        #ergebnis { margin-top: 20px; font-weight: bold; padding: 20px; border: 1px solid #ccc; background: white; border-radius: 5px; min-width: 300px; text-align: center; }
     </style>
 </head>
 <body>
@@ -18,23 +19,19 @@
     <div class="side-container">
         <div id="playerSide">
             <h3>Deine Armee</h3>
-            <div id="pSlot1"></div>
-            <div id="pSlot2"></div>
-            <div id="pSlot3"></div>
+            <div id="pSlot1"></div> <div id="pSlot2"></div> <div id="pSlot3"></div>
         </div>
-
         <div id="enemySide">
             <h3>Gegner Armee</h3>
-            <div id="eSlot1"></div>
-            <div id="eSlot2"></div>
-            <div id="eSlot3"></div>
+            <div id="eSlot1"></div> <div id="eSlot2"></div> <div id="eSlot3"></div>
         </div>
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
-    <div id="ergebnis" style="margin-top:20px; font-weight:bold;"></div>
+    <div id="ergebnis">Ergebnis erscheint hier...</div>
 
     <script type="module">
+        import BattleManager from './battleManager.js';
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
@@ -48,7 +45,6 @@
             ...Object.keys(OmnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'omnivore'}), {})
         };
 
-        // Generator für die 3 Slots
         function createSlot(containerId, label) {
             const container = document.getElementById(containerId);
             container.innerHTML = `
@@ -64,39 +60,4 @@
 
             Object.keys(alphaMap).forEach(name => {
                 let opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
-                alphaSelect.appendChild(opt);
-            });
-
-            alphaSelect.addEventListener('change', () => {
-                const type = alphaMap[alphaSelect.value];
-                const source = (type === 'carnivore') ? CarnivoreTroops : 
-                               (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
-                
-                troopSelect.innerHTML = '';
-                Object.keys(source || {}).forEach(tier => {
-                    const group = document.createElement('optgroup');
-                    group.label = tier;
-                    Object.keys(source[tier] || {}).forEach(name => {
-                        let opt = document.createElement('option');
-                        opt.textContent = name;
-                        group.appendChild(opt);
-                    });
-                    troopSelect.appendChild(group);
-                });
-            });
-            alphaSelect.dispatchEvent(new Event('change'));
-        }
-
-        // 3 Slots pro Seite erstellen
-        for(let i=1; i<=3; i++) {
-            createSlot('pSlot'+i, 'Spieler Reihe ' + i);
-            createSlot('eSlot'+i, 'Gegner Reihe ' + i);
-        }
-
-        document.getElementById('kampfBtn').addEventListener('click', () => {
-            document.getElementById('ergebnis').innerText = "Simulation bereit für 3 vs 3.";
-        });
-    </script>
-</body>
-</html>
+                opt.
