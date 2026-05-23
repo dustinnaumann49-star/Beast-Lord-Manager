@@ -40,13 +40,126 @@
             padding: 20px;
         }
 
+        /* ============================== */
+        /* PASSWORT-OVERLAY               */
+        /* ============================== */
+        #passwordOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 22, 0.96);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #passwordOverlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .password-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+        }
+
+        .password-box h2 {
+            color: var(--text);
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .password-box .lock-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            background: #0f0f1a;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+
+        .password-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(226, 160, 63, 0.12);
+        }
+
+        .password-box button {
+            width: 100%;
+            padding: 14px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(226, 160, 63, 0.3);
+        }
+
+        .password-box button:hover {
+            background: #f0b030;
+            box-shadow: 0 6px 20px rgba(226, 160, 63, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .password-error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+            letter-spacing: 0.02em;
+        }
+
+        .password-error.visible {
+            display: block;
+        }
+
+        /* ============================== */
+        /* HAUPT-TOOL (anfangs versteckt)  */
+        /* ============================== */
+        #mainTool {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #mainTool.visible {
+            display: block;
+        }
+
         .container {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 48px 40px;
-            max-width: 600px;
-            width: 100%;
             box-shadow:
                 0 24px 64px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(255, 255, 255, 0.03) inset,
@@ -360,53 +473,101 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header-icon">🐺</div>
-        <h1>Alpha & Bestien</h1>
-        <p class="subtitle">Typ wählen, dann Alpha und Begleitbestie</p>
+    <!-- ============================== -->
+    <!-- PASSWORT-OVERLAY               -->
+    <!-- ============================== -->
+    <div id="passwordOverlay">
+        <div class="password-box">
+            <div class="lock-icon">🔒</div>
+            <h2>Clan-Zugang</h2>
+            <input type="password" id="passwordInput" placeholder="Passwort eingeben" autofocus>
+            <button id="passwordSubmit">Freischalten</button>
+            <p class="password-error" id="passwordError">Falsches Passwort</p>
+        </div>
+    </div>
 
-        <!-- Erstes Dropdown: Bestientyp -->
-        <div class="form-group">
-            <label for="typeSelect">Bestientyp wählen</label>
-            <div class="select-wrapper">
-                <select id="typeSelect">
-                    <option value="" disabled selected>-- Bitte Typ wählen --</option>
-                    <option value="Fleischfresser">🍖 Fleischfresser</option>
-                    <option value="Allesfresser">🥩 Allesfresser</option>
-                    <option value="Pflanzenfresser">🥗 Pflanzenfresser</option>
-                </select>
+    <!-- ============================== -->
+    <!-- HAUPT-TOOL (anfangs versteckt)  -->
+    <!-- ============================== -->
+    <div id="mainTool">
+        <div class="container">
+            <div class="header-icon">🐺</div>
+            <h1>Alpha & Bestien</h1>
+            <p class="subtitle">Typ wählen, dann Alpha und Begleitbestie</p>
+
+            <!-- Erstes Dropdown: Bestientyp -->
+            <div class="form-group">
+                <label for="typeSelect">Bestientyp wählen</label>
+                <div class="select-wrapper">
+                    <select id="typeSelect">
+                        <option value="" disabled selected>-- Bitte Typ wählen --</option>
+                        <option value="Fleischfresser">🍖 Fleischfresser</option>
+                        <option value="Allesfresser">🥩 Allesfresser</option>
+                        <option value="Pflanzenfresser">🥗 Pflanzenfresser</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Zweites Dropdown: Alpha-Auswahl -->
-        <div class="form-group" id="alphaGroup">
-            <label for="alphaSelect">Alpha auswählen</label>
-            <div class="select-wrapper">
-                <select id="alphaSelect">
-                    <option value="" disabled selected>-- Bitte Alpha wählen --</option>
-                </select>
+            <!-- Zweites Dropdown: Alpha-Auswahl -->
+            <div class="form-group" id="alphaGroup">
+                <label for="alphaSelect">Alpha auswählen</label>
+                <div class="select-wrapper">
+                    <select id="alphaSelect">
+                        <option value="" disabled selected>-- Bitte Alpha wählen --</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Drittes Dropdown: Bestien-Auswahl (T1-T10) -->
-        <div class="form-group" id="beastGroup">
-            <label for="beastSelect">Begleitbestie (T1–T10)</label>
-            <div class="select-wrapper">
-                <select id="beastSelect">
-                    <option value="" disabled selected>-- Bitte Bestie wählen --</option>
-                </select>
+            <!-- Drittes Dropdown: Bestien-Auswahl (T1-T10) -->
+            <div class="form-group" id="beastGroup">
+                <label for="beastSelect">Begleitbestie (T1–T10)</label>
+                <div class="select-wrapper">
+                    <select id="beastSelect">
+                        <option value="" disabled selected>-- Bitte Bestie wählen --</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Ergebnis-Box -->
-        <div id="resultBox" class="result-box idle">
-            <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
-        </div>
+            <!-- Ergebnis-Box -->
+            <div id="resultBox" class="result-box idle">
+                <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
+            </div>
 
-        <p class="footer-note">Beast Lord: The New Land &mdash; Auswahl-Tool v3.0</p>
+            <p class="footer-note">Beast Lord: The New Land &mdash; Auswahl-Tool v3.1</p>
+        </div>
     </div>
 
     <script>
+        // =============================================
+        // PASSWORTSCHUTZ
+        // =============================================
+        const password = 'VCF'; // <-- Hier kannst du das Passwort ändern
+
+        const overlay = document.getElementById('passwordOverlay');
+        const mainTool = document.getElementById('mainTool');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordSubmit = document.getElementById('passwordSubmit');
+        const passwordError = document.getElementById('passwordError');
+
+        function checkPassword() {
+            if (passwordInput.value === password) {
+                overlay.classList.add('hidden');
+                mainTool.classList.add('visible');
+                passwordError.classList.remove('visible');
+            } else {
+                passwordError.classList.add('visible');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        passwordSubmit.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
         // =============================================
         // DATENBANK: Alphas (unverändert)
         // =============================================
@@ -523,7 +684,6 @@
             selectElement.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
             optionsArray.forEach(item => {
                 const option = document.createElement('option');
-                // Wenn item ein String ist (Bestien), sonst Objekt mit name (Alphas)
                 if (typeof item === 'string') {
                     option.value = item;
                     option.textContent = item;
@@ -539,7 +699,6 @@
         typeSelect.addEventListener('change', function() {
             const gewaehlterTyp = this.value;
 
-            // Beide Dropdowns zurücksetzen
             populateSelect(alphaSelect, [], '-- Bitte Alpha wählen --');
             populateSelect(beastSelect, [], '-- Bitte Bestie wählen --');
             resultBox.className = 'result-box idle';
@@ -551,15 +710,12 @@
                 return;
             }
 
-            // Alphas für diesen Typ einfügen
             const alphas = alphaDaten[gewaehlterTyp];
             populateSelect(alphaSelect, alphas, '-- Bitte Alpha wählen --');
 
-            // Bestien für diesen Typ einfügen
             const beasts = beastDaten[gewaehlterTyp];
             populateSelect(beastSelect, beasts, '-- Bitte Bestie wählen --');
 
-            // Beide Gruppen einblenden
             alphaGroup.classList.add('visible');
             beastGroup.classList.add('visible');
         });
@@ -570,14 +726,12 @@
             const gewaehlterAlphaName = alphaSelect.value;
             const gewaehlteBeast = beastSelect.value;
 
-            // Wenn kein Typ oder kein Alpha gewählt -> idle
             if (!gewaehlterTyp || !gewaehlterAlphaName) {
                 resultBox.className = 'result-box idle';
                 resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
                 return;
             }
 
-            // Alpha-Objekt finden
             const alphas = alphaDaten[gewaehlterTyp];
             const alphaObjekt = alphas.find(a => a.name === gewaehlterAlphaName);
             if (!alphaObjekt) return;
@@ -585,12 +739,10 @@
             const typInfo = typConfig[gewaehlterTyp];
             const posInfo = positionConfig[alphaObjekt.position];
 
-            // Bestien-Anzeige vorbereiten
-            const beastDisplay = gewaehlteBeast 
+            const beastDisplay = gewaehlteBeast
                 ? `<div class="result-beast-line">🐾 <span>${gewaehlteBeast}</span></div>`
                 : `<div class="result-beast-line">🐾 <span>—</span></div>`;
 
-            // Ergebnis-Box zusammenbauen
             resultBox.className = `result-box active ${typInfo.cssClass} ${posInfo.cssClass}`;
             resultBox.innerHTML = `
                 <div class="result-content">
@@ -608,7 +760,6 @@
             `;
         }
 
-        // Events für Alpha- und Bestien-Auswahl
         alphaSelect.addEventListener('change', updateResult);
         beastSelect.addEventListener('change', updateResult);
     </script>
