@@ -15,6 +15,9 @@
             --carnivore: #c0392b;
             --omnivore: #d4a017;
             --herbivore: #27ae60;
+            --melee: #e67e22;
+            --ranged: #3498db;
+            --support: #2ecc71;
         }
 
         * {
@@ -42,7 +45,7 @@
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 48px 40px;
-            max-width: 520px;
+            max-width: 560px;
             width: 100%;
             box-shadow:
                 0 24px 64px rgba(0, 0, 0, 0.5),
@@ -105,7 +108,7 @@
         }
 
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
         label {
@@ -153,7 +156,12 @@
                 0 4px 16px rgba(0, 0, 0, 0.4);
         }
 
-        /* Custom dropdown arrow */
+        select:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #0a0a14;
+        }
+
         .select-wrapper::after {
             content: '▾';
             position: absolute;
@@ -187,9 +195,9 @@
             background: #0f0f1a;
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 24px 20px;
+            padding: 28px 20px;
             text-align: center;
-            min-height: 90px;
+            min-height: 130px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -212,7 +220,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.3s ease;
         }
 
@@ -237,18 +245,38 @@
         }
 
         .result-type {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: 0.03em;
             text-transform: uppercase;
         }
 
         .result-beast-name {
-            font-size: 0.9rem;
-            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
             letter-spacing: 0.02em;
         }
 
+        .result-position {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px 16px;
+            border-radius: 30px;
+            margin-top: 4px;
+        }
+
+        .position-icon {
+            font-size: 1.3rem;
+        }
+
+        /* Typ-Farben */
         .type-carnivore .result-type {
             color: #e74c3c;
         }
@@ -272,6 +300,20 @@
             box-shadow: 0 0 30px rgba(46, 204, 113, 0.08) !important;
         }
 
+        /* Positions-Farben */
+        .position-melee .result-position {
+            color: #e67e22;
+            border: 1px solid rgba(230, 126, 34, 0.3);
+        }
+        .position-ranged .result-position {
+            color: #5dade2;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+        .position-support .result-position {
+            color: #58d68d;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
         .placeholder-text {
             color: #5a5a6e;
             font-style: italic;
@@ -287,81 +329,203 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
+
+        /* Zweites Dropdown standardmäßig ausgeblendet */
+        #alphaGroup {
+            display: none;
+        }
+
+        #alphaGroup.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-icon">🐺</div>
         <h1>Alpha-Bestien</h1>
-        <p class="subtitle">Wähle deine Bestie und erkenne ihren Typ</p>
+        <p class="subtitle">Wähle zuerst den Typ, dann deine Bestie</p>
 
+        <!-- Erstes Dropdown: Bestientyp -->
         <div class="form-group">
-            <label for="alphaSelect">Alpha auswählen</label>
+            <label for="typeSelect">Bestientyp wählen</label>
             <div class="select-wrapper">
-                <select id="alphaSelect">
-                    <option value="" disabled selected>-- Bitte eine Alpha-Bestie wählen --</option>
-                    <option value="schattenwolf">Schattenwolf</option>
-                    <option value="säbelzahntiger">Säbelzahntiger</option>
-                    <option value="donnerfalke">Donnerfalke</option>
-                    <option value="klingenklaue">Klingenklaue</option>
-                    <option value="sturmrapp">Sturmrapp</option>
-                    <option value="erdbär">Erdbär</option>
-                    <option value="schattenfuchs">Schattenfuchs</option>
-                    <option value="kristallhirsch">Kristallhirsch</option>
-                    <option value="mammutbulle">Mammutbulle</option>
-                    <option value="panzernashorn">Panzernashorn</option>
-                    <option value="wiesenkoloss">Wiesenkoloss</option>
+                <select id="typeSelect">
+                    <option value="" disabled selected>-- Bitte Typ wählen --</option>
+                    <option value="Fleischfresser">🍖 Fleischfresser</option>
+                    <option value="Allesfresser">🥩 Allesfresser</option>
+                    <option value="Pflanzenfresser">🥗 Pflanzenfresser</option>
                 </select>
             </div>
         </div>
 
-        <div id="resultBox" class="result-box idle">
-            <span class="placeholder-text">🐾 Hier erscheint der Bestientyp</span>
+        <!-- Zweites Dropdown: Alpha-Auswahl (wird eingeblendet) -->
+        <div class="form-group" id="alphaGroup">
+            <label for="alphaSelect">Alpha auswählen</label>
+            <div class="select-wrapper">
+                <select id="alphaSelect">
+                    <option value="" disabled selected>-- Bitte Alpha wählen --</option>
+                </select>
+            </div>
         </div>
 
-        <p class="footer-note">Beast Lord: The New Land &mdash; Alpha-Tool v1.0</p>
+        <!-- Ergebnis-Box -->
+        <div id="resultBox" class="result-box idle">
+            <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
+        </div>
+
+        <p class="footer-note">Beast Lord: The New Land &mdash; Alpha-Tool v2.0</p>
     </div>
 
     <script>
-        // Datenbank: Alpha-Bestien mit Typ und Emoji
-        const bestienDaten = {
-            schattenwolf: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
-            säbelzahntiger: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
-            donnerfalke: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
-            klingenklaue: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
-            sturmrapp: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
-            erdbär: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
-            schattenfuchs: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
-            kristallhirsch: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
-            mammutbulle: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
-            panzernashorn: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
-            wiesenkoloss: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' }
+        // =============================================
+        // DATENBANK: Alle Alphas mit Typ und Position
+        // =============================================
+        const alphaDaten = {
+            Fleischfresser: [
+                { name: 'Tibetdogge', position: 'Nahkampf' },
+                { name: 'Jaguarundi', position: 'Support' },
+                { name: 'Weißer Löwe', position: 'Fernkampf' },
+                { name: 'Titanis', position: 'Nahkampf' },
+                { name: 'Amerikanischer Löwe', position: 'Support' },
+                { name: 'Hyaenodon', position: 'Nahkampf' },
+                { name: 'Smilodon', position: 'Fernkampf' },
+                { name: 'Schwarzer Panther', position: 'Fernkampf' },
+                { name: 'Schneeleopard', position: 'Support' },
+                { name: 'Weißer Tiger', position: 'Fernkampf' },
+                { name: 'Kanadischer Luchs', position: 'Support' },
+                { name: 'Leistenkrokodil', position: 'Fernkampf' },
+                { name: 'Bindenwaran', position: 'Nahkampf' },
+                { name: 'Schwarzer Löwe', position: 'Support' },
+                { name: 'Weißes Krokodil', position: 'Fernkampf' },
+                { name: 'Affenadler', position: 'Nahkampf' },
+                { name: 'Beutellöwe', position: 'Nahkampf' },
+                { name: 'Amerikanischer Gepard', position: 'Support' }
+            ],
+            Pflanzenfresser: [
+                { name: 'Hebriden-Schaf', position: 'Nahkampf' },
+                { name: 'Weißes Rentier', position: 'Support' },
+                { name: 'Yak', position: 'Fernkampf' },
+                { name: 'Doedicurus', position: 'Nahkampf' },
+                { name: 'Wollnashorn', position: 'Fernkampf' },
+                { name: 'Riesen Sivatherium', position: 'Nahkampf' },
+                { name: 'Meiolania', position: 'Support' },
+                { name: 'Wildpferd', position: 'Nahkampf' },
+                { name: 'Asiatischer Elefant', position: 'Nahkampf' },
+                { name: 'Rentier', position: 'Support' },
+                { name: 'Ankole', position: 'Fernkampf' },
+                { name: 'Spanisches Kampfrind', position: 'Nahkampf' },
+                { name: 'Geochelone', position: 'Fernkampf' },
+                { name: 'Spitzmaulnashorn', position: 'Nahkampf' },
+                { name: 'Afrikanischer Elefant', position: 'Fernkampf' },
+                { name: 'Mammut', position: 'Nahkampf' },
+                { name: 'Megatherium', position: 'Fernkampf' },
+                { name: 'Panzernashorn', position: 'Fernkampf' },
+                { name: 'Brabanter', position: 'Fernkampf' }
+            ],
+            Allesfresser: [
+                { name: 'Geierschildkröte', position: 'Nahkampf' },
+                { name: 'Klapperschlange', position: 'Support' },
+                { name: 'Komodowaran', position: 'Fernkampf' },
+                { name: 'Höhlenbär', position: 'Nahkampf' },
+                { name: 'Riesenbiber', position: 'Support' },
+                { name: 'Metridiochoerus', position: 'Support' },
+                { name: 'Dinopithecus', position: 'Fernkampf' },
+                { name: 'Schwarzbär', position: 'Fernkampf' },
+                { name: 'Pinselohrschwein', position: 'Nahkampf' },
+                { name: 'Weißkopfsaki', position: 'Support' },
+                { name: 'Bärenmarder', position: 'Fernkampf' },
+                { name: 'Drill', position: 'Support' },
+                { name: 'Flusspferd', position: 'Nahkampf' },
+                { name: 'Geisterbär', position: 'Fernkampf' },
+                { name: 'Südafrika-Kronenkranich', position: 'Support' },
+                { name: 'Weißer Pfau', position: 'Nahkampf' },
+                { name: 'Elefantenvogel', position: 'Nahkampf' },
+                { name: 'Kurznasenbär', position: 'Support' },
+                { name: 'Kodiakbär', position: 'Fernkampf' }
+            ]
         };
 
-        const selectEl = document.getElementById('alphaSelect');
+        // Emoji und CSS-Klasse pro Typ
+        const typConfig = {
+            Fleischfresser: { emoji: '🍖', cssClass: 'type-carnivore' },
+            Allesfresser: { emoji: '🥩', cssClass: 'type-omnivore' },
+            Pflanzenfresser: { emoji: '🥗', cssClass: 'type-herbivore' }
+        };
+
+        // Positionen: Icon und CSS-Klasse
+        const positionConfig = {
+            Nahkampf: { icon: '⚔️', cssClass: 'position-melee' },
+            Fernkampf: { icon: '🏹', cssClass: 'position-ranged' },
+            Support: { icon: '🛡️', cssClass: 'position-support' }
+        };
+
+        // DOM-Elemente
+        const typeSelect = document.getElementById('typeSelect');
+        const alphaGroup = document.getElementById('alphaGroup');
+        const alphaSelect = document.getElementById('alphaSelect');
         const resultBox = document.getElementById('resultBox');
 
-        selectEl.addEventListener('change', function() {
-            const selectedValue = this.value;
+        // Event: Typ-Auswahl -> zweites Dropdown befüllen & anzeigen
+        typeSelect.addEventListener('change', function() {
+            const gewaehlterTyp = this.value;
 
-            if (!selectedValue || !bestienDaten[selectedValue]) {
-                // Fallback: Platzhalter anzeigen
-                resultBox.className = 'result-box idle';
-                resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint der Bestientyp</span>';
+            // Zweites Dropdown zurücksetzen
+            alphaSelect.innerHTML = '<option value="" disabled selected>-- Bitte Alpha wählen --</option>';
+
+            // Ergebnis zurücksetzen
+            resultBox.className = 'result-box idle';
+            resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
+
+            if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
+                alphaGroup.classList.remove('visible');
                 return;
             }
 
-            const daten = bestienDaten[selectedValue];
-            const selectedBeastName =
-                selectEl.options[selectEl.selectedIndex].text;
+            // Alphas für diesen Typ einfügen
+            const alphas = alphaDaten[gewaehlterTyp];
+            alphas.forEach(alpha => {
+                const option = document.createElement('option');
+                option.value = alpha.name;
+                option.textContent = alpha.name;
+                alphaSelect.appendChild(option);
+            });
+
+            // Zweites Dropdown einblenden
+            alphaGroup.classList.add('visible');
+        });
+
+        // Event: Alpha-Auswahl -> Ergebnis anzeigen
+        alphaSelect.addEventListener('change', function() {
+            const gewaehlterAlphaName = this.value;
+            const gewaehlterTyp = typeSelect.value;
+
+            if (!gewaehlterAlphaName || !gewaehlterTyp) {
+                resultBox.className = 'result-box idle';
+                resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
+                return;
+            }
+
+            // Alpha-Daten aus der Datenbank holen
+            const alphas = alphaDaten[gewaehlterTyp];
+            const alphaObjekt = alphas.find(a => a.name === gewaehlterAlphaName);
+
+            if (!alphaObjekt) return;
+
+            const typInfo = typConfig[gewaehlterTyp];
+            const posInfo = positionConfig[alphaObjekt.position];
 
             // Ergebnis-Box aktualisieren
-            resultBox.className = 'result-box active ' + daten.cssClass;
+            resultBox.className = 'result-box active ' + typInfo.cssClass + ' ' + posInfo.cssClass;
             resultBox.innerHTML = `
                         <div class="result-content">
-                            <span class="result-emoji">${daten.emoji}</span>
-                            <span class="result-type">${daten.typ}</span>
-                            <span class="result-beast-name">${selectedBeastName}</span>
+                            <span class="result-emoji">${typInfo.emoji}</span>
+                            <span class="result-type">${gewaehlterTyp}</span>
+                            <span class="result-beast-name">${gewaehlterAlphaName}</span>
+                            <span class="result-position">
+                                <span class="position-icon">${posInfo.icon}</span>
+                                ${alphaObjekt.position}
+                            </span>
                         </div>
                     `;
         });
