@@ -1,8 +1,8 @@
 /**
- * Allesfresser-Alphas
+ * Allesfresser-Alphas - Globales Format für Browser-Direktzugriff
  */
 
-const Omnivores = {
+window.Omnivores = {
   // --- S1 Allesfresser ---
   "Geierschildkroete": {
     "id": "geierschildkroete_01",
@@ -46,24 +46,24 @@ const Omnivores = {
     "id": "hoehlenbaer_01",
     "class": "Allesfresser",
     "skills": {
-      "skill1": { "name": "Wütende Natur", "type": "pre_combat_buff", "range": 2, "effects": [{ "target": "all_friendly_omnivore_units", "type": "skill_dmg_buff", "value": 0.42, "level_10_value": 0.75 }, { "target": "all_friendly_omnivore_units", "type": "normal_atk_dmg_reduction", "value": 0.22, "level_10_value": 0.50 }] },
+      "skill1": { "name": "Wütende Natur", "type": "pre_combat_buff", "range": 2, "effects": [{ "target": "all_friendly_omnivore_units", "type": "skill_dmg_buff", "value": 0.42 }, { "target": "all_friendly_omnivore_units", "type": "normal_atk_dmg_reduction", "value": 0.22 }] },
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
-      "skill4": { "name": "Instinkt des Ausweichens", "type": "pre_combat_buff", "range": 1, "effects": [{ "target": "self_unit", "type": "evasion_rate", "value": 0.11, "level_10_value": 0.25 }] },
+      "skill4": { "name": "Instinkt des Ausweichens", "type": "pre_combat_buff", "range": 1, "effects": [{ "target": "self_unit", "type": "evasion_rate", "value": 0.11 }] },
       "skill5": { "name": "Bestien-LP", "type": "passive_stat", "effects": [{ "type": "hp_bonus", "value": 0.20 }] },
-      "skill6": { "name": "Wilder Ansturm", "type": "pre_combat_buff", "range": 2, "rounds": [2, 4, 6], "effects": [{ "target": "two_friendly_random_omnivore_rows", "type": "increase_skill_5_trigger_chance", "value": 1.00, "chance": 0.32, "level_10_value_chance": 0.60 }, { "target": "two_friendly_random_omnivore_units", "type": "skip_preparation_round", "chance": 0.42, "level_10_value_chance": 0.80 }] }
+      "skill6": { "name": "Wilder Ansturm", "type": "pre_combat_buff", "range": 2, "rounds": [2, 4, 6], "effects": [{ "target": "two_friendly_random_omnivore_rows", "type": "increase_skill_5_trigger_chance", "value": 1.00 }, { "target": "two_friendly_random_omnivore_units", "type": "skip_preparation_round", "chance": 0.42 }] }
     }
   },
   "Riesenbiber": {
     "id": "riesenbiber_01",
     "class": "Allesfresser",
     "skills": {
-      "skill1": { "name": "Schwachstellenschlag", "type": "active_combat", "range": 4, "effects": [{ "target": "two_random_enemy_rows", "type": "alpha_damage", "chance": 0.50, "value": 0.90, "level_10_value": 1.80, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "two_random_enemy_rows", "type": "debuff_atk_def", "value": 0.30, "duration": 2 }] },
+      "skill1": { "name": "Schwachstellenschlag", "type": "active_combat", "range": 4, "effects": [{ "target": "two_random_enemy_rows", "type": "alpha_damage", "chance": 0.50, "value": 0.90, "scaling": { "type": "per_alpha_level", "value": 0.01 } }, { "target": "two_random_enemy_rows", "type": "debuff_atk_def", "value": 0.30, "duration": 2 }] },
       "skill2": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
       "skill3": { "name": "Bestien-Angriff", "type": "passive_stat", "effects": [{ "type": "atk_bonus", "value": 0.48 }] },
-      "skill4": { "name": "Umfassende Taktiken", "type": "active_combat", "range": 4, "preparation_rounds": 1, "effects": [{ "target": "all_enemy_units", "type": "alpha_damage", "chance": 0.60, "value": 1.60, "level_10_value": 2.50, "scaling": { "type": "per_alpha_level", "value": 0.02 } }, { "target": "all_friendly_units", "type": "heal_percentage", "value": 2.10, "level_10_value": 3.00 }] },
+      "skill4": { "name": "Umfassende Taktiken", "type": "active_combat", "range": 4, "preparation_rounds": 1, "effects": [{ "target": "all_enemy_units", "type": "alpha_damage", "chance": 0.60, "value": 1.60, "scaling": { "type": "per_alpha_level", "value": 0.02 } }, { "target": "all_friendly_units", "type": "heal_percentage", "value": 2.10 }] },
       "skill5": { "name": "Bestien-Verteidigung", "type": "passive_stat", "effects": [{ "type": "def_bonus", "value": 0.48 }] },
-      "skill6": { "name": "Zündung des Kriegspfads", "type": "combat_trigger", "effects": [{ "target": "all_friendly_units", "type": "buff_atk_def", "value": 0.21, "level_10_value": 0.30, "stackable": true }, { "target": "all_friendly_units", "type": "control_resistance", "value": 0.16, "level_10_value": 0.25, "duration": 2, "trigger_condition": "has_preparation_round" }] }
+      "skill6": { "name": "Zündung des Kriegspfads", "type": "combat_trigger", "effects": [{ "target": "all_friendly_units", "type": "buff_atk_def", "value": 0.21, "stackable": true }, { "target": "all_friendly_units", "type": "control_resistance", "value": 0.16, "duration": 2 }] }
     }
   },
 
@@ -93,5 +93,3 @@ const Omnivores = {
     }
   }
 };
-
-export default Omnivores;
