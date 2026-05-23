@@ -1,8 +1,8 @@
 /**
- * Allesfresser-Truppen (T1 - T10)
+ * Allesfresser-Truppen (T1 - T10) - Globales Format
  */
 
-const OmnivoreTroops = {
+window.OmnivoreTroops = {
   "T1": {
     "Makake": {
       "stats": { "atk": 11, "def": 8, "hp": 4, "speed": 2.0 }
@@ -35,24 +35,22 @@ const OmnivoreTroops = {
   },
   "T7": {
     "Mandrill": {
-      "stats": { "atk": 61, "def": 34, "hp": 13, "speed": 1.4 }
+      "stats": { "atk": 58, "def": 40, "hp": 14, "speed": 1.4 }
     }
   },
   "T8": {
     "Schimpanse": {
-      "stats": { "atk": 67, "def": 47, "hp": 15, "speed": 1.3 }
+      "stats": { "atk": 74, "def": 52, "hp": 18, "speed": 1.3 }
     }
   },
   "T9": {
-    "Sumatra-Orang-Utan": {
-      "stats": { "atk": 87, "def": 49, "hp": 18, "speed": 1.2 }
+    "SumatraUrangUtan": {
+      "stats": { "atk": 92, "def": 65, "hp": 22, "speed": 1.2 }
     }
   },
   "T10": {
     "WestlicherFlachlandgorilla": {
-      "stats": { "atk": 94, "def": 65, "hp": 21, "speed": 1.1 }
+      "stats": { "atk": 115, "def": 82, "hp": 28, "speed": 1.1 }
     }
   }
 };
-
-export default OmnivoreTroops;
