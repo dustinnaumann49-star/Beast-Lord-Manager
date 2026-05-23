@@ -39,10 +39,11 @@
     <button id="kampfBtn">Kampf starten</button>
 
     <script>
-        // Hilfsfunktion zum Auslesen der Daten aus einem Slot
+        // 1. Hilfsfunktion zum Auslesen der Daten
         function getSlotData(id) {
             const el = document.getElementById(id);
             return {
+                id: id,
                 alpha: el.querySelector('.aSel').value,
                 troop: el.querySelector('.tSel').value,
                 count: parseInt(el.querySelector('.cIn').value) || 0
@@ -109,7 +110,7 @@
 
             ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
-            // Button Event
+            // 2. Button Event - Übergibt Daten an den BattleManager
             document.getElementById('kampfBtn').onclick = () => {
                 const team1 = ['p1', 'p2', 'p3'].map(getSlotData);
                 const team2 = ['e1', 'e2', 'e3'].map(getSlotData);
@@ -119,11 +120,13 @@
                     return;
                 }
 
-                if (typeof BattleManager !== 'undefined' && typeof BattleManager.startBattle === 'function') {
-                    BattleManager.startBattle(team1, team2);
+                // Aufruf der korrekten runBattle Funktion aus deiner battleManager.js
+                if (typeof window.BattleManager !== 'undefined' && typeof window.BattleManager.runBattle === 'function') {
+                    const ergebnis = window.BattleManager.runBattle(team1, team2);
+                    alert("Kampf beendet! Ergebnis: " + ergebnis);
                 } else {
-                    console.error("BattleManager.startBattle wurde nicht gefunden!");
-                    alert("Kampf-Logik nicht gefunden. Prüfe die Konsole (F12).");
+                    console.error("BattleManager.runBattle nicht gefunden!");
+                    alert("Kampf-Logik konnte nicht gestartet werden. Prüfe die Konsole (F12).");
                 }
             };
         };
