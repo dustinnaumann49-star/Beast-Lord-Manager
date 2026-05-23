@@ -6,8 +6,7 @@
     <title>3 vs 3 Kampf-Simulator</title>
     <style>
         body { font-family: sans-serif; padding: 10px; background-color: #f4f4f9; }
-        .grid { display: flex; flex-direction: column; gap: 20px; }
-        .slot { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 5px; }
+        .slot { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
         select, input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
         button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; }
         #ergebnis { margin-top: 20px; padding: 15px; border: 1px solid #ccc; font-weight: bold; background: #fff; text-align: center; }
@@ -17,32 +16,27 @@
 
     <h1>3 vs 3 Kampf-Simulator</h1>
 
-    <div class="grid">
-        <div id="playerSide">
-            <h3>Deine Armee</h3>
-            <div id="p1" class="slot"></div>
-            <div id="p2" class="slot"></div>
-            <div id="p3" class="slot"></div>
-        </div>
-        <div id="enemySide">
-            <h3>Gegner Armee</h3>
-            <div id="e1" class="slot"></div>
-            <div id="e2" class="slot"></div>
-            <div id="e3" class="slot"></div>
-        </div>
-    </div>
+    <h3>Deine Armee</h3>
+    <div id="p1" class="slot"></div>
+    <div id="p2" class="slot"></div>
+    <div id="p3" class="slot"></div>
+
+    <h3>Gegner Armee</h3>
+    <div id="e1" class="slot"></div>
+    <div id="e2" class="slot"></div>
+    <div id="e3" class="slot"></div>
 
     <button id="kampfBtn">Kampf simulieren</button>
     <div id="ergebnis">Ergebnis erscheint hier...</div>
 
     <script type="module">
-        import BattleManager from './battleManager.js';
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
         import HerbivoreTroops from './data/troops/herbivore_troops.js';
         import OmnivoreTroops from './data/troops/omnivore_troops.js';
+        import BattleManager from './battleManager.js';
 
         const alphaMap = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
         const alphaTypes = {
@@ -53,8 +47,9 @@
 
         function setupSlot(id) {
             const el = document.getElementById(id);
+            // Wir erstellen die Selects direkt hier, damit sie garantiert da sind
             el.innerHTML = `
-                <select class="alphaSel"><option>Wähle Alpha</option></select>
+                <select class="alphaSel"><option value="">Wähle Alpha</option></select>
                 <select class="troopSel"></select>
                 <input type="number" class="countIn" placeholder="Anzahl">
             `;
@@ -70,14 +65,17 @@
                 const type = alphaTypes[aSel.value];
                 const source = (type === 'carnivore') ? CarnivoreTroops : (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
                 tSel.innerHTML = '';
-                Object.keys(source || {}).forEach(tier => {
-                    Object.keys(source[tier] || {}).forEach(tName => {
-                        let o = document.createElement('option'); o.textContent = tName; tSel.appendChild(o);
+                if(source) {
+                    Object.keys(source).forEach(tier => {
+                        Object.keys(source[tier] || {}).forEach(tName => {
+                            let o = document.createElement('option'); o.textContent = tName; tSel.appendChild(o);
+                        });
                     });
-                });
+                }
             });
         }
 
+        // Slots initialisieren
         ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
         document.getElementById('kampfBtn').addEventListener('click', () => {
@@ -93,11 +91,17 @@
             try {
                 const pArmy = getSide(['p1','p2','p3']);
                 const eArmy = getSide(['e1','e2','e3']);
+                
+                // Hier prüfen wir, ob BattleManager existiert
+                if (typeof BattleManager.runBattle !== 'function') {
+                    throw new Error("BattleManager.runBattle ist nicht definiert.");
+                }
+                
                 const result = BattleManager.runBattle(pArmy, eArmy);
                 document.getElementById('ergebnis').innerText = "Ergebnis: " + result;
             } catch (e) {
                 console.error(e);
-                document.getElementById('ergebnis').innerText = "Fehler: Simulation konnte nicht gestartet werden.";
+                document.getElementById('ergebnis').innerText = "Fehler: " + e.message;
             }
         });
     </script>
