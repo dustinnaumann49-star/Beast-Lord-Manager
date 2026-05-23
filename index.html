@@ -6,8 +6,8 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
         .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
-        select, input { padding: 8px; width: 100%; box-sizing: border-box; }
-        button { padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
+        select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+        button { padding: 12px 25px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -17,17 +17,17 @@
     <div class="input-group">
         <label>Dein Alpha:</label>
         <select id="pAlphaSelect"></select>
-        <label>Deine Truppe:</label>
+        <label>Deine Truppen:</label>
         <select id="pTroopSelect"></select>
-        <input type="number" id="pCount" placeholder="Anzahl">
+        <input type="number" id="eigeneTruppen" placeholder="Anzahl">
     </div>
 
     <div class="input-group">
         <label>Gegner Alpha:</label>
         <select id="eAlphaSelect"></select>
-        <label>Gegner Truppe:</label>
+        <label>Gegner Truppen:</label>
         <select id="eTroopSelect"></select>
-        <input type="number" id="eCount" placeholder="Anzahl">
+        <input type="number" id="gegnerTruppen" placeholder="Anzahl">
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
@@ -36,27 +36,38 @@
     <script type="module">
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
-        // ... (entsprechend für Herbivore/Omnivore hinzufügen)
 
-        // Mapping: Welches Alpha gehört zu welchem Truppentyp?
-        const alphaToType = { ...CarnivoreAlphas }; // Hier alle Alphas mappen
+        // 1. Alphas befüllen
+        const pAlpha = document.getElementById('pAlphaSelect');
+        const pTroop = document.getElementById('pTroopSelect');
 
-        function updateTroopDropdown(alphaSelect, troopSelect) {
-            troopSelect.innerHTML = '';
-            // Logik: Lade Truppen basierend auf dem gewählten Alpha-Typ
-            // Hier ein vereinfachtes Beispiel:
+        Object.entries(CarnivoreAlphas).forEach(([name, data]) => {
+            let opt = document.createElement('option');
+            opt.value = data.id;
+            opt.textContent = name;
+            pAlpha.appendChild(opt);
+        });
+
+        // 2. Truppen-Update-Funktion
+        function updateTroops() {
+            pTroop.innerHTML = '';
+            // Hier greifen wir auf die Truppen zu, die zu den Fleischfressern passen
             Object.keys(CarnivoreTroops["T10"]).forEach(troopName => {
                 let opt = document.createElement('option');
                 opt.textContent = troopName;
-                troopSelect.appendChild(opt);
+                pTroop.appendChild(opt);
             });
         }
 
-        document.getElementById('pAlphaSelect').addEventListener('change', (e) => {
-            updateTroopDropdown(e.target, document.getElementById('pTroopSelect'));
-        });
+        // 3. Wenn sich der Alpha ändert, Truppen aktualisieren
+        pAlpha.addEventListener('change', updateTroops);
+        
+        // Initialer Aufruf
+        updateTroops();
 
-        // Initiales Laden...
+        document.getElementById('kampfBtn').addEventListener('click', () => {
+            document.getElementById('ergebnis').innerText = "Berechne: " + pAlpha.value + " mit " + pTroop.value;
+        });
     </script>
 </body>
 </html>
