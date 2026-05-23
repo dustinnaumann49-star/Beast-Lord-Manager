@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Clan Kampf-Simulator</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
-        .input-group { margin-bottom: 15px; }
-        select, input { padding: 8px; width: 200px; }
-        button { padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; }
-        #ergebnis { margin-top: 20px; font-weight: bold; padding: 10px; border: 1px solid #ccc; }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
+        .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
+        select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+        button { padding: 12px 25px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; }
+        #ergebnis { margin-top: 20px; font-weight: bold; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: white; }
     </style>
 </head>
 <body>
@@ -16,20 +16,14 @@
     <h1>Clan Kampf-Simulator</h1>
     
     <div class="input-group">
-        <label>Dein Alpha:</label><br>
-        <select id="playerAlphaSelect">
-            <option value="tibetdogge_01">Tibetdogge</option>
-            <option value="smilodon_01">Smilodon</option>
-        </select><br>
+        <label>Dein Alpha:</label>
+        <select id="playerAlphaSelect"></select>
         <input type="number" id="eigeneTruppen" placeholder="Deine Truppenanzahl">
     </div>
 
     <div class="input-group">
-        <label>Gegner Alpha:</label><br>
-        <select id="enemyAlphaSelect">
-            <option value="hebridenschaf_01">Hebridenschaf</option>
-            <option value="geierschildkroete_01">Geierschildkröte</option>
-        </select><br>
+        <label>Gegner Alpha:</label>
+        <select id="enemyAlphaSelect"></select>
         <input type="number" id="gegnerTruppen" placeholder="Gegner Truppenanzahl">
     </div>
 
@@ -39,42 +33,48 @@
 
     <script type="module">
         import BattleManager from './battleManager.js';
+        import CarnivoreAlphas from './data/alphas/carnivores.js';
+        import HerbivoreAlphas from './data/alphas/herbivores.js';
+        import OmnivoreAlphas from './data/alphas/omnivores.js';
+        
+        // Truppen-Daten für Stats-Lookup
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
-        import HerbivoreTroops from './data/troops/herbivore_troops.js';
 
+        // 1. Alphas sammeln
+        const allAlphas = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
+
+        // 2. Dropdowns befüllen
+        const pSelect = document.getElementById('playerAlphaSelect');
+        const eSelect = document.getElementById('enemyAlphaSelect');
+
+        Object.entries(allAlphas).forEach(([name, data]) => {
+            let opt = document.createElement('option');
+            opt.value = data.id;
+            opt.innerHTML = name;
+            pSelect.appendChild(opt);
+            eSelect.appendChild(opt.cloneNode(true));
+        });
+
+        // 3. Kampf-Logik
         window.berechneKampf = function() {
-            const pAlphaId = document.getElementById('playerAlphaSelect').value;
-            const eAlphaId = document.getElementById('enemyAlphaSelect').value;
+            const pAlphaId = pSelect.value;
+            const eAlphaId = eSelect.value;
             const pCount = parseInt(document.getElementById('eigeneTruppen').value) || 0;
             const eCount = parseInt(document.getElementById('gegnerTruppen').value) || 0;
             const ausgabe = document.getElementById('ergebnis');
 
-            // Armee-Objekte für den Manager erstellen
-            // Hier nutzen wir beispielhaft T10 Werte aus deinen Daten-Dateien
-            const playerArmy = [{ 
-                id: "P1", 
-                alphaId: pAlphaId, 
-                troopStats: CarnivoreTroops["T10"]["BritishColumbiaWolf"].stats, 
-                count: pCount 
-            }];
-            
-            const enemyArmy = [{ 
-                id: "E1", 
-                alphaId: eAlphaId, 
-                troopStats: HerbivoreTroops["T10"]["Elenantilope"].stats, 
-                count: eCount 
-            }];
+            // Armee erstellen (Hier wird eine Beispiel-Reihe genutzt)
+            const playerArmy = [{ id: "P1", alphaId: pAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: pCount }];
+            const enemyArmy = [{ id: "E1", alphaId: eAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: eCount }];
 
             try {
-                // Kampf starten
                 const state = BattleManager.initializeBattleState(playerArmy, enemyArmy);
                 const winner = BattleManager.runBattle(state);
-
                 ausgabe.innerText = "Kampf beendet! Sieger: " + winner;
                 ausgabe.style.color = (winner === 'Player') ? "green" : "red";
             } catch (e) {
                 console.error(e);
-                ausgabe.innerText = "Fehler bei der Berechnung. Bitte Konsole prüfen.";
+                ausgabe.innerText = "Fehler in der Simulation.";
             }
         };
     </script>
