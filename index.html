@@ -6,34 +6,35 @@
     <title>3 vs 3 Kampf-Simulator</title>
     <style>
         body { font-family: sans-serif; padding: 10px; background-color: #f4f4f9; }
-        .container { display: flex; flex-direction: column; gap: 20px; }
-        .slots-wrapper { display: flex; flex-direction: column; gap: 10px; }
-        .input-group { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        .grid { display: flex; flex-direction: column; gap: 20px; }
+        .slot { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 5px; }
         select, input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
-        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; border-radius: 5px; }
-        #ergebnis { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; text-align: center; font-weight: bold; }
+        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; font-size: 16px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <h1>3 vs 3 Kampf-Simulator</h1>
 
-    <div class="container">
-        <div>
+    <div class="grid">
+        <div id="playerSide">
             <h3>Deine Armee</h3>
-            <div id="playerSlots" class="slots-wrapper"></div>
+            <div id="p1" class="slot"></div>
+            <div id="p2" class="slot"></div>
+            <div id="p3" class="slot"></div>
         </div>
-        <div>
+        <div id="enemySide">
             <h3>Gegner Armee</h3>
-            <div id="enemySlots" class="slots-wrapper"></div>
+            <div id="e1" class="slot"></div>
+            <div id="e2" class="slot"></div>
+            <div id="e3" class="slot"></div>
         </div>
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
-    <div id="ergebnis">Ergebnis erscheint hier...</div>
+    <div id="ergebnis" style="margin-top:20px; padding:15px; border:1px solid #ccc; font-weight:bold;">Ergebnis...</div>
 
     <script type="module">
-        import BattleManager from './battleManager.js';
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
@@ -41,68 +42,44 @@
         import HerbivoreTroops from './data/troops/herbivore_troops.js';
         import OmnivoreTroops from './data/troops/omnivore_troops.js';
 
-        const alphaMap = {
-            ...Object.keys(CarnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'carnivore'}), {}),
-            ...Object.keys(HerbivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'herbivore'}), {}),
-            ...Object.keys(OmnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'omnivore'}), {})
+        const alphaMap = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
+        const alphaTypes = {
+            ...Object.keys(CarnivoreAlphas).reduce((a,k)=>({...a,[k]:'carnivore'}),{}),
+            ...Object.keys(HerbivoreAlphas).reduce((a,k)=>({...a,[k]:'herbivore'}),{}),
+            ...Object.keys(OmnivoreAlphas).reduce((a,k)=>({...a,[k]:'omnivore'}),{})
         };
 
-        function createSlot(parent, label) {
-            const div = document.createElement('div');
-            div.className = 'input-group';
-            div.innerHTML = `
-                <label>${label}</label>
-                <select class="alphaSelect"></select>
-                <select class="troopSelect"></select>
-                <input type="number" class="countInput" placeholder="Anzahl">
+        function setupSlot(id) {
+            const el = document.getElementById(id);
+            el.innerHTML = `
+                <select class="alphaSel"><option>Wähle Alpha</option></select>
+                <select class="troopSel"></select>
+                <input type="number" class="countIn" placeholder="Anzahl">
             `;
-            parent.appendChild(div);
+            const aSel = el.querySelector('.alphaSel');
+            const tSel = el.querySelector('.troopSel');
             
-            const alphaSelect = div.querySelector('.alphaSelect');
-            const troopSelect = div.querySelector('.troopSelect');
-
             Object.keys(alphaMap).forEach(name => {
-                let opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
-                alphaSelect.appendChild(opt);
+                let o = document.createElement('option'); o.value = name; o.textContent = name;
+                aSel.appendChild(o);
             });
 
-            alphaSelect.addEventListener('change', () => {
-                const type = alphaMap[alphaSelect.value];
-                const source = (type === 'carnivore') ? CarnivoreTroops : 
-                               (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
-                
-                troopSelect.innerHTML = '';
+            aSel.addEventListener('change', () => {
+                const type = alphaTypes[aSel.value];
+                const source = (type === 'carnivore') ? CarnivoreTroops : (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
+                tSel.innerHTML = '';
                 Object.keys(source || {}).forEach(tier => {
-                    const group = document.createElement('optgroup');
-                    group.label = tier;
-                    Object.keys(source[tier] || {}).forEach(name => {
-                        let opt = document.createElement('option');
-                        opt.textContent = name;
-                        group.appendChild(opt);
+                    Object.keys(source[tier] || {}).forEach(tName => {
+                        let o = document.createElement('option'); o.textContent = tName; tSel.appendChild(o);
                     });
-                    troopSelect.appendChild(group);
                 });
             });
-            alphaSelect.dispatchEvent(new Event('change'));
         }
 
-        const pContainer = document.getElementById('playerSlots');
-        const eContainer = document.getElementById('enemySlots');
-        for(let i=1; i<=3; i++) {
-            createSlot(pContainer, 'Spieler Reihe ' + i);
-            createSlot(eContainer, 'Gegner Reihe ' + i);
-        }
+        ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
         document.getElementById('kampfBtn').addEventListener('click', () => {
-            const getArmy = (container) => Array.from(container.querySelectorAll('.input-group')).map(slot => ({
-                alpha: slot.querySelector('.alphaSelect').value,
-                troop: slot.querySelector('.troopSelect').value,
-                count: parseInt(slot.querySelector('.countInput').value) || 0
-            }));
-
-            const result = BattleManager.runBattle(getArmy(pContainer), getArmy(eContainer));
-            document.getElementById('ergebnis').innerText = result;
+            document.getElementById('ergebnis').innerText = "Berechnung läuft...";
         });
     </script>
 </body>
