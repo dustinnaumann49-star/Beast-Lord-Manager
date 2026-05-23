@@ -1,8 +1,8 @@
 /**
- * Pflanzenfresser-Truppen (T1 - T10)
+ * Pflanzenfresser-Truppen (T1 - T10) - Globales Format
  */
 
-const HerbivoreTroops = {
+window.HerbivoreTroops = {
   "T1": {
     "Impala": {
       "stats": { "atk": 9, "def": 11, "hp": 4, "speed": 2.0 }
@@ -35,24 +35,22 @@ const HerbivoreTroops = {
   },
   "T7": {
     "Gnu": {
-      "stats": { "atk": 46, "def": 53, "hp": 15, "speed": 1.4 }
+      "stats": { "atk": 48, "def": 55, "hp": 16, "speed": 1.4 }
     }
   },
   "T8": {
     "AfrikanischerBüffel": {
-      "stats": { "atk": 59, "def": 61, "hp": 17, "speed": 1.3 }
+      "stats": { "atk": 60, "def": 70, "hp": 20, "speed": 1.3 }
     }
   },
   "T9": {
     "Takin": {
-      "stats": { "atk": 70, "def": 73, "hp": 20, "speed": 1.2 }
+      "stats": { "atk": 75, "def": 88, "hp": 25, "speed": 1.2 }
     }
   },
   "T10": {
     "AmerikanischerBison": {
-      "stats": { "atk": 77, "def": 90, "hp": 25, "speed": 1.1 }
+      "stats": { "atk": 95, "def": 110, "hp": 32, "speed": 1.1 }
     }
   }
 };
-
-export default HerbivoreTroops;
