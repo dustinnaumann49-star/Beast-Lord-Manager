@@ -41,8 +41,17 @@
     <script>
         window.onload = function() {
             // Daten zusammenführen
-            const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
-            const allTroops = { ...window.CarnivoreTroops, ...window.HerbivoreTroops, ...window.OmnivoreTroops };
+            const allAlphas = { 
+                ...window.CarnivoreAlphas, 
+                ...window.Herbivores, 
+                ...window.Omnivores 
+            };
+            
+            const allTroops = { 
+                Carnivore: window.CarnivoreTroops, 
+                Herbivore: window.HerbivoreTroops, 
+                Omnivore: window.OmnivoreTroops 
+            };
             
             GameEngine.allAlphas = allAlphas;
 
@@ -51,8 +60,8 @@
                 if (!el) return;
                 
                 el.innerHTML = `
-                    <select class="aSel"><option>Wähle Alpha</option></select>
-                    <select class="tSel"><option>Wähle Truppe</option></select>
+                    <select class="aSel"><option value="">Wähle Alpha</option></select>
+                    <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
                     <input type="number" class="cIn" placeholder="Anzahl">
                 `;
                 
@@ -61,27 +70,40 @@
 
                 // Alphas befüllen
                 Object.keys(allAlphas).forEach(name => {
-                    let o = document.createElement('option'); o.value = name; o.textContent = name;
+                    let o = document.createElement('option'); 
+                    o.value = name; 
+                    o.textContent = name;
+                    // Wir speichern den Typ im Attribut, um ihn später leicht zu finden
+                    o.dataset.type = allAlphas[name].type; 
                     aSel.appendChild(o);
                 });
 
-                // Truppen befüllen (Hier werden die Daten aus den window-Objekten gezogen)
-                Object.keys(allTroops).forEach(tier => {
-                    if (allTroops[tier]) {
-                        Object.keys(allTroops[tier]).forEach(troopName => {
-                            let o = document.createElement('option');
-                            o.value = troopName;
-                            o.textContent = `${troopName} (${tier})`;
-                            tSel.appendChild(o);
+                // Logik: Truppen bei Alpha-Wahl filtern
+                aSel.onchange = function() {
+                    tSel.innerHTML = '<option value="">Wähle Truppe</option>';
+                    const selectedType = this.options[this.selectedIndex].dataset.type;
+                    
+                    if (selectedType && allTroops[selectedType]) {
+                        tSel.disabled = false;
+                        Object.keys(allTroops[selectedType]).forEach(tier => {
+                            Object.keys(allTroops[selectedType][tier]).forEach(troopName => {
+                                let o = document.createElement('option');
+                                o.value = troopName;
+                                o.textContent = `${troopName} (${tier})`;
+                                tSel.appendChild(o);
+                            });
                         });
+                    } else {
+                        tSel.disabled = true;
+                        tSel.innerHTML = '<option>Nicht kompatibel</option>';
                     }
-                });
+                };
             }
 
             ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
             document.getElementById('kampfBtn').onclick = () => {
-                alert("Simulation gestartet!");
+                alert("Simulation mit gewählten Truppen gestartet!");
             };
         };
     </script>
