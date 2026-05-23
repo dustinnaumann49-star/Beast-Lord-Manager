@@ -11,33 +11,40 @@
 <body>
 
     <h1>Clan Kampf-Simulator</h1>
-    <div id="status">Lade Daten...</div>
+    <div id="status">Starte Import...</div>
 
     <div class="input-group">
         <label>Dein Alpha:</label>
-        <select id="playerAlphaSelect"></select>
+        <select id="playerAlphaSelect"><option>Keine Daten</option></select>
     </div>
 
     <script type="module">
-        try {
-            // Wir versuchen hier, nur EINE Datei zu importieren, um den Fehler einzugrenzen
-            import CarnivoreAlphas from './data/alphas/carnivores.js';
-            
-            const pSelect = document.getElementById('playerAlphaSelect');
-            pSelect.innerHTML = ''; // Leeren
-            
-            // Testweise einen Eintrag hinzufügen
-            Object.keys(CarnivoreAlphas).forEach(name => {
-                let opt = document.createElement('option');
-                opt.textContent = name;
-                pSelect.appendChild(opt);
-            });
-            
-            document.getElementById('status').innerText = "Daten erfolgreich geladen!";
-        } catch (err) {
-            document.getElementById('status').innerText = "Fehler beim Laden: " + err.message;
-            console.error(err);
+        const statusDiv = document.getElementById('status');
+        
+        async function ladeDaten() {
+            try {
+                // Versuche den Import
+                const module = await import('./data/alphas/carnivores.js');
+                console.log("Import erfolgreich:", module);
+                
+                const pSelect = document.getElementById('playerAlphaSelect');
+                pSelect.innerHTML = ''; // Leeren
+                
+                // Daten anzeigen
+                Object.keys(module.default).forEach(name => {
+                    let opt = document.createElement('option');
+                    opt.textContent = name;
+                    pSelect.appendChild(opt);
+                });
+                
+                statusDiv.innerText = "Daten geladen!";
+            } catch (err) {
+                statusDiv.innerText = "Fehler: " + err.message;
+                console.error("Detail-Fehler:", err);
+            }
         }
+
+        ladeDaten();
     </script>
 </body>
 </html>
