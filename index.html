@@ -2,129 +2,78 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clan Kampf-Simulator 3v3</title>
-
     <script src="data/alphas/carnivores.js"></script>
     <script src="data/alphas/herbivores.js"></script>
     <script src="data/alphas/omnivores.js"></script>
     <script src="data/troops/carnivore_troops.js"></script>
     <script src="data/troops/herbivore_troops.js"></script>
     <script src="data/troops/omnivore_troops.js"></script>
-
     <script src="engine/gameEngine.js"></script>
     <script src="engine/battleManager.js"></script>
-
-    <style>
-        body { font-family: sans-serif; padding: 15px; background-color: #f4f4f9; }
-        .slot { background: white; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; }
-        select, input { padding: 10px; width: 100%; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; }
-        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
-    </style>
 </head>
 <body>
-
     <h1>Kampf-Simulator 3v3</h1>
-
-    <h3>Deine Armee</h3>
-    <div id="p1" class="slot"></div>
-    <div id="p2" class="slot"></div>
-    <div id="p3" class="slot"></div>
-
-    <h3>Gegner Armee</h3>
-    <div id="e1" class="slot"></div>
-    <div id="e2" class="slot"></div>
-    <div id="e3" class="slot"></div>
-
-    <button id="kampfBtn">Kampf starten</button>
+    <div id="p1" class="slot"></div><div id="p2" class="slot"></div><div id="p3" class="slot"></div>
+    <div id="e1" class="slot"></div><div id="e2" class="slot"></div><div id="e3" class="slot"></div>
+    <button id="kampfBtn" style="padding:20px; width:100%; background:green; color:white;">KAMPF STARTEN</button>
 
     <script>
-        // 1. Hilfsfunktion zum Auslesen der Daten aus einem Slot
-        function getSlotData(id) {
-            const el = document.getElementById(id);
-            return {
-                id: id,
-                alpha: el.querySelector('.aSel').value,
-                troop: el.querySelector('.tSel').value,
-                count: parseInt(el.querySelector('.cIn').value) || 0
-            };
-        }
-
-        window.onload = function() {
-            // Daten zusammenführen
-            const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
-            const troopMapping = { 
-                "Fleischfresser": window.CarnivoreTroops, 
-                "Pflanzenfresser": window.HerbivoreTroops, 
-                "Allesfresser": window.OmnivoreTroops 
-            };
+        // 1. Setup der Slots
+        const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
+        const troopMapping = { "Fleischfresser": window.CarnivoreTroops, "Pflanzenfresser": window.HerbivoreTroops, "Allesfresser": window.OmnivoreTroops };
+        
+        ['p1','p2','p3','e1','e2','e3'].forEach(id => {
+            document.getElementById(id).innerHTML = 
+                `<select class="aSel"><option value="">Alpha</option></select>
+                 <select class="tSel"><option value="">Truppe</option></select>
+                 <input type="number" class="cIn" value="10">`;
             
-            GameEngine.allAlphas = allAlphas;
+            const aSel = document.getElementById(id).querySelector('.aSel');
+            Object.keys(allAlphas).forEach(name => {
+                let o = new Option(name, name);
+                o.dataset.class = allAlphas[name].class;
+                aSel.add(o);
+            });
 
-            function setupSlot(id) {
-                const el = document.getElementById(id);
-                el.innerHTML = `
-                    <select class="aSel"><option value="">Wähle Alpha</option></select>
-                    <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
-                    <input type="number" class="cIn" placeholder="Anzahl">
-                `;
-                
-                const aSel = el.querySelector('.aSel');
-                const tSel = el.querySelector('.tSel');
+            aSel.onchange = function() {
+                const tSel = document.getElementById(id).querySelector('.tSel');
+                tSel.innerHTML = '<option value="">Truppe</option>';
+                const cls = this.options[this.selectedIndex].dataset.class;
+                if(troopMapping[cls]) {
+                    Object.keys(troopMapping[cls]).forEach(tier => {
+                        Object.keys(troopMapping[cls][tier]).forEach(t => tSel.add(new Option(t, t)));
+                    });
+                }
+            };
+        });
 
-                Object.keys(allAlphas).forEach(name => {
-                    let o = document.createElement('option'); 
-                    o.value = name; 
-                    o.textContent = name;
-                    o.dataset.class = allAlphas[name].class; 
-                    aSel.appendChild(o);
-                });
-
-                aSel.onchange = function() {
-                    tSel.innerHTML = '<option value="">Wähle Truppe</option>';
-                    const selectedClass = this.options[this.selectedIndex].dataset.class;
-                    
-                    if (selectedClass && troopMapping[selectedClass]) {
-                        tSel.disabled = false;
-                        Object.keys(troopMapping[selectedClass]).forEach(tier => {
-                            Object.keys(troopMapping[selectedClass][tier]).forEach(troopName => {
-                                let o = document.createElement('option');
-                                o.value = troopName;
-                                o.textContent = `${troopName} (${tier})`;
-                                tSel.appendChild(o);
-                            });
-                        });
-                    } else {
-                        tSel.disabled = true;
-                    }
-                };
+        // 2. Klick-Event (Direkt am Button)
+        document.getElementById('kampfBtn').onclick = function() {
+            alert("Klick erkannt! Prüfe jetzt BattleManager...");
+            
+            if(typeof window.BattleManager === 'undefined') {
+                alert("FEHLER: BattleManager nicht gefunden!");
+                return;
             }
 
-            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+            // Daten sammeln
+            const getTeam = (ids) => ids.map(id => ({
+                alpha: document.getElementById(id).querySelector('.aSel').value,
+                troop: document.getElementById(id).querySelector('.tSel').value,
+                count: parseInt(document.getElementById(id).querySelector('.cIn').value)
+            }));
 
-            // 2. Button Event mit Sicherheitsprüfung
-            document.getElementById('kampfBtn').onclick = () => {
-                // Fehlerprüfung: Sind die Dateien geladen?
-                if (typeof window.GameEngine === 'undefined') { alert("Fehler: gameEngine.js fehlt!"); return; }
-                if (typeof window.BattleManager === 'undefined') { alert("Fehler: battleManager.js fehlt!"); return; }
+            const pTeam = getTeam(['p1','p2','p3']);
+            const eTeam = getTeam(['e1','e2','e3']);
 
-                const team1 = ['p1', 'p2', 'p3'].map(getSlotData);
-                const team2 = ['e1', 'e2', 'e3'].map(getSlotData);
-
-                if (team1.some(s => !s.alpha) || team2.some(s => !s.alpha)) {
-                    alert("Bitte wähle in jedem Slot einen Alpha aus!");
-                    return;
-                }
-
-                // Kampf ausführen
-                try {
-                    const ergebnis = window.BattleManager.runBattle(team1, team2);
-                    alert("Kampf beendet! Ergebnis: " + ergebnis);
-                } catch (e) {
-                    alert("Fehler in runBattle: " + e.message);
-                }
-            };
+            try {
+                const res = window.BattleManager.runBattle(pTeam, eTeam);
+                alert("Ergebnis: " + res);
+            } catch(e) {
+                alert("Fehler in runBattle: " + e.message);
+            }
         };
-    </script> 
+    </script>
 </body>
 </html>
