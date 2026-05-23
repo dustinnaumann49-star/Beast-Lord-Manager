@@ -6,6 +6,7 @@
     <style>
         body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
         .input-group { margin-bottom: 15px; }
+        select, input { padding: 8px; width: 200px; }
         button { padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; }
         #ergebnis { margin-top: 20px; font-weight: bold; padding: 10px; border: 1px solid #ccc; }
     </style>
@@ -15,36 +16,67 @@
     <h1>Clan Kampf-Simulator</h1>
     
     <div class="input-group">
-        <label>Eigene Truppenstärke:</label><br>
-        <input type="number" id="eigeneTruppen" placeholder="z.B. 1000">
+        <label>Dein Alpha:</label><br>
+        <select id="playerAlphaSelect">
+            <option value="tibetdogge_01">Tibetdogge</option>
+            <option value="smilodon_01">Smilodon</option>
+        </select><br>
+        <input type="number" id="eigeneTruppen" placeholder="Deine Truppenanzahl">
     </div>
 
     <div class="input-group">
-        <label>Gegnerische Truppenstärke:</label><br>
-        <input type="number" id="gegnerTruppen" placeholder="z.B. 1000">
+        <label>Gegner Alpha:</label><br>
+        <select id="enemyAlphaSelect">
+            <option value="hebridenschaf_01">Hebridenschaf</option>
+            <option value="geierschildkroete_01">Geierschildkröte</option>
+        </select><br>
+        <input type="number" id="gegnerTruppen" placeholder="Gegner Truppenanzahl">
     </div>
 
     <button onclick="berechneKampf()">Kampf simulieren</button>
 
     <div id="ergebnis">Ergebnis erscheint hier...</div>
 
-    <script>
-        function berechneKampf() {
-            let eigene = document.getElementById('eigeneTruppen').value;
-            let gegner = document.getElementById('gegnerTruppen').value;
-            let ausgabe = document.getElementById('ergebnis');
+    <script type="module">
+        import BattleManager from './battleManager.js';
+        import CarnivoreTroops from './data/troops/carnivore_troops.js';
+        import HerbivoreTroops from './data/troops/herbivore_troops.js';
 
-            if(eigene > gegner) {
-                ausgabe.innerText = "Sieg! Du hast " + (eigene - gegner) + " Truppen übrig.";
-                ausgabe.style.color = "green";
-            } else if (eigene < gegner) {
-                ausgabe.innerText = "Niederlage! Der Gegner ist zu stark.";
-                ausgabe.style.color = "red";
-            } else {
-                ausgabe.innerText = "Unentschieden! Alle Truppen vernichtet.";
-                ausgabe.style.color = "orange";
+        window.berechneKampf = function() {
+            const pAlphaId = document.getElementById('playerAlphaSelect').value;
+            const eAlphaId = document.getElementById('enemyAlphaSelect').value;
+            const pCount = parseInt(document.getElementById('eigeneTruppen').value) || 0;
+            const eCount = parseInt(document.getElementById('gegnerTruppen').value) || 0;
+            const ausgabe = document.getElementById('ergebnis');
+
+            // Armee-Objekte für den Manager erstellen
+            // Hier nutzen wir beispielhaft T10 Werte aus deinen Daten-Dateien
+            const playerArmy = [{ 
+                id: "P1", 
+                alphaId: pAlphaId, 
+                troopStats: CarnivoreTroops["T10"]["BritishColumbiaWolf"].stats, 
+                count: pCount 
+            }];
+            
+            const enemyArmy = [{ 
+                id: "E1", 
+                alphaId: eAlphaId, 
+                troopStats: HerbivoreTroops["T10"]["Elenantilope"].stats, 
+                count: eCount 
+            }];
+
+            try {
+                // Kampf starten
+                const state = BattleManager.initializeBattleState(playerArmy, enemyArmy);
+                const winner = BattleManager.runBattle(state);
+
+                ausgabe.innerText = "Kampf beendet! Sieger: " + winner;
+                ausgabe.style.color = (winner === 'Player') ? "green" : "red";
+            } catch (e) {
+                console.error(e);
+                ausgabe.innerText = "Fehler bei der Berechnung. Bitte Konsole prüfen.";
             }
-        }
+        };
     </script>
 </body>
 </html>
