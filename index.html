@@ -2,108 +2,18 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3 vs 3 Kampf-Simulator</title>
-    <style>
-        body { font-family: sans-serif; padding: 10px; background-color: #f4f4f9; }
-        .slot { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 10px; }
-        select, input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
-        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; }
-        #ergebnis { margin-top: 20px; padding: 15px; border: 1px solid #ccc; font-weight: bold; background: #fff; text-align: center; }
-    </style>
+    <title>Test Simulator</title>
 </head>
 <body>
+    <h1 id="status">Lade...</h1>
+    
+    <div id="p1" style="border: 1px solid black; padding: 10px; margin: 5px;">
+        Reihe 1 Spieler
+    </div>
 
-    <h1>3 vs 3 Kampf-Simulator</h1>
-
-    <h3>Deine Armee</h3>
-    <div id="p1" class="slot"></div>
-    <div id="p2" class="slot"></div>
-    <div id="p3" class="slot"></div>
-
-    <h3>Gegner Armee</h3>
-    <div id="e1" class="slot"></div>
-    <div id="e2" class="slot"></div>
-    <div id="e3" class="slot"></div>
-
-    <button id="kampfBtn">Kampf simulieren</button>
-    <div id="ergebnis">Ergebnis erscheint hier...</div>
-
-    <script type="module">
-        import CarnivoreAlphas from './data/alphas/carnivores.js';
-        import HerbivoreAlphas from './data/alphas/herbivores.js';
-        import OmnivoreAlphas from './data/alphas/omnivores.js';
-        import CarnivoreTroops from './data/troops/carnivore_troops.js';
-        import HerbivoreTroops from './data/troops/herbivore_troops.js';
-        import OmnivoreTroops from './data/troops/omnivore_troops.js';
-        import BattleManager from './battleManager.js';
-
-        const alphaMap = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
-        const alphaTypes = {
-            ...Object.keys(CarnivoreAlphas).reduce((a,k)=>({...a,[k]:'carnivore'}),{}),
-            ...Object.keys(HerbivoreAlphas).reduce((a,k)=>({...a,[k]:'herbivore'}),{}),
-            ...Object.keys(OmnivoreAlphas).reduce((a,k)=>({...a,[k]:'omnivore'}),{})
-        };
-
-        function setupSlot(id) {
-            const el = document.getElementById(id);
-            // Wir erstellen die Selects direkt hier, damit sie garantiert da sind
-            el.innerHTML = `
-                <select class="alphaSel"><option value="">Wähle Alpha</option></select>
-                <select class="troopSel"></select>
-                <input type="number" class="countIn" placeholder="Anzahl">
-            `;
-            const aSel = el.querySelector('.alphaSel');
-            const tSel = el.querySelector('.troopSel');
-            
-            Object.keys(alphaMap).forEach(name => {
-                let o = document.createElement('option'); o.value = name; o.textContent = name;
-                aSel.appendChild(o);
-            });
-
-            aSel.addEventListener('change', () => {
-                const type = alphaTypes[aSel.value];
-                const source = (type === 'carnivore') ? CarnivoreTroops : (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
-                tSel.innerHTML = '';
-                if(source) {
-                    Object.keys(source).forEach(tier => {
-                        Object.keys(source[tier] || {}).forEach(tName => {
-                            let o = document.createElement('option'); o.textContent = tName; tSel.appendChild(o);
-                        });
-                    });
-                }
-            });
-        }
-
-        // Slots initialisieren
-        ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
-
-        document.getElementById('kampfBtn').addEventListener('click', () => {
-            const getSide = (ids) => ids.map(id => {
-                const el = document.getElementById(id);
-                return {
-                    alpha: el.querySelector('.alphaSel').value,
-                    troop: el.querySelector('.troopSel').value,
-                    count: parseInt(el.querySelector('.countIn').value) || 0
-                };
-            });
-
-            try {
-                const pArmy = getSide(['p1','p2','p3']);
-                const eArmy = getSide(['e1','e2','e3']);
-                
-                // Hier prüfen wir, ob BattleManager existiert
-                if (typeof BattleManager.runBattle !== 'function') {
-                    throw new Error("BattleManager.runBattle ist nicht definiert.");
-                }
-                
-                const result = BattleManager.runBattle(pArmy, eArmy);
-                document.getElementById('ergebnis').innerText = "Ergebnis: " + result;
-            } catch (e) {
-                console.error(e);
-                document.getElementById('ergebnis').innerText = "Fehler: " + e.message;
-            }
-        });
+    <script>
+        document.getElementById('status').innerText = "Code wurde geladen!";
+        document.getElementById('status').style.color = "green";
     </script>
 </body>
 </html>
