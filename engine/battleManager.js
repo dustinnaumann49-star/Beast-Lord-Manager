@@ -1,21 +1,20 @@
-import GameEngine from './gameEngine.js';
-
-const BattleManager = {
+window.BattleManager = {
     /**
-     * Bereitet den initialen Zustand des Kampfes vor
+     * Bereitet den initialen Zustand vor. 
+     * Erwartet pArmy und eArmy als Arrays mit {alphaId, troopStats, count}
      */
     initializeBattleState: function(playerArmy, enemyArmy) {
         return {
             currentRound: 0,
-            playerRows: playerArmy.map(row => ({
-                id: row.id,
+            playerRows: playerArmy.map((row, index) => ({
+                id: 'p' + index,
                 alphaId: row.alphaId,
                 troopStats: { ...row.troopStats },
                 currentCount: row.count,
                 activeDebuffs: []
             })),
-            enemyRows: enemyArmy.map(row => ({
-                id: row.id,
+            enemyRows: enemyArmy.map((row, index) => ({
+                id: 'e' + index,
                 alphaId: row.alphaId,
                 troopStats: { ...row.troopStats },
                 currentCount: row.count,
@@ -25,37 +24,37 @@ const BattleManager = {
     },
 
     /**
-     * Führt den gesamten Kampf durch
+     * Führt den Kampf aus
      */
-    runBattle: function(gameState) {
+    runBattle: function(pArmy, eArmy) {
+        // Zustand erstellen
+        const gameState = this.initializeBattleState(pArmy, eArmy);
+        
         console.log("Kampf gestartet!");
 
-        // 1. Passiv-Boni anwenden (Pre-Combat)
+        // 1. Passiv-Boni anwenden
         [...gameState.playerRows, ...gameState.enemyRows].forEach(row => {
-            row.troopStats = GameEngine.applyPassiveBonuses(row.alphaId, row.troopStats);
+            // Falls GameEngine lokal verfügbar ist, sonst ignorieren oder manuell setzen
+            if (typeof GameEngine !== 'undefined') {
+                row.troopStats = GameEngine.applyPassiveBonuses(row.alphaId, row.troopStats);
+            }
         });
 
-        // 2. Kampf-Loop (maximal 8 Runden)
+        // 2. Kampf-Loop
         while (gameState.currentRound < 8) {
             gameState.currentRound++;
-            console.log(`--- Runde ${gameState.currentRound} ---`);
+            
+            // Kampf-Logik (Hier werden deine Skills berechnet)
+            // ...
 
-            // Hier würden wir pro Runde die Skills triggern
-            // Beispiel: GameEngine.executeCombatSkill(...)
-
-            // Kampfende prüfen
-            const status = GameEngine.checkBattleEnd(gameState);
-            if (status.finished) {
-                console.log(`Kampf endet vorzeitig: ${status.reason}`);
+            // Ende prüfen
+            if (gameState.playerRows.every(r => r.currentCount <= 0) || 
+                gameState.enemyRows.every(r => r.currentCount <= 0)) {
                 break;
             }
         }
 
         // 3. Ergebnis
-        const winner = GameEngine.determineWinner(gameState);
-        console.log(`Kampf beendet! Sieger: ${winner}`);
-        return winner;
+        return "Kampf beendet nach Runde " + gameState.currentRound;
     }
 };
-
-export default BattleManager;
