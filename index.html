@@ -25,4 +25,50 @@
 </head>
 <body>
 
-    <h1>Kampf-Simulator
+    <h1>Kampf-Simulator 3v3</h1>
+
+    <h3>Deine Armee</h3>
+    <div id="p1" class="slot"></div>
+    <div id="p2" class="slot"></div>
+    <div id="p3" class="slot"></div>
+
+    <h3>Gegner Armee</h3>
+    <div id="e1" class="slot"></div>
+    <div id="e2" class="slot"></div>
+    <div id="e3" class="slot"></div>
+
+    <button id="kampfBtn">Kampf starten</button>
+    <div id="ergebnis"></div>
+
+    <script>
+        window.onload = function() {
+            // Daten zusammenführen
+            const allAlphas = { 
+                ...window.CarnivoreAlphas, 
+                ...window.Herbivores, 
+                ...window.Omnivores 
+            };
+            
+            GameEngine.allAlphas = allAlphas;
+
+            function setupSlot(id) {
+                const el = document.getElementById(id);
+                if (!el) return; // Verhindert Fehler, falls ein ID fehlt
+                
+                el.innerHTML = `
+                    <select class="aSel"><option>Wähle Alpha</option></select>
+                    <select class="tSel"><option>Wähle Truppe</option></select>
+                    <input type="number" class="cIn" placeholder="Anzahl">
+                `;
+            }
+
+            // Alle Slots initialisieren
+            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+
+            document.getElementById('kampfBtn').onclick = () => {
+                alert("Simulation gestartet!");
+            };
+        };
+    </script>
+</body>
+</html>
