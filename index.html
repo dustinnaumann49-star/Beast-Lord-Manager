@@ -4,47 +4,75 @@
     <meta charset="UTF-8">
     <title>Clan Kampf-Simulator</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
         .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
+        select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+        button { padding: 12px 25px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; }
+        #ergebnis { margin-top: 20px; font-weight: bold; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: white; }
     </style>
 </head>
 <body>
 
     <h1>Clan Kampf-Simulator</h1>
-    <div id="status">Starte Import...</div>
-
+    
     <div class="input-group">
         <label>Dein Alpha:</label>
-        <select id="playerAlphaSelect"><option>Keine Daten</option></select>
+        <select id="playerAlphaSelect"></select>
+        <input type="number" id="eigeneTruppen" placeholder="Deine Truppenanzahl">
     </div>
 
-    <script type="module">
-        const statusDiv = document.getElementById('status');
-        
-        async function ladeDaten() {
-            try {
-                // Versuche den Import
-                const module = await import('./data/alphas/carnivores.js');
-                console.log("Import erfolgreich:", module);
-                
-                const pSelect = document.getElementById('playerAlphaSelect');
-                pSelect.innerHTML = ''; // Leeren
-                
-                // Daten anzeigen
-                Object.keys(module.default).forEach(name => {
-                    let opt = document.createElement('option');
-                    opt.textContent = name;
-                    pSelect.appendChild(opt);
-                });
-                
-                statusDiv.innerText = "Daten geladen!";
-            } catch (err) {
-                statusDiv.innerText = "Fehler: " + err.message;
-                console.error("Detail-Fehler:", err);
-            }
-        }
+    <div class="input-group">
+        <label>Gegner Alpha:</label>
+        <select id="enemyAlphaSelect"></select>
+        <input type="number" id="gegnerTruppen" placeholder="Gegner Truppenanzahl">
+    </div>
 
-        ladeDaten();
+    <button id="kampfBtn">Kampf simulieren</button>
+
+    <div id="ergebnis">Ergebnis erscheint hier...</div>
+
+    <script type="module">
+        import BattleManager from './battleManager.js';
+        import CarnivoreAlphas from './data/alphas/carnivores.js';
+        import HerbivoreAlphas from './data/alphas/herbivores.js';
+        import OmnivoreAlphas from './data/alphas/omnivores.js';
+
+        // 1. Alphas sammeln
+        const allAlphas = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
+        const pSelect = document.getElementById('playerAlphaSelect');
+        const eSelect = document.getElementById('enemyAlphaSelect');
+
+        // 2. Dropdowns befüllen
+        Object.entries(allAlphas).forEach(([name, data]) => {
+            let opt1 = document.createElement('option');
+            opt1.value = data.id;
+            opt1.textContent = name;
+            pSelect.appendChild(opt1);
+            eSelect.appendChild(opt1.cloneNode(true));
+        });
+
+        // 3. Kampf-Logik
+        document.getElementById('kampfBtn').addEventListener('click', () => {
+            const pAlphaId = pSelect.value;
+            const eAlphaId = eSelect.value;
+            const pCount = parseInt(document.getElementById('eigeneTruppen').value) || 0;
+            const eCount = parseInt(document.getElementById('gegnerTruppen').value) || 0;
+            const ausgabe = document.getElementById('ergebnis');
+
+            // Armee erstellen
+            const playerArmy = [{ id: "P1", alphaId: pAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: pCount }];
+            const enemyArmy = [{ id: "E1", alphaId: eAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: eCount }];
+
+            try {
+                const state = BattleManager.initializeBattleState(playerArmy, enemyArmy);
+                const winner = BattleManager.runBattle(state);
+                ausgabe.innerText = "Kampf beendet! Sieger: " + winner;
+                ausgabe.style.color = (winner === 'Player') ? "green" : "red";
+            } catch (e) {
+                console.error(e);
+                ausgabe.innerText = "Fehler in der Simulation. Prüfe die Konsole (F12).";
+            }
+        });
     </script>
 </body>
 </html>
