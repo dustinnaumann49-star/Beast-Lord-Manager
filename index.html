@@ -148,7 +148,7 @@
         #mainTool {
             display: none;
             width: 100%;
-            max-width: 600px;
+            max-width: 620px;
         }
 
         #mainTool.visible {
@@ -181,6 +181,34 @@
                     var(--accent) 70%,
                     transparent 100%);
             opacity: 0.7;
+        }
+
+        /* Sprachumschalter */
+        .lang-switch {
+            display: flex;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            transition: all 0.25s ease;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: #1a1a2e;
+            border-color: var(--accent);
+            box-shadow: 0 2px 8px rgba(226, 160, 63, 0.3);
         }
 
         .header-icon {
@@ -303,7 +331,6 @@
             font-style: italic;
         }
 
-        /* Gruppen zunächst versteckt */
         #alphaGroup,
         #beastGroup {
             display: none;
@@ -314,7 +341,6 @@
             display: block;
         }
 
-        /* Ergebnis-Anzeige */
         .result-box {
             background: #0f0f1a;
             border: 1px solid var(--border);
@@ -417,7 +443,6 @@
             letter-spacing: 0.02em;
         }
 
-        /* Typ-Farben */
         .type-carnivore .result-type {
             color: #e74c3c;
         }
@@ -441,7 +466,6 @@
             box-shadow: 0 0 30px rgba(46, 204, 113, 0.08) !important;
         }
 
-        /* Positions-Farben */
         .position-melee .result-position {
             color: #e67e22;
             border: 1px solid rgba(230, 126, 34, 0.3);
@@ -491,26 +515,29 @@
     <!-- ============================== -->
     <div id="mainTool">
         <div class="container">
+            <!-- Sprachumschalter -->
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="de">DE</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+
             <div class="header-icon">🐺</div>
-            <h1>Alpha & Bestien</h1>
-            <p class="subtitle">Typ wählen, dann Alpha und Begleitbestie</p>
+            <h1 id="mainTitle">Alpha & Bestien</h1>
+            <p class="subtitle" id="mainSubtitle">Typ wählen, dann Alpha und Begleitbestie</p>
 
             <!-- Erstes Dropdown: Bestientyp -->
             <div class="form-group">
-                <label for="typeSelect">Bestientyp wählen</label>
+                <label for="typeSelect" id="labelType">Bestientyp wählen</label>
                 <div class="select-wrapper">
                     <select id="typeSelect">
                         <option value="" disabled selected>-- Bitte Typ wählen --</option>
-                        <option value="Fleischfresser">🍖 Fleischfresser</option>
-                        <option value="Allesfresser">🥩 Allesfresser</option>
-                        <option value="Pflanzenfresser">🥗 Pflanzenfresser</option>
                     </select>
                 </div>
             </div>
 
             <!-- Zweites Dropdown: Alpha-Auswahl -->
             <div class="form-group" id="alphaGroup">
-                <label for="alphaSelect">Alpha auswählen</label>
+                <label for="alphaSelect" id="labelAlpha">Alpha auswählen</label>
                 <div class="select-wrapper">
                     <select id="alphaSelect">
                         <option value="" disabled selected>-- Bitte Alpha wählen --</option>
@@ -518,9 +545,9 @@
                 </div>
             </div>
 
-            <!-- Drittes Dropdown: Bestien-Auswahl (T1-T10) -->
+            <!-- Drittes Dropdown: Bestien-Auswahl -->
             <div class="form-group" id="beastGroup">
-                <label for="beastSelect">Begleitbestie (T1–T10)</label>
+                <label for="beastSelect" id="labelBeast">Begleitbestie (T1–T10)</label>
                 <div class="select-wrapper">
                     <select id="beastSelect">
                         <option value="" disabled selected>-- Bitte Bestie wählen --</option>
@@ -533,7 +560,7 @@
                 <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
             </div>
 
-            <p class="footer-note">Beast Lord: The New Land &mdash; Auswahl-Tool v3.1</p>
+            <p class="footer-note" id="footerText">Beast Lord: The New Land &mdash; Auswahl-Tool v3.2</p>
         </div>
     </div>
 
@@ -541,7 +568,7 @@
         // =============================================
         // PASSWORTSCHUTZ
         // =============================================
-        const password = 'VCF'; // <-- Hier kannst du das Passwort ändern
+        const password = 'VCF';
 
         const overlay = document.getElementById('passwordOverlay');
         const mainTool = document.getElementById('mainTool');
@@ -554,6 +581,8 @@
                 overlay.classList.add('hidden');
                 mainTool.classList.add('visible');
                 passwordError.classList.remove('visible');
+                // Initiale Sprache setzen und UI aufbauen
+                switchLanguage('de');
             } else {
                 passwordError.classList.add('visible');
                 passwordInput.value = '';
@@ -563,13 +592,170 @@
 
         passwordSubmit.addEventListener('click', checkPassword);
         passwordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
+            if (e.key === 'Enter') checkPassword();
         });
 
         // =============================================
-        // DATENBANK: Alphas (unverändert)
+        // SPRACHKONFIGURATION
+        // =============================================
+        let currentLang = 'de';
+
+        const translations = {
+            de: {
+                title: 'Alpha & Bestien',
+                subtitle: 'Typ wählen, dann Alpha und Begleitbestie',
+                typeLabel: 'Bestientyp wählen',
+                typePlaceholder: '-- Bitte Typ wählen --',
+                alphaLabel: 'Alpha auswählen',
+                alphaPlaceholder: '-- Bitte Alpha wählen --',
+                beastLabel: 'Begleitbestie (T1–T10)',
+                beastPlaceholder: '-- Bitte Bestie wählen --',
+                resultPlaceholder: '🐾 Hier erscheint das Ergebnis',
+                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.2',
+                types: {
+                    Fleischfresser: 'Fleischfresser',
+                    Allesfresser: 'Allesfresser',
+                    Pflanzenfresser: 'Pflanzenfresser'
+                },
+                positions: {
+                    Nahkampf: 'Nahkampf',
+                    Fernkampf: 'Fernkampf',
+                    Support: 'Support'
+                }
+            },
+            en: {
+                title: 'Alpha & Beasts',
+                subtitle: 'Choose type, then Alpha and companion',
+                typeLabel: 'Select Type',
+                typePlaceholder: '-- Select Type --',
+                alphaLabel: 'Select Alpha',
+                alphaPlaceholder: '-- Select Alpha --',
+                beastLabel: 'Companion Beast (T1–T10)',
+                beastPlaceholder: '-- Select Beast --',
+                resultPlaceholder: '🐾 Result appears here',
+                footer: 'Beast Lord: The New Land — Selection Tool v3.2',
+                types: {
+                    Fleischfresser: 'Carnivore',
+                    Allesfresser: 'Omnivore',
+                    Pflanzenfresser: 'Herbivore'
+                },
+                positions: {
+                    Nahkampf: 'Melee',
+                    Fernkampf: 'Ranged',
+                    Support: 'Support'
+                }
+            }
+        };
+
+        // Übersetzungstabellen für Alpha- und Bestiennamen
+        const alphaNamesEN = {
+            'Tibetdogge': 'Tibetan Mastiff',
+            'Jaguarundi': 'Jaguarundi',
+            'Weißer Löwe': 'White Lion',
+            'Titanis': 'Titanis',
+            'Amerikanischer Löwe': 'American Lion',
+            'Hyaenodon': 'Hyaenodon',
+            'Smilodon': 'Smilodon',
+            'Schwarzer Panther': 'Black Panther',
+            'Schneeleopard': 'Snow Leopard',
+            'Weißer Tiger': 'White Tiger',
+            'Kanadischer Luchs': 'Canadian Lynx',
+            'Leistenkrokodil': 'Saltwater Crocodile',
+            'Bindenwaran': 'Banded Monitor',
+            'Schwarzer Löwe': 'Black Lion',
+            'Weißes Krokodil': 'White Crocodile',
+            'Affenadler': 'Monkey Eagle',
+            'Beutellöwe': 'Marsupial Lion',
+            'Amerikanischer Gepard': 'American Cheetah',
+            'Hebriden-Schaf': 'Hebridean Sheep',
+            'Weißes Rentier': 'White Reindeer',
+            'Yak': 'Yak',
+            'Doedicurus': 'Doedicurus',
+            'Wollnashorn': 'Woolly Rhino',
+            'Riesen Sivatherium': 'Giant Sivatherium',
+            'Meiolania': 'Meiolania',
+            'Wildpferd': 'Wild Horse',
+            'Asiatischer Elefant': 'Asian Elephant',
+            'Rentier': 'Reindeer',
+            'Ankole': 'Ankole',
+            'Spanisches Kampfrind': 'Spanish Fighting Bull',
+            'Geochelone': 'Geochelone',
+            'Spitzmaulnashorn': 'Black Rhino',
+            'Afrikanischer Elefant': 'African Elephant',
+            'Mammut': 'Mammoth',
+            'Megatherium': 'Megatherium',
+            'Panzernashorn': 'Armored Rhino',
+            'Brabanter': 'Brabanter',
+            'Geierschildkröte': 'Vulture Turtle',
+            'Klapperschlange': 'Rattlesnake',
+            'Komodowaran': 'Komodo Dragon',
+            'Höhlenbär': 'Cave Bear',
+            'Riesenbiber': 'Giant Beaver',
+            'Metridiochoerus': 'Metridiochoerus',
+            'Dinopithecus': 'Dinopithecus',
+            'Schwarzbär': 'Black Bear',
+            'Pinselohrschwein': 'Bush Pig',
+            'Weißkopfsaki': 'White-faced Saki',
+            'Bärenmarder': 'Bear Marten',
+            'Drill': 'Drill',
+            'Flusspferd': 'Hippopotamus',
+            'Geisterbär': 'Ghost Bear',
+            'Südafrika-Kronenkranich': 'South African Crowned Crane',
+            'Weißer Pfau': 'White Peacock',
+            'Elefantenvogel': 'Elephant Bird',
+            'Kurznasenbär': 'Short-faced Bear',
+            'Kodiakbär': 'Kodiak Bear'
+        };
+
+        const beastNamesEN = {
+            'T1 Impala': 'T1 Impala',
+            'T2 Argali': 'T2 Argali',
+            'T3 Alpensteinbock': 'T3 Alpine Ibex',
+            'T4 Markhor': 'T4 Markhor',
+            'T5 Oryxantilope': 'T5 Oryx',
+            'T6 Elenamtilope': 'T6 Eland',
+            'T7 Gnu': 'T7 Wildebeest',
+            'T8 Afrikanischer Büffel': 'T8 African Buffalo',
+            'T9 Takin': 'T9 Takin',
+            'T10 Amerikanischer Bison': 'T10 American Bison',
+            'T1 Makake': 'T1 Macaque',
+            'T2 Stumpfnasenaffe': 'T2 Snub-nosed Monkey',
+            'T3 Marmoset': 'T3 Marmoset',
+            'T4 Roter Brüllaffe': 'T4 Red Howler',
+            'T5 Siamang': 'T5 Siamang',
+            'T6 Guinea-Pavian': 'T6 Guinea Baboon',
+            'T7 Mandrill': 'T7 Mandrill',
+            'T8 Schimpanse': 'T8 Chimpanzee',
+            'T9 Sumatra-Orang-Utan': 'T9 Sumatran Orangutan',
+            'T10 Westlicher Flachlandgorilla': 'T10 Western Lowland Gorilla',
+            'T1 Rotfuchs': 'T1 Red Fox',
+            'T2 SchabrackenSchakal': 'T2 Black-backed Jackal',
+            'T3 Afrikanischer Wildhund': 'T3 African Wild Dog',
+            'T4 Schakal': 'T4 Jackal',
+            'T5 Mähnenwolf': 'T5 Maned Wolf',
+            'T6 Kojote': 'T6 Coyote',
+            'T7 Hyäne': 'T7 Hyena',
+            'T8 Polarwolf': 'T8 Arctic Wolf',
+            'T9 Nordwestlicher Wolf': 'T9 Northwestern Wolf',
+            'T10 British-Colombia-Wolf': 'T10 British Columbia Wolf'
+        };
+
+        function translateAlphaName(germanName) {
+            if (currentLang === 'en' && alphaNamesEN[germanName]) {
+                return alphaNamesEN[germanName];
+            }
+            return germanName;
+        }
+
+        function translateBeastName(germanName) {
+            if (currentLang === 'en' && beastNamesEN[germanName]) {
+                return beastNamesEN[germanName];
+            }
+            return germanName;
+        }
+
+        // =============================================
+        // DATENBANK (unverändert, deutsche Schlüssel)
         // =============================================
         const alphaDaten = {
             Fleischfresser: [
@@ -636,9 +822,6 @@
             ]
         };
 
-        // =============================================
-        // DATENBANK: Begleitbestien (T1–T10)
-        // =============================================
         const beastDaten = {
             Pflanzenfresser: [
                 'T1 Impala', 'T2 Argali', 'T3 Alpensteinbock', 'T4 Markhor',
@@ -657,14 +840,12 @@
             ]
         };
 
-        // Emoji und CSS-Klasse pro Typ
         const typConfig = {
             Fleischfresser: { emoji: '🍖', cssClass: 'type-carnivore' },
             Allesfresser: { emoji: '🥩', cssClass: 'type-omnivore' },
             Pflanzenfresser: { emoji: '🥗', cssClass: 'type-herbivore' }
         };
 
-        // Positionen: Icon und CSS-Klasse
         const positionConfig = {
             Nahkampf: { icon: '⚔️', cssClass: 'position-melee' },
             Fernkampf: { icon: '🏹', cssClass: 'position-ranged' },
@@ -678,57 +859,77 @@
         const alphaSelect = document.getElementById('alphaSelect');
         const beastSelect = document.getElementById('beastSelect');
         const resultBox = document.getElementById('resultBox');
+        const langButtons = document.querySelectorAll('.lang-btn');
+
+        // UI-Elemente für Übersetzungen
+        const mainTitle = document.getElementById('mainTitle');
+        const mainSubtitle = document.getElementById('mainSubtitle');
+        const labelType = document.getElementById('labelType');
+        const labelAlpha = document.getElementById('labelAlpha');
+        const labelBeast = document.getElementById('labelBeast');
+        const footerText = document.getElementById('footerText');
 
         // Hilfsfunktion: Dropdown mit Optionen befüllen
-        function populateSelect(selectElement, optionsArray, placeholderText) {
-            selectElement.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
-            optionsArray.forEach(item => {
+        function populateTypeSelect() {
+            const t = translations[currentLang];
+            typeSelect.innerHTML = `<option value="" disabled selected>${t.typePlaceholder}</option>`;
+            const types = ['Fleischfresser', 'Allesfresser', 'Pflanzenfresser'];
+            types.forEach(key => {
                 const option = document.createElement('option');
-                if (typeof item === 'string') {
-                    option.value = item;
-                    option.textContent = item;
-                } else {
-                    option.value = item.name;
-                    option.textContent = item.name;
-                }
-                selectElement.appendChild(option);
+                option.value = key;
+                option.textContent = typConfig[key].emoji + ' ' + t.types[key];
+                typeSelect.appendChild(option);
             });
         }
 
-        // Typ-Auswahl -> beide Gruppen befüllen & anzeigen
-        typeSelect.addEventListener('change', function() {
-            const gewaehlterTyp = this.value;
+        function populateAlphaSelect(alphaList) {
+            const t = translations[currentLang];
+            alphaSelect.innerHTML = `<option value="" disabled selected>${t.alphaPlaceholder}</option>`;
+            if (!alphaList) return;
+            alphaList.forEach(alpha => {
+                const option = document.createElement('option');
+                option.value = alpha.name;
+                option.textContent = translateAlphaName(alpha.name);
+                alphaSelect.appendChild(option);
+            });
+        }
 
-            populateSelect(alphaSelect, [], '-- Bitte Alpha wählen --');
-            populateSelect(beastSelect, [], '-- Bitte Bestie wählen --');
-            resultBox.className = 'result-box idle';
-            resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
+        function populateBeastSelect(beastList) {
+            const t = translations[currentLang];
+            beastSelect.innerHTML = `<option value="" disabled selected>${t.beastPlaceholder}</option>`;
+            if (!beastList) return;
+            beastList.forEach(beast => {
+                const option = document.createElement('option');
+                option.value = beast;
+                option.textContent = translateBeastName(beast);
+                beastSelect.appendChild(option);
+            });
+        }
 
-            if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
-                alphaGroup.classList.remove('visible');
-                beastGroup.classList.remove('visible');
-                return;
+        function updateStaticUITexts() {
+            const t = translations[currentLang];
+            mainTitle.textContent = t.title;
+            mainSubtitle.textContent = t.subtitle;
+            labelType.textContent = t.typeLabel;
+            labelAlpha.textContent = t.alphaLabel;
+            labelBeast.textContent = t.beastLabel;
+            footerText.textContent = t.footer;
+
+            // Platzhalter in Ergebnisbox, wenn idle
+            if (resultBox.classList.contains('idle')) {
+                resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
             }
+        }
 
-            const alphas = alphaDaten[gewaehlterTyp];
-            populateSelect(alphaSelect, alphas, '-- Bitte Alpha wählen --');
-
-            const beasts = beastDaten[gewaehlterTyp];
-            populateSelect(beastSelect, beasts, '-- Bitte Bestie wählen --');
-
-            alphaGroup.classList.add('visible');
-            beastGroup.classList.add('visible');
-        });
-
-        // Gemeinsame Ergebnis-Aktualisierung
         function updateResult() {
             const gewaehlterTyp = typeSelect.value;
             const gewaehlterAlphaName = alphaSelect.value;
             const gewaehlteBeast = beastSelect.value;
+            const t = translations[currentLang];
 
             if (!gewaehlterTyp || !gewaehlterAlphaName) {
                 resultBox.className = 'result-box idle';
-                resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
+                resultBox.innerHTML = `<span class="placeholder-text">${t.resultPlaceholder}</span>`;
                 return;
             }
 
@@ -738,21 +939,25 @@
 
             const typInfo = typConfig[gewaehlterTyp];
             const posInfo = positionConfig[alphaObjekt.position];
+            const translatedType = t.types[gewaehlterTyp];
+            const translatedPos = t.positions[alphaObjekt.position];
+            const displayAlphaName = translateAlphaName(gewaehlterAlphaName);
+            const displayBeast = gewaehlteBeast ? translateBeastName(gewaehlteBeast) : null;
 
-            const beastDisplay = gewaehlteBeast
-                ? `<div class="result-beast-line">🐾 <span>${gewaehlteBeast}</span></div>`
+            const beastDisplay = displayBeast
+                ? `<div class="result-beast-line">🐾 <span>${displayBeast}</span></div>`
                 : `<div class="result-beast-line">🐾 <span>—</span></div>`;
 
             resultBox.className = `result-box active ${typInfo.cssClass} ${posInfo.cssClass}`;
             resultBox.innerHTML = `
                 <div class="result-content">
                     <span class="result-emoji">${typInfo.emoji}</span>
-                    <span class="result-type">${gewaehlterTyp}</span>
+                    <span class="result-type">${translatedType}</span>
                     <div>
-                        <span class="result-alpha-name">${gewaehlterAlphaName}</span>
+                        <span class="result-alpha-name">${displayAlphaName}</span>
                         <span class="result-position">
                             <span class="position-icon">${posInfo.icon}</span>
-                            ${alphaObjekt.position}
+                            ${translatedPos}
                         </span>
                     </div>
                     ${beastDisplay}
@@ -760,8 +965,82 @@
             `;
         }
 
+        // Event: Typ-Auswahl
+        typeSelect.addEventListener('change', function() {
+            const gewaehlterTyp = this.value;
+
+            if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
+                alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
+                populateAlphaSelect([]);
+                populateBeastSelect([]);
+            } else {
+                const alphas = alphaDaten[gewaehlterTyp];
+                const beasts = beastDaten[gewaehlterTyp];
+                populateAlphaSelect(alphas);
+                populateBeastSelect(beasts);
+                alphaGroup.classList.add('visible');
+                beastGroup.classList.add('visible');
+            }
+
+            updateResult();
+        });
+
         alphaSelect.addEventListener('change', updateResult);
         beastSelect.addEventListener('change', updateResult);
+
+        // =============================================
+        // SPRACHUMSCHALTUNG
+        // =============================================
+        function switchLanguage(lang) {
+            currentLang = lang;
+
+            // Aktive Buttons markieren
+            langButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            // Gespeicherte Werte sichern
+            const savedType = typeSelect.value;
+            const savedAlpha = alphaSelect.value;
+            const savedBeast = beastSelect.value;
+
+            // UI-Texte aktualisieren
+            updateStaticUITexts();
+
+            // Typ-Dropdown neu bauen
+            populateTypeSelect();
+            typeSelect.value = savedType;
+
+            // Alpha- und Bestien-Dropdowns abhängig vom gewählten Typ neu bauen
+            if (savedType && alphaDaten[savedType]) {
+                populateAlphaSelect(alphaDaten[savedType]);
+                populateBeastSelect(beastDaten[savedType]);
+                alphaGroup.classList.add('visible');
+                beastGroup.classList.add('visible');
+            } else {
+                populateAlphaSelect([]);
+                populateBeastSelect([]);
+                alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
+            }
+
+            alphaSelect.value = savedAlpha;
+            beastSelect.value = savedBeast;
+
+            // Ergebnis neu rendern
+            updateResult();
+        }
+
+        // Event-Listener für Sprachbuttons
+        langButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.dataset.lang;
+                if (lang !== currentLang) {
+                    switchLanguage(lang);
+                }
+            });
+        });
     </script>
 </body>
 </html>
