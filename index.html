@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clan Kampf-Simulator 3v3</title>
 
     <script src="data/alphas/carnivores.js"></script>
@@ -15,8 +16,10 @@
     <script src="engine/battleManager.js"></script>
 
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .slot { background: white; padding: 10px; border: 1px solid #ccc; margin: 10px 0; }
+        body { font-family: sans-serif; padding: 15px; background-color: #f4f4f9; }
+        .slot { background: white; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; }
+        select, input { padding: 10px; width: 100%; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; }
+        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -37,39 +40,49 @@
 
     <script>
         window.onload = function() {
-            // Sicherstellen, dass die Engine existiert
-            if (typeof GameEngine === 'undefined') {
-                console.error("GameEngine wurde nicht geladen!");
-                return;
-            }
-
             // Daten zusammenführen
-            const allAlphas = { 
-                ...window.CarnivoreAlphas, 
-                ...window.Herbivores, 
-                ...window.Omnivores 
-            };
+            const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
+            const allTroops = { ...window.CarnivoreTroops, ...window.HerbivoreTroops, ...window.OmnivoreTroops };
             
             GameEngine.allAlphas = allAlphas;
 
-            const slots = ['p1','p2','p3','e1','e2','e3'];
-            slots.forEach(id => {
+            function setupSlot(id) {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.innerHTML = `
-                        <select class="aSel"><option>Wähle Alpha</option></select>
-                        <select class="tSel"><option>Wähle Truppe</option></select>
-                        <input type="number" placeholder="Anzahl">
-                    `;
-                    const aSel = el.querySelector('.aSel');
-                    Object.keys(allAlphas).forEach(name => {
-                        let o = document.createElement('option');
-                        o.value = name;
-                        o.textContent = name;
-                        aSel.appendChild(o);
-                    });
-                }
-            });
+                if (!el) return;
+                
+                el.innerHTML = `
+                    <select class="aSel"><option>Wähle Alpha</option></select>
+                    <select class="tSel"><option>Wähle Truppe</option></select>
+                    <input type="number" class="cIn" placeholder="Anzahl">
+                `;
+                
+                const aSel = el.querySelector('.aSel');
+                const tSel = el.querySelector('.tSel');
+
+                // Alphas befüllen
+                Object.keys(allAlphas).forEach(name => {
+                    let o = document.createElement('option'); o.value = name; o.textContent = name;
+                    aSel.appendChild(o);
+                });
+
+                // Truppen befüllen (Hier werden die Daten aus den window-Objekten gezogen)
+                Object.keys(allTroops).forEach(tier => {
+                    if (allTroops[tier]) {
+                        Object.keys(allTroops[tier]).forEach(troopName => {
+                            let o = document.createElement('option');
+                            o.value = troopName;
+                            o.textContent = `${troopName} (${tier})`;
+                            tSel.appendChild(o);
+                        });
+                    }
+                });
+            }
+
+            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+
+            document.getElementById('kampfBtn').onclick = () => {
+                alert("Simulation gestartet!");
+            };
         };
     </script>
 </body>
