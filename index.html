@@ -2,28 +2,30 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Clan Kampf-Simulator 3v3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 vs 3 Kampf-Simulator</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
-        .side-container { display: flex; gap: 40px; }
-        .input-group { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 250px; margin-bottom: 10px; }
-        select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
-        button { padding: 15px 30px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 1.2em; margin-top: 20px; }
-        #ergebnis { margin-top: 20px; font-weight: bold; padding: 20px; border: 1px solid #ccc; background: white; border-radius: 5px; min-width: 300px; text-align: center; }
+        body { font-family: sans-serif; padding: 10px; background-color: #f4f4f9; }
+        .container { display: flex; flex-direction: column; gap: 20px; }
+        .slots-wrapper { display: flex; flex-direction: column; gap: 10px; }
+        .input-group { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        select, input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
+        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; border-radius: 5px; }
+        #ergebnis { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>3 vs 3 Kampf-Simulator</h1>
 
-    <div class="side-container">
-        <div id="playerSide">
+    <div class="container">
+        <div>
             <h3>Deine Armee</h3>
-            <div id="pSlot1"></div> <div id="pSlot2"></div> <div id="pSlot3"></div>
+            <div id="playerSlots" class="slots-wrapper"></div>
         </div>
-        <div id="enemySide">
+        <div>
             <h3>Gegner Armee</h3>
-            <div id="eSlot1"></div> <div id="eSlot2"></div> <div id="eSlot3"></div>
+            <div id="enemySlots" class="slots-wrapper"></div>
         </div>
     </div>
 
@@ -45,19 +47,63 @@
             ...Object.keys(OmnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'omnivore'}), {})
         };
 
-        function createSlot(containerId, label) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `
-                <div class="input-group">
-                    <label>${label}</label>
-                    <select class="alphaSelect"></select>
-                    <select class="troopSelect"></select>
-                    <input type="number" class="countInput" placeholder="Anzahl">
-                </div>
+        function createSlot(parent, label) {
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.innerHTML = `
+                <label>${label}</label>
+                <select class="alphaSelect"></select>
+                <select class="troopSelect"></select>
+                <input type="number" class="countInput" placeholder="Anzahl">
             `;
-            const alphaSelect = container.querySelector('.alphaSelect');
-            const troopSelect = container.querySelector('.troopSelect');
+            parent.appendChild(div);
+            
+            const alphaSelect = div.querySelector('.alphaSelect');
+            const troopSelect = div.querySelector('.troopSelect');
 
             Object.keys(alphaMap).forEach(name => {
                 let opt = document.createElement('option');
-                opt.
+                opt.value = name; opt.textContent = name;
+                alphaSelect.appendChild(opt);
+            });
+
+            alphaSelect.addEventListener('change', () => {
+                const type = alphaMap[alphaSelect.value];
+                const source = (type === 'carnivore') ? CarnivoreTroops : 
+                               (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
+                
+                troopSelect.innerHTML = '';
+                Object.keys(source || {}).forEach(tier => {
+                    const group = document.createElement('optgroup');
+                    group.label = tier;
+                    Object.keys(source[tier] || {}).forEach(name => {
+                        let opt = document.createElement('option');
+                        opt.textContent = name;
+                        group.appendChild(opt);
+                    });
+                    troopSelect.appendChild(group);
+                });
+            });
+            alphaSelect.dispatchEvent(new Event('change'));
+        }
+
+        const pContainer = document.getElementById('playerSlots');
+        const eContainer = document.getElementById('enemySlots');
+        for(let i=1; i<=3; i++) {
+            createSlot(pContainer, 'Spieler Reihe ' + i);
+            createSlot(eContainer, 'Gegner Reihe ' + i);
+        }
+
+        document.getElementById('kampfBtn').addEventListener('click', () => {
+            const getArmy = (container) => Array.from(container.querySelectorAll('.input-group')).map(slot => ({
+                alpha: slot.querySelector('.alphaSelect').value,
+                troop: slot.querySelector('.troopSelect').value,
+                count: parseInt(slot.querySelector('.countInput').value) || 0
+            }));
+
+            const result = BattleManager.runBattle(getArmy(pContainer), getArmy(eContainer));
+            document.getElementById('ergebnis').innerText = result;
+        });
+    </script>
+</body>
+</html>
