@@ -2,18 +2,67 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Test Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clan Kampf-Simulator 3v3</title>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background-color: #f4f4f9; }
+        .slot { background: white; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; }
+        select, input { padding: 10px; width: 100%; margin-top: 5px; box-sizing: border-box; border: 1px solid #ddd; }
+        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
+        #ergebnis { margin-top: 20px; padding: 15px; background: #fff; border: 2px solid #28a745; font-weight: bold; text-align: center; border-radius: 5px; }
+    </style>
 </head>
 <body>
-    <h1 id="status">Lade...</h1>
-    
-    <div id="p1" style="border: 1px solid black; padding: 10px; margin: 5px;">
-        Reihe 1 Spieler
-    </div>
+
+    <h1>Kampf-Simulator 3v3</h1>
+
+    <h3>Deine Armee</h3>
+    <div id="p1" class="slot"></div>
+    <div id="p2" class="slot"></div>
+    <div id="p3" class="slot"></div>
+
+    <h3>Gegner Armee</h3>
+    <div id="e1" class="slot"></div>
+    <div id="e2" class="slot"></div>
+    <div id="e3" class="slot"></div>
+
+    <button id="kampfBtn">Kampf simulieren</button>
+    <div id="ergebnis">Ergebnis...</div>
+
+    <script src="data/alphas/carnivores.js"></script>
+    <script src="data/alphas/herbivores.js"></script>
+    <script src="data/alphas/omnivores.js"></script>
+    <script src="data/troops/carnivore_troops.js"></script>
+    <script src="data/troops/herbivore_troops.js"></script>
+    <script src="data/troops/omnivore_troops.js"></script>
+    <script src="battleManager.js"></script>
 
     <script>
-        document.getElementById('status').innerText = "Code wurde geladen!";
-        document.getElementById('status').style.color = "green";
+        // Diese Funktion wird erst aufgerufen, wenn alle Dateien geladen sind
+        window.onload = function() {
+            // Vereinfachter Zugriff auf die Daten
+            const allAlphas = { ...window.CarnivoreAlphas, ...window.HerbivoreAlphas, ...window.OmnivoreAlphas };
+            
+            function setupSlot(id) {
+                const el = document.getElementById(id);
+                el.innerHTML = `
+                    <select class="aSel"><option>Wähle Alpha</option></select>
+                    <select class="tSel"></select>
+                    <input type="number" class="cIn" placeholder="Anzahl">
+                `;
+                const aSel = el.querySelector('.aSel');
+                Object.keys(allAlphas).forEach(name => {
+                    let o = document.createElement('option'); o.value = name; o.textContent = name;
+                    aSel.appendChild(o);
+                });
+            }
+
+            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+
+            document.getElementById('kampfBtn').onclick = () => {
+                alert("Simulation gestartet!");
+            };
+        };
     </script>
 </body>
 </html>
