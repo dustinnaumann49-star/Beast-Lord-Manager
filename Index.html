@@ -1,1 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beast Lord: Alpha-Bestien Auswahl</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #e2a03f;
+            --text: #e0d7c6;
+            --text-light: #b0a58e;
+            --border: #2a2a3a;
+            --carnivore: #c0392b;
+            --omnivore: #d4a017;
+            --herbivore: #27ae60;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(226, 160, 63, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 100%, rgba(192, 57, 43, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 100%, rgba(39, 174, 96, 0.05) 0%, transparent 60%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Georgia', 'Times New Roman', serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow:
+                0 24px 64px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+                0 1px 0 rgba(255, 255, 255, 0.04) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    var(--accent) 30%,
+                    var(--accent) 70%,
+                    transparent 100%);
+            opacity: 0.7;
+        }
+
+        .header-icon {
+            text-align: center;
+            font-size: 52px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text);
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+            font-style: italic;
+            letter-spacing: 0.02em;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            padding: 16px 48px 16px 20px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            background: #0f0f1a;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        select:hover {
+            border-color: #4a4a5a;
+            background: #141425;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow:
+                0 0 0 3px rgba(226, 160, 63, 0.12),
+                0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Custom dropdown arrow */
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+
+        .select-wrapper:has(select:focus)::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: var(--text);
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        select option:first-child {
+            color: #6b6b7a;
+            font-style: italic;
+        }
+
+        /* Ergebnis-Anzeige */
+        .result-box {
+            background: #0f0f1a;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 20px;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-box.idle {
+            border-style: dashed;
+            opacity: 0.55;
+        }
+
+        .result-box.active {
+            border-style: solid;
+            opacity: 1;
+        }
+
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .result-emoji {
+            font-size: 3rem;
+            line-height: 1;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .result-type {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .result-beast-name {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            letter-spacing: 0.02em;
+        }
+
+        .type-carnivore .result-type {
+            color: #e74c3c;
+        }
+        .type-omnivore .result-type {
+            color: #f0b830;
+        }
+        .type-herbivore .result-type {
+            color: #2ecc71;
+        }
+
+        .type-carnivore {
+            border-color: rgba(231, 76, 60, 0.35) !important;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.08) !important;
+        }
+        .type-omnivore {
+            border-color: rgba(240, 184, 48, 0.35) !important;
+            box-shadow: 0 0 30px rgba(240, 184, 48, 0.08) !important;
+        }
+        .type-herbivore {
+            border-color: rgba(46, 204, 113, 0.35) !important;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.08) !important;
+        }
+
+        .placeholder-text {
+            color: #5a5a6e;
+            font-style: italic;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 28px;
+            color: #4a4a5a;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-icon">🐺</div>
+        <h1>Alpha-Bestien</h1>
+        <p class="subtitle">Wähle deine Bestie und erkenne ihren Typ</p>
+
+        <div class="form-group">
+            <label for="alphaSelect">Alpha auswählen</label>
+            <div class="select-wrapper">
+                <select id="alphaSelect">
+                    <option value="" disabled selected>-- Bitte eine Alpha-Bestie wählen --</option>
+                    <option value="schattenwolf">Schattenwolf</option>
+                    <option value="säbelzahntiger">Säbelzahntiger</option>
+                    <option value="donnerfalke">Donnerfalke</option>
+                    <option value="klingenklaue">Klingenklaue</option>
+                    <option value="sturmrapp">Sturmrapp</option>
+                    <option value="erdbär">Erdbär</option>
+                    <option value="schattenfuchs">Schattenfuchs</option>
+                    <option value="kristallhirsch">Kristallhirsch</option>
+                    <option value="mammutbulle">Mammutbulle</option>
+                    <option value="panzernashorn">Panzernashorn</option>
+                    <option value="wiesenkoloss">Wiesenkoloss</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="resultBox" class="result-box idle">
+            <span class="placeholder-text">🐾 Hier erscheint der Bestientyp</span>
+        </div>
+
+        <p class="footer-note">Beast Lord: The New Land &mdash; Alpha-Tool v1.0</p>
+    </div>
+
+    <script>
+        // Datenbank: Alpha-Bestien mit Typ und Emoji
+        const bestienDaten = {
+            schattenwolf: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
+            säbelzahntiger: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
+            donnerfalke: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
+            klingenklaue: { typ: 'Fleischfresser', emoji: '🍖', cssClass: 'type-carnivore' },
+            sturmrapp: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
+            erdbär: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
+            schattenfuchs: { typ: 'Allesfresser', emoji: '🥩', cssClass: 'type-omnivore' },
+            kristallhirsch: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
+            mammutbulle: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
+            panzernashorn: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' },
+            wiesenkoloss: { typ: 'Pflanzenfresser', emoji: '🥗', cssClass: 'type-herbivore' }
+        };
+
+        const selectEl = document.getElementById('alphaSelect');
+        const resultBox = document.getElementById('resultBox');
+
+        selectEl.addEventListener('change', function() {
+            const selectedValue = this.value;
+
+            if (!selectedValue || !bestienDaten[selectedValue]) {
+                // Fallback: Platzhalter anzeigen
+                resultBox.className = 'result-box idle';
+                resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint der Bestientyp</span>';
+                return;
+            }
+
+            const daten = bestienDaten[selectedValue];
+            const selectedBeastName =
+                selectEl.options[selectEl.selectedIndex].text;
+
+            // Ergebnis-Box aktualisieren
+            resultBox.className = 'result-box active ' + daten.cssClass;
+            resultBox.innerHTML = `
+                        <div class="result-content">
+                            <span class="result-emoji">${daten.emoji}</span>
+                            <span class="result-type">${daten.typ}</span>
+                            <span class="result-beast-name">${selectedBeastName}</span>
+                        </div>
+                    `;
+        });
+    </script>
+</body>
+</html>
