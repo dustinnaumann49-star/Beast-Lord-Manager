@@ -2,30 +2,33 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Clan Kampf-Simulator</title>
+    <title>Clan Kampf-Simulator 3v3</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; }
+        .side-container { display: flex; gap: 20px; }
+        .input-group { background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 250px; margin-bottom: 10px; }
         select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
-        button { padding: 12px; background: #28a745; color: white; border: none; cursor: pointer; width: 100%; border-radius: 5px; }
+        button { padding: 15px 30px; background: #d9534f; color: white; border: none; cursor: pointer; border-radius: 5px; font-size: 1.2em; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Clan Kampf-Simulator</h1>
+    <h1>3 vs 3 Kampf-Simulator</h1>
 
-    <div class="input-group">
-        <label>Dein Alpha:</label>
-        <select id="pAlphaSelect"></select>
-        <label>Deine Truppen:</label>
-        <select id="pTroopSelect"></select>
-    </div>
+    <div class="side-container">
+        <div id="playerSide">
+            <h3>Deine Armee</h3>
+            <div id="pSlot1"></div>
+            <div id="pSlot2"></div>
+            <div id="pSlot3"></div>
+        </div>
 
-    <div class="input-group">
-        <label>Gegner Alpha:</label>
-        <select id="eAlphaSelect"></select>
-        <label>Gegner Truppen:</label>
-        <select id="eTroopSelect"></select>
+        <div id="enemySide">
+            <h3>Gegner Armee</h3>
+            <div id="eSlot1"></div>
+            <div id="eSlot2"></div>
+            <div id="eSlot3"></div>
+        </div>
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
@@ -35,34 +38,42 @@
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
-        
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
         import HerbivoreTroops from './data/troops/herbivore_troops.js';
         import OmnivoreTroops from './data/troops/omnivore_troops.js';
 
-        // 1. Alpha-Daten-Map erstellen
         const alphaMap = {
             ...Object.keys(CarnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'carnivore'}), {}),
             ...Object.keys(HerbivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'herbivore'}), {}),
             ...Object.keys(OmnivoreAlphas || {}).reduce((a, k) => ({...a, [k]: 'omnivore'}), {})
         };
 
-        function initDropdown(alphaEl, troopEl) {
-            // Alphas füllen
+        // Generator für die 3 Slots
+        function createSlot(containerId, label) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="input-group">
+                    <label>${label}</label>
+                    <select class="alphaSelect"></select>
+                    <select class="troopSelect"></select>
+                    <input type="number" class="countInput" placeholder="Anzahl">
+                </div>
+            `;
+            const alphaSelect = container.querySelector('.alphaSelect');
+            const troopSelect = container.querySelector('.troopSelect');
+
             Object.keys(alphaMap).forEach(name => {
                 let opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                alphaEl.appendChild(opt);
+                opt.value = name; opt.textContent = name;
+                alphaSelect.appendChild(opt);
             });
 
-            // Truppen basierend auf Typ füllen
-            alphaEl.addEventListener('change', () => {
-                const type = alphaMap[alphaEl.value];
+            alphaSelect.addEventListener('change', () => {
+                const type = alphaMap[alphaSelect.value];
                 const source = (type === 'carnivore') ? CarnivoreTroops : 
                                (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
                 
-                troopEl.innerHTML = '';
+                troopSelect.innerHTML = '';
                 Object.keys(source || {}).forEach(tier => {
                     const group = document.createElement('optgroup');
                     group.label = tier;
@@ -71,17 +82,20 @@
                         opt.textContent = name;
                         group.appendChild(opt);
                     });
-                    troopEl.appendChild(group);
+                    troopSelect.appendChild(group);
                 });
             });
-            alphaEl.dispatchEvent(new Event('change')); // Init
+            alphaSelect.dispatchEvent(new Event('change'));
         }
 
-        initDropdown(document.getElementById('pAlphaSelect'), document.getElementById('pTroopSelect'));
-        initDropdown(document.getElementById('eAlphaSelect'), document.getElementById('eTroopSelect'));
+        // 3 Slots pro Seite erstellen
+        for(let i=1; i<=3; i++) {
+            createSlot('pSlot'+i, 'Spieler Reihe ' + i);
+            createSlot('eSlot'+i, 'Gegner Reihe ' + i);
+        }
 
         document.getElementById('kampfBtn').addEventListener('click', () => {
-            document.getElementById('ergebnis').innerText = "Bereit zur Simulation.";
+            document.getElementById('ergebnis').innerText = "Simulation bereit für 3 vs 3.";
         });
     </script>
 </body>
