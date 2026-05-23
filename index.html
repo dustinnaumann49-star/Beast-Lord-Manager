@@ -502,8 +502,13 @@
     <!-- ============================== -->
     <div id="passwordOverlay">
         <div class="password-box">
+            <!-- Sprachumschalter im Overlay -->
+            <div class="lang-switch" id="overlayLangSwitch">
+                <button class="lang-btn active" data-lang="de">DE</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
             <div class="lock-icon">🔒</div>
-            <h2>Clan-Zugang</h2>
+            <h2 id="overlayTitle">Clan-Zugang</h2>
             <input type="password" id="passwordInput" placeholder="Passwort eingeben" autofocus>
             <button id="passwordSubmit">Freischalten</button>
             <p class="password-error" id="passwordError">Falsches Passwort</p>
@@ -515,8 +520,8 @@
     <!-- ============================== -->
     <div id="mainTool">
         <div class="container">
-            <!-- Sprachumschalter -->
-            <div class="lang-switch">
+            <!-- Sprachumschalter im Haupttool -->
+            <div class="lang-switch" id="mainLangSwitch">
                 <button class="lang-btn active" data-lang="de">DE</button>
                 <button class="lang-btn" data-lang="en">EN</button>
             </div>
@@ -560,7 +565,7 @@
                 <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
             </div>
 
-            <p class="footer-note" id="footerText">Beast Lord: The New Land &mdash; Auswahl-Tool v3.2</p>
+            <p class="footer-note" id="footerText">Beast Lord: The New Land &mdash; Auswahl-Tool v3.3</p>
         </div>
     </div>
 
@@ -575,14 +580,60 @@
         const passwordInput = document.getElementById('passwordInput');
         const passwordSubmit = document.getElementById('passwordSubmit');
         const passwordError = document.getElementById('passwordError');
+        const overlayTitle = document.getElementById('overlayTitle');
+
+        // Overlay-Übersetzungen
+        const overlayTranslations = {
+            de: {
+                title: 'Clan-Zugang',
+                placeholder: 'Passwort eingeben',
+                button: 'Freischalten',
+                error: 'Falsches Passwort'
+            },
+            en: {
+                title: 'Clan Access',
+                placeholder: 'Please enter password',
+                button: 'Unlock',
+                error: 'Wrong password'
+            }
+        };
+
+        let overlayLang = 'de';
+
+        function setOverlayLanguage(lang) {
+            overlayLang = lang;
+            const t = overlayTranslations[lang];
+            overlayTitle.textContent = t.title;
+            passwordInput.placeholder = t.placeholder;
+            passwordSubmit.textContent = t.button;
+            passwordError.textContent = t.error;
+
+            const buttons = document.querySelectorAll('#overlayLangSwitch .lang-btn');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+        }
+
+        // Event-Listener für Sprachbuttons im Overlay
+        document.querySelectorAll('#overlayLangSwitch .lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.dataset.lang;
+                if (lang !== overlayLang) {
+                    setOverlayLanguage(lang);
+                }
+            });
+        });
+
+        // Initiale Overlay-Sprache setzen
+        setOverlayLanguage('de');
 
         function checkPassword() {
             if (passwordInput.value === password) {
                 overlay.classList.add('hidden');
                 mainTool.classList.add('visible');
                 passwordError.classList.remove('visible');
-                // Initiale Sprache setzen und UI aufbauen
-                switchLanguage('de');
+                // Sprache an Haupttool übergeben
+                switchLanguage(overlayLang);
             } else {
                 passwordError.classList.add('visible');
                 passwordInput.value = '';
@@ -596,7 +647,7 @@
         });
 
         // =============================================
-        // SPRACHKONFIGURATION
+        // SPRACHKONFIGURATION HAUPTTOOL
         // =============================================
         let currentLang = 'de';
 
@@ -611,7 +662,7 @@
                 beastLabel: 'Begleitbestie (T1–T10)',
                 beastPlaceholder: '-- Bitte Bestie wählen --',
                 resultPlaceholder: '🐾 Hier erscheint das Ergebnis',
-                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.2',
+                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.3',
                 types: {
                     Fleischfresser: 'Fleischfresser',
                     Allesfresser: 'Allesfresser',
@@ -633,7 +684,7 @@
                 beastLabel: 'Companion Beast (T1–T10)',
                 beastPlaceholder: '-- Select Beast --',
                 resultPlaceholder: '🐾 Result appears here',
-                footer: 'Beast Lord: The New Land — Selection Tool v3.2',
+                footer: 'Beast Lord: The New Land — Selection Tool v3.3',
                 types: {
                     Fleischfresser: 'Carnivore',
                     Allesfresser: 'Omnivore',
@@ -852,16 +903,14 @@
             Support: { icon: '🛡️', cssClass: 'position-support' }
         };
 
-        // DOM-Elemente
+        // DOM-Elemente Haupttool
         const typeSelect = document.getElementById('typeSelect');
         const alphaGroup = document.getElementById('alphaGroup');
         const beastGroup = document.getElementById('beastGroup');
         const alphaSelect = document.getElementById('alphaSelect');
         const beastSelect = document.getElementById('beastSelect');
         const resultBox = document.getElementById('resultBox');
-        const langButtons = document.querySelectorAll('.lang-btn');
 
-        // UI-Elemente für Übersetzungen
         const mainTitle = document.getElementById('mainTitle');
         const mainSubtitle = document.getElementById('mainSubtitle');
         const labelType = document.getElementById('labelType');
@@ -869,7 +918,7 @@
         const labelBeast = document.getElementById('labelBeast');
         const footerText = document.getElementById('footerText');
 
-        // Hilfsfunktion: Dropdown mit Optionen befüllen
+        // Hilfsfunktionen für Dropdowns
         function populateTypeSelect() {
             const t = translations[currentLang];
             typeSelect.innerHTML = `<option value="" disabled selected>${t.typePlaceholder}</option>`;
@@ -915,7 +964,6 @@
             labelBeast.textContent = t.beastLabel;
             footerText.textContent = t.footer;
 
-            // Platzhalter in Ergebnisbox, wenn idle
             if (resultBox.classList.contains('idle')) {
                 resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
             }
@@ -990,13 +1038,14 @@
         beastSelect.addEventListener('change', updateResult);
 
         // =============================================
-        // SPRACHUMSCHALTUNG
+        // SPRACHUMSCHALTUNG HAUPTTOOL
         // =============================================
         function switchLanguage(lang) {
             currentLang = lang;
 
-            // Aktive Buttons markieren
-            langButtons.forEach(btn => {
+            // Aktive Buttons im Haupttool markieren
+            const mainLangButtons = document.querySelectorAll('#mainLangSwitch .lang-btn');
+            mainLangButtons.forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
 
@@ -1032,8 +1081,8 @@
             updateResult();
         }
 
-        // Event-Listener für Sprachbuttons
-        langButtons.forEach(btn => {
+        // Event-Listener für Sprachbuttons im Haupttool
+        document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const lang = this.dataset.lang;
                 if (lang !== currentLang) {
