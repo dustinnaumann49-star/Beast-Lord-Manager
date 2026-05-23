@@ -9,7 +9,8 @@
         .grid { display: flex; flex-direction: column; gap: 20px; }
         .slot { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 5px; }
         select, input { padding: 8px; width: 100%; margin-top: 5px; box-sizing: border-box; }
-        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; font-size: 16px; border-radius: 5px; }
+        button { padding: 15px; width: 100%; background: #28a745; color: white; border: none; font-size: 16px; border-radius: 5px; cursor: pointer; }
+        #ergebnis { margin-top: 20px; padding: 15px; border: 1px solid #ccc; font-weight: bold; background: #fff; text-align: center; }
     </style>
 </head>
 <body>
@@ -32,9 +33,10 @@
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
-    <div id="ergebnis" style="margin-top:20px; padding:15px; border:1px solid #ccc; font-weight:bold;">Ergebnis...</div>
+    <div id="ergebnis">Ergebnis erscheint hier...</div>
 
     <script type="module">
+        import BattleManager from './battleManager.js';
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
@@ -79,7 +81,24 @@
         ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
         document.getElementById('kampfBtn').addEventListener('click', () => {
-            document.getElementById('ergebnis').innerText = "Berechnung läuft...";
+            const getSide = (ids) => ids.map(id => {
+                const el = document.getElementById(id);
+                return {
+                    alpha: el.querySelector('.alphaSel').value,
+                    troop: el.querySelector('.troopSel').value,
+                    count: parseInt(el.querySelector('.countIn').value) || 0
+                };
+            });
+
+            try {
+                const pArmy = getSide(['p1','p2','p3']);
+                const eArmy = getSide(['e1','e2','e3']);
+                const result = BattleManager.runBattle(pArmy, eArmy);
+                document.getElementById('ergebnis').innerText = "Ergebnis: " + result;
+            } catch (e) {
+                console.error(e);
+                document.getElementById('ergebnis').innerText = "Fehler: Simulation konnte nicht gestartet werden.";
+            }
         });
     </script>
 </body>
