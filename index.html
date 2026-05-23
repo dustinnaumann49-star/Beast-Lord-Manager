@@ -25,48 +25,4 @@
 </head>
 <body>
 
-    <h1>Kampf-Simulator 3v3</h1>
-
-    <h3>Deine Armee</h3>
-    <div id="p1" class="slot"></div>
-    <div id="p2" class="slot"></div>
-    <div id="p3" class="slot"></div>
-
-    <button id="kampfBtn">Kampf starten</button>
-    <div id="ergebnis"></div>
-
-    <script>
-        window.onload = function() {
-            // Initialisierung: Die Engine greift auf die globalen Fenster-Objekte zu
-            GameEngine.allAlphas = { 
-                ...window.CarnivoreAlphas, 
-                ...window.Herbivores, 
-                ...window.Omnivores 
-            };
-            
-            function setupSlot(id) {
-                const el = document.getElementById(id);
-                el.innerHTML = `
-                    <select class="aSel"><option>Wähle Alpha</option></select>
-                    <select class="tSel"></select>
-                    <input type="number" class="cIn" placeholder="Anzahl">
-                `;
-                const aSel = el.querySelector('.aSel');
-                Object.keys(GameEngine.allAlphas).forEach(name => {
-                    let o = document.createElement('option'); 
-                    o.value = name; 
-                    o.textContent = name;
-                    aSel.appendChild(o);
-                });
-            }
-
-            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
-
-            document.getElementById('kampfBtn').onclick = () => {
-                console.log("Simulation gestartet mit:", GameEngine.allAlphas);
-                // Hier kannst du nun deine Logik aus dem BattleManager oder der GameEngine aufrufen
-            };
-        };
-    </script>
-</body>
-</html>
+    <h1>Kampf-Simulator
