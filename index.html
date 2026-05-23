@@ -4,23 +4,38 @@
     <meta charset="UTF-8">
     <title>Clan Kampf-Simulator</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
         .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
         select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
+        button { padding: 12px 25px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; width: 100%; }
+        #ergebnis { margin-top: 20px; font-weight: bold; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: white; }
     </style>
 </head>
 <body>
 
     <h1>Clan Kampf-Simulator</h1>
-
+    
     <div class="input-group">
         <label>Dein Alpha:</label>
         <select id="pAlphaSelect"></select>
         <label>Deine Truppen:</label>
         <select id="pTroopSelect"></select>
+        <input type="number" id="pCount" placeholder="Truppenanzahl">
     </div>
 
+    <div class="input-group">
+        <label>Gegner Alpha:</label>
+        <select id="eAlphaSelect"></select>
+        <label>Gegner Truppen:</label>
+        <select id="eTroopSelect"></select>
+        <input type="number" id="eCount" placeholder="Truppenanzahl">
+    </div>
+
+    <button id="kampfBtn">Kampf simulieren</button>
+    <div id="ergebnis">Ergebnis erscheint hier...</div>
+
     <script type="module">
+        import BattleManager from './battleManager.js';
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
@@ -31,43 +46,57 @@
 
         const pAlpha = document.getElementById('pAlphaSelect');
         const pTroop = document.getElementById('pTroopSelect');
+        const eAlpha = document.getElementById('eAlphaSelect');
+        const eTroop = document.getElementById('eTroopSelect');
 
-        // 1. Daten-Mapping: Alpha-Name -> Typ
+        // Mapping zur Identifikation
         const alphaData = {
             ...Object.keys(CarnivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'carnivore'}), {}),
             ...Object.keys(HerbivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'herbivore'}), {}),
             ...Object.keys(OmnivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'omnivore'}), {})
         };
 
-        // 2. Alle Alphas befüllen
-        Object.keys(alphaData).forEach(name => {
-            let opt = document.createElement('option');
-            opt.textContent = name;
-            opt.value = name;
-            pAlpha.appendChild(opt);
-        });
-
-        // 3. Truppen-Update mit Typ-Check
-        function updateTroops() {
-            const selectedAlphaName = pAlpha.value;
-            const type = alphaData[selectedAlphaName];
-            
-            pTroop.innerHTML = '';
-            
-            // Wähle die richtige Truppendatei
-            const source = (type === 'carnivore') ? CarnivoreTroops : 
-                           (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
-
-            // Fülle Truppen
-            Object.keys(source["T10"]).forEach(troop => {
+        function fillSelects(alphaEl, troopEl) {
+            // Alphas befüllen
+            Object.keys(alphaData).forEach(name => {
                 let opt = document.createElement('option');
-                opt.textContent = troop;
-                pTroop.appendChild(opt);
+                opt.textContent = name;
+                opt.value = name;
+                alphaEl.appendChild(opt);
             });
+
+            // Truppen-Update bei Änderung
+            const update = () => {
+                const type = alphaData[alphaEl.value];
+                const source = (type === 'carnivore') ? CarnivoreTroops : 
+                               (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
+                
+                troopEl.innerHTML = '';
+                Object.keys(source).forEach(tier => {
+                    const optGroup = document.createElement('optgroup');
+                    optGroup.label = tier;
+                    Object.keys(source[tier]).forEach(name => {
+                        let opt = document.createElement('option');
+                        opt.textContent = name;
+                        opt.value = name;
+                        optGroup.appendChild(opt);
+                    });
+                    troopEl.appendChild(optGroup);
+                });
+            };
+
+            alphaEl.addEventListener('change', update);
+            update();
         }
 
-        pAlpha.addEventListener('change', updateTroops);
-        updateTroops();
+        fillSelects(pAlpha, pTroop);
+        fillSelects(eAlpha, eTroop);
+
+        document.getElementById('kampfBtn').addEventListener('click', () => {
+            const ausgabe = document.getElementById('ergebnis');
+            ausgabe.innerText = "Simuliere Kampf...";
+            // Hier wird später der BattleManager aufgerufen
+        });
     </script>
 </body>
 </html>
