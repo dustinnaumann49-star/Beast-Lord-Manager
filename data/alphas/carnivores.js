@@ -2,7 +2,7 @@
  * Fleischfresser-Alphas
  */
 
-const FleshEaters = {
+const carnivore = {
   // --- S1 Fleischfresser ---
   "Tibetdogge": {
     "id": "tibetdogge_01",
@@ -92,4 +92,4 @@ const FleshEaters = {
   }
 };
 
-export default FleshEaters;
+export default carnivore;
