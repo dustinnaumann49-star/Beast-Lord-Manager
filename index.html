@@ -16,50 +16,47 @@
 
     <div class="input-group">
         <label>Dein Alpha:</label>
-        <select id="playerAlphaSelect"><option>Lädt...</option></select>
-        <input type="number" id="eigeneTruppen" placeholder="Deine Truppenanzahl">
+        <select id="pAlphaSelect"></select>
+        <label>Deine Truppe:</label>
+        <select id="pTroopSelect"></select>
+        <input type="number" id="pCount" placeholder="Anzahl">
     </div>
 
     <div class="input-group">
         <label>Gegner Alpha:</label>
-        <select id="enemyAlphaSelect"><option>Lädt...</option></select>
-        <input type="number" id="gegnerTruppen" placeholder="Gegner Truppenanzahl">
+        <select id="eAlphaSelect"></select>
+        <label>Gegner Truppe:</label>
+        <select id="eTroopSelect"></select>
+        <input type="number" id="eCount" placeholder="Anzahl">
     </div>
 
     <button id="kampfBtn">Kampf simulieren</button>
     <div id="ergebnis" style="margin-top:20px; font-weight:bold;"></div>
 
     <script type="module">
-        // Importe
         import CarnivoreAlphas from './data/alphas/carnivores.js';
-        import HerbivoreAlphas from './data/alphas/herbivores.js';
-        import OmnivoreAlphas from './data/alphas/omnivores.js';
+        import CarnivoreTroops from './data/troops/carnivore_troops.js';
+        // ... (entsprechend für Herbivore/Omnivore hinzufügen)
 
-        // Wenn das HTML geladen ist, befüllen wir die Boxen
-        document.addEventListener('DOMContentLoaded', () => {
-            const pSelect = document.getElementById('playerAlphaSelect');
-            const eSelect = document.getElementById('enemyAlphaSelect');
-            
-            const allAlphas = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
-            
-            pSelect.innerHTML = '';
-            eSelect.innerHTML = '';
+        // Mapping: Welches Alpha gehört zu welchem Truppentyp?
+        const alphaToType = { ...CarnivoreAlphas }; // Hier alle Alphas mappen
 
-            Object.entries(allAlphas).forEach(([name, data]) => {
-                let opt1 = document.createElement('option');
-                opt1.value = data.id;
-                opt1.textContent = name;
-                pSelect.appendChild(opt1);
-                eSelect.appendChild(opt1.cloneNode(true));
+        function updateTroopDropdown(alphaSelect, troopSelect) {
+            troopSelect.innerHTML = '';
+            // Logik: Lade Truppen basierend auf dem gewählten Alpha-Typ
+            // Hier ein vereinfachtes Beispiel:
+            Object.keys(CarnivoreTroops["T10"]).forEach(troopName => {
+                let opt = document.createElement('option');
+                opt.textContent = troopName;
+                troopSelect.appendChild(opt);
             });
+        }
+
+        document.getElementById('pAlphaSelect').addEventListener('change', (e) => {
+            updateTroopDropdown(e.target, document.getElementById('pTroopSelect'));
         });
 
-        // Kampf-Button Logik
-        document.getElementById('kampfBtn').addEventListener('click', () => {
-            const ausgabe = document.getElementById('ergebnis');
-            ausgabe.innerText = "Kampf wird berechnet...";
-            // Hier folgt später deine BattleManager-Logik
-        });
+        // Initiales Laden...
     </script>
 </body>
 </html>
