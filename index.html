@@ -38,74 +38,75 @@
 
     <button id="kampfBtn">Kampf starten</button>
 
-    <script>
-        window.onload = function() {
-            // Daten zusammenführen
-            const allAlphas = { 
-                ...window.CarnivoreAlphas, 
-                ...window.Herbivores, 
-                ...window.Omnivores 
-            };
-            
-            const allTroops = { 
-                Carnivore: window.CarnivoreTroops, 
-                Herbivore: window.HerbivoreTroops, 
-                Omnivore: window.OmnivoreTroops 
-            };
-            
-            GameEngine.allAlphas = allAlphas;
-
-            function setupSlot(id) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                
-                el.innerHTML = `
-                    <select class="aSel"><option value="">Wähle Alpha</option></select>
-                    <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
-                    <input type="number" class="cIn" placeholder="Anzahl">
-                `;
-                
-                const aSel = el.querySelector('.aSel');
-                const tSel = el.querySelector('.tSel');
-
-                // Alphas befüllen
-                Object.keys(allAlphas).forEach(name => {
-                    let o = document.createElement('option'); 
-                    o.value = name; 
-                    o.textContent = name;
-                    // Wir speichern den Typ im Attribut, um ihn später leicht zu finden
-                    o.dataset.class = allAlphas[name].class; 
-                    aSel.appendChild(o);
-                });
-
-                // Logik: Truppen bei Alpha-Wahl filtern
-                aSel.onchange = function() {
-                    tSel.innerHTML = '<option value="">Wähle Truppe</option>';
-                    const selectedType = this.options[this.selectedIndex].dataset.type;
-                    
-                    if (selectedType && allTroops[selectedType]) {
-                        tSel.disabled = false;
-                        Object.keys(allTroops[selectedType]).forEach(tier => {
-                            Object.keys(allTroops[selectedType][tier]).forEach(troopName => {
-                                let o = document.createElement('option');
-                                o.value = troopName;
-                                o.textContent = `${troopName} (${tier})`;
-                                tSel.appendChild(o);
-                            });
-                        });
-                    } else {
-                        tSel.disabled = true;
-                        tSel.innerHTML = '<option>Nicht kompatibel</option>';
-                    }
-                };
-            }
-
-            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
-
-            document.getElementById('kampfBtn').onclick = () => {
-                alert("Simulation mit gewählten Truppen gestartet!");
-            };
+   <script>
+    window.onload = function() {
+        // 1. Alle Alphas zusammenführen
+        const allAlphas = { 
+            ...window.CarnivoreAlphas, 
+            ...window.Herbivores, 
+            ...window.Omnivores 
         };
-    </script>
+        
+        // 2. Direkte Zuordnung der Truppen-Objekte zu den Klassennamen
+        // WICHTIG: Die Schlüssel hier müssen exakt wie deine Alpha-Klassen ("Fleischfresser", etc.) sein
+        const troopMapping = { 
+            "Fleischfresser": window.CarnivoreTroops, 
+            "Pflanzenfresser": window.HerbivoreTroops, 
+            "Allesfresser": window.OmnivoreTroops 
+        };
+        
+        GameEngine.allAlphas = allAlphas;
+
+        function setupSlot(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            el.innerHTML = `
+                <select class="aSel"><option value="">Wähle Alpha</option></select>
+                <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
+                <input type="number" class="cIn" placeholder="Anzahl">
+            `;
+            
+            const aSel = el.querySelector('.aSel');
+            const tSel = el.querySelector('.tSel');
+
+            // Alphas befüllen
+            Object.keys(allAlphas).forEach(name => {
+                let o = document.createElement('option'); 
+                o.value = name; 
+                o.textContent = name;
+                // Hier greifen wir auf .class zu
+                o.dataset.class = allAlphas[name].class; 
+                aSel.appendChild(o);
+            });
+
+            // Logik: Filtern bei Änderung
+            aSel.onchange = function() {
+                tSel.innerHTML = '<option value="">Wähle Truppe</option>';
+                const selectedClass = this.options[this.selectedIndex].dataset.class;
+                
+                // Wir schauen in unserem mapping nach, ob wir Truppen für diese Klasse haben
+                if (selectedClass && troopMapping[selectedClass]) {
+                    tSel.disabled = false;
+                    const troops = troopMapping[selectedClass];
+                    
+                    Object.keys(troops).forEach(tier => {
+                        Object.keys(troops[tier]).forEach(troopName => {
+                            let o = document.createElement('option');
+                            o.value = troopName;
+                            o.textContent = `${troopName} (${tier})`;
+                            tSel.appendChild(o);
+                        });
+                    });
+                } else {
+                    tSel.disabled = true;
+                    tSel.innerHTML = '<option>Nicht kompatibel</option>';
+                }
+            };
+        }
+
+        ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+    };
+</script> 
 </body>
 </html>
