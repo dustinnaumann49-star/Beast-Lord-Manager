@@ -1,8 +1,8 @@
 /**
- * Fleischfresser-Truppen (T1 - T10)
+ * Fleischfresser-Truppen (T1 - T10) - Globales Format
  */
 
-const CarnivoreTroops = {
+window.CarnivoreTroops = {
   "T1": {
     "Rotfuchs": {
       "stats": { "atk": 15, "def": 6, "hp": 3, "speed": 1.9 }
@@ -35,24 +35,22 @@ const CarnivoreTroops = {
   },
   "T7": {
     "Hyäne": {
-      "stats": { "atk": 73, "def": 34, "hp": 10, "speed": 1.3 }
+      "stats": { "atk": 75, "def": 33, "hp": 10, "speed": 1.3 }
     }
   },
   "T8": {
-    "Polarwolf": {
-      "stats": { "atk": 89, "def": 38, "hp": 12, "speed": 1.2 }
+    "Streifenhyäne": {
+      "stats": { "atk": 95, "def": 42, "hp": 13, "speed": 1.2 }
     }
   },
   "T9": {
-    "NordwestlicherWolf": {
-      "stats": { "atk": 105, "def": 49, "hp": 13, "speed": 1.1 }
+    "Nordwestlicherwolf": {
+      "stats": { "atk": 120, "def": 55, "hp": 17, "speed": 1.1 }
     }
   },
   "T10": {
-    "BritishColumbiaWolf": {
-      "stats": { "atk": 124, "def": 53, "hp": 17, "speed": 1.0 }
+    "BritischColombiaWolf": {
+      "stats": { "atk": 150, "def": 70, "hp": 22, "speed": 1.0 }
     }
   }
 };
-
-export default CarnivoreTroops;
