@@ -39,23 +39,19 @@
     <button id="kampfBtn">Kampf starten</button>
 
     <script>
-        // Hilfsfunktion: Stat-Lookup für den BattleManager
-        function getTroopStats(className, troopName) {
-            const allTroopsData = { 
-                "Fleischfresser": window.CarnivoreTroops, 
-                "Pflanzenfresser": window.HerbivoreTroops, 
-                "Allesfresser": window.OmnivoreTroops 
+        // 1. Hilfsfunktion zum Auslesen der Daten aus einem Slot
+        function getSlotData(id) {
+            const el = document.getElementById(id);
+            return {
+                id: id,
+                alpha: el.querySelector('.aSel').value,
+                troop: el.querySelector('.tSel').value,
+                count: parseInt(el.querySelector('.cIn').value) || 0
             };
-            const classData = allTroopsData[className];
-            if (!classData) return { atk: 0, def: 0, hp: 0, speed: 0 };
-            
-            for (let tier in classData) {
-                if (classData[tier][troopName]) return classData[tier][troopName].stats;
-            }
-            return { atk: 0, def: 0, hp: 0, speed: 0 };
         }
 
         window.onload = function() {
+            // Daten zusammenführen
             const allAlphas = { ...window.CarnivoreAlphas, ...window.Herbivores, ...window.Omnivores };
             const troopMapping = { 
                 "Fleischfresser": window.CarnivoreTroops, 
@@ -87,6 +83,7 @@
                 aSel.onchange = function() {
                     tSel.innerHTML = '<option value="">Wähle Truppe</option>';
                     const selectedClass = this.options[this.selectedIndex].dataset.class;
+                    
                     if (selectedClass && troopMapping[selectedClass]) {
                         tSel.disabled = false;
                         Object.keys(troopMapping[selectedClass]).forEach(tier => {
@@ -105,34 +102,26 @@
 
             ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
+            // 2. Button Event mit Sicherheitsprüfung
             document.getElementById('kampfBtn').onclick = () => {
-                function collectTeam(ids) {
-                    return ids.map(id => {
-                        const el = document.getElementById(id);
-                        const aSel = el.querySelector('.aSel');
-                        return {
-                            id: id,
-                            alphaId: aSel.value,
-                            troopStats: getTroopStats(aSel.options[aSel.selectedIndex]?.dataset.class, el.querySelector('.tSel').value),
-                            count: parseInt(el.querySelector('.cIn').value) || 0
-                        };
-                    });
-                }
+                // Fehlerprüfung: Sind die Dateien geladen?
+                if (typeof window.GameEngine === 'undefined') { alert("Fehler: gameEngine.js fehlt!"); return; }
+                if (typeof window.BattleManager === 'undefined') { alert("Fehler: battleManager.js fehlt!"); return; }
 
-                const team1 = collectTeam(['p1', 'p2', 'p3']);
-                const team2 = collectTeam(['e1', 'e2', 'e3']);
+                const team1 = ['p1', 'p2', 'p3'].map(getSlotData);
+                const team2 = ['e1', 'e2', 'e3'].map(getSlotData);
 
-                if (team1.some(s => !s.alphaId) || team2.some(s => !s.alphaId)) {
+                if (team1.some(s => !s.alpha) || team2.some(s => !s.alpha)) {
                     alert("Bitte wähle in jedem Slot einen Alpha aus!");
                     return;
                 }
 
-                if (typeof window.BattleManager !== 'undefined' && typeof window.BattleManager.runBattle === 'function') {
-                    const result = window.BattleManager.runBattle(team1, team2);
-                    alert("Kampf beendet! Ergebnis: " + result);
-                } else {
-                    console.error("BattleManager oder runBattle nicht gefunden.");
-                    alert("Kampf-Logik nicht gefunden. Prüfe die Konsole (F12).");
+                // Kampf ausführen
+                try {
+                    const ergebnis = window.BattleManager.runBattle(team1, team2);
+                    alert("Kampf beendet! Ergebnis: " + ergebnis);
+                } catch (e) {
+                    alert("Fehler in runBattle: " + e.message);
                 }
             };
         };
