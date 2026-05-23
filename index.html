@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clan Kampf-Simulator 3v3</title>
+
+    <script src="data/alphas/carnivores.js"></script>
+    <script src="data/alphas/herbivores.js"></script>
+    <script src="data/alphas/omnivores.js"></script>
+    <script src="data/troops/carnivore_troops.js"></script>
+    <script src="data/troops/herbivore_troops.js"></script>
+    <script src="data/troops/omnivore_troops.js"></script>
+
+    <script src="gameEngine.js"></script>
+    <script src="battleManager.js"></script>
+
     <style>
         body { font-family: sans-serif; padding: 15px; background-color: #f4f4f9; }
         .slot { background: white; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 12px; }
@@ -21,27 +32,17 @@
     <div id="p2" class="slot"></div>
     <div id="p3" class="slot"></div>
 
-    <h3>Gegner Armee</h3>
-    <div id="e1" class="slot"></div>
-    <div id="e2" class="slot"></div>
-    <div id="e3" class="slot"></div>
-
-    <button id="kampfBtn">Kampf simulieren</button>
-    <div id="ergebnis">Ergebnis...</div>
-
-    <script src="data/alphas/carnivores.js"></script>
-    <script src="data/alphas/herbivores.js"></script>
-    <script src="data/alphas/omnivores.js"></script>
-    <script src="data/troops/carnivore_troops.js"></script>
-    <script src="data/troops/herbivore_troops.js"></script>
-    <script src="data/troops/omnivore_troops.js"></script>
-    <script src="battleManager.js"></script>
+    <button id="kampfBtn">Kampf starten</button>
+    <div id="ergebnis"></div>
 
     <script>
-        // Diese Funktion wird erst aufgerufen, wenn alle Dateien geladen sind
         window.onload = function() {
-            // Vereinfachter Zugriff auf die Daten
-            const allAlphas = { ...window.CarnivoreAlphas, ...window.HerbivoreAlphas, ...window.OmnivoreAlphas };
+            // Initialisierung: Die Engine greift auf die globalen Fenster-Objekte zu
+            GameEngine.allAlphas = { 
+                ...window.CarnivoreAlphas, 
+                ...window.Herbivores, 
+                ...window.Omnivores 
+            };
             
             function setupSlot(id) {
                 const el = document.getElementById(id);
@@ -51,8 +52,10 @@
                     <input type="number" class="cIn" placeholder="Anzahl">
                 `;
                 const aSel = el.querySelector('.aSel');
-                Object.keys(allAlphas).forEach(name => {
-                    let o = document.createElement('option'); o.value = name; o.textContent = name;
+                Object.keys(GameEngine.allAlphas).forEach(name => {
+                    let o = document.createElement('option'); 
+                    o.value = name; 
+                    o.textContent = name;
                     aSel.appendChild(o);
                 });
             }
@@ -60,7 +63,8 @@
             ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
 
             document.getElementById('kampfBtn').onclick = () => {
-                alert("Simulation gestartet!");
+                console.log("Simulation gestartet mit:", GameEngine.allAlphas);
+                // Hier kannst du nun deine Logik aus dem BattleManager oder der GameEngine aufrufen
             };
         };
     </script>
