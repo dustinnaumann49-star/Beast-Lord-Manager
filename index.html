@@ -6,8 +6,7 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
         .input-group { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; width: 300px; }
-        select, input { padding: 8px; width: 100%; box-sizing: border-box; }
-        button { padding: 12px 25px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        select, input { padding: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -21,43 +20,45 @@
         <select id="pTroopSelect"></select>
     </div>
 
-    <div class="input-group">
-        <label>Gegner Alpha:</label>
-        <select id="eAlphaSelect"></select>
-        <label>Gegner Truppen:</label>
-        <select id="eTroopSelect"></select>
-    </div>
-
     <script type="module">
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
+        import OmnivoreAlphas from './data/alphas/omnivores.js';
+        
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
         import HerbivoreTroops from './data/troops/herbivore_troops.js';
+        import OmnivoreTroops from './data/troops/omnivore_troops.js';
 
-        // 1. Alle Alphas sammeln (mit Typ-Info)
-        const allAlphas = {
-            ...Object.keys(CarnivoreAlphas).map(k => ({ name: k, type: 'carnivore' })),
-            ...Object.keys(HerbivoreAlphas).map(k => ({ name: k, type: 'herbivore' }))
-        };
-
-        // 2. Dropdowns initialisieren
         const pAlpha = document.getElementById('pAlphaSelect');
         const pTroop = document.getElementById('pTroopSelect');
 
-        Object.values(allAlphas).forEach(a => {
+        // 1. Daten-Mapping: Alpha-Name -> Typ
+        const alphaData = {
+            ...Object.keys(CarnivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'carnivore'}), {}),
+            ...Object.keys(HerbivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'herbivore'}), {}),
+            ...Object.keys(OmnivoreAlphas).reduce((acc, k) => ({...acc, [k]: 'omnivore'}), {})
+        };
+
+        // 2. Alle Alphas befüllen
+        Object.keys(alphaData).forEach(name => {
             let opt = document.createElement('option');
-            opt.textContent = a.name;
-            opt.dataset.type = a.type; // Typ im Element speichern
+            opt.textContent = name;
+            opt.value = name;
             pAlpha.appendChild(opt);
         });
 
-        // 3. Truppen-Update-Logik
+        // 3. Truppen-Update mit Typ-Check
         function updateTroops() {
-            const selectedType = pAlpha.options[pAlpha.selectedIndex].dataset.type;
+            const selectedAlphaName = pAlpha.value;
+            const type = alphaData[selectedAlphaName];
+            
             pTroop.innerHTML = '';
             
-            const source = (selectedType === 'carnivore') ? CarnivoreTroops : HerbivoreTroops;
-            
+            // Wähle die richtige Truppendatei
+            const source = (type === 'carnivore') ? CarnivoreTroops : 
+                           (type === 'herbivore') ? HerbivoreTroops : OmnivoreTroops;
+
+            // Fülle Truppen
             Object.keys(source["T10"]).forEach(troop => {
                 let opt = document.createElement('option');
                 opt.textContent = troop;
@@ -66,7 +67,7 @@
         }
 
         pAlpha.addEventListener('change', updateTroops);
-        updateTroops(); // Initialer Call
+        updateTroops();
     </script>
 </body>
 </html>
