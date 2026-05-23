@@ -27,7 +27,7 @@
         <input type="number" id="gegnerTruppen" placeholder="Gegner Truppenanzahl">
     </div>
 
-    <button onclick="berechneKampf()">Kampf simulieren</button>
+    <button id="kampfBtn">Kampf simulieren</button>
 
     <div id="ergebnis">Ergebnis erscheint hier...</div>
 
@@ -36,14 +36,12 @@
         import CarnivoreAlphas from './data/alphas/carnivores.js';
         import HerbivoreAlphas from './data/alphas/herbivores.js';
         import OmnivoreAlphas from './data/alphas/omnivores.js';
-        
-        // Truppen-Daten für Stats-Lookup
         import CarnivoreTroops from './data/troops/carnivore_troops.js';
 
-        // 1. Alphas sammeln
+        // Alphas zusammenführen
         const allAlphas = { ...CarnivoreAlphas, ...HerbivoreAlphas, ...OmnivoreAlphas };
 
-        // 2. Dropdowns befüllen
+        // Dropdowns befüllen
         const pSelect = document.getElementById('playerAlphaSelect');
         const eSelect = document.getElementById('enemyAlphaSelect');
 
@@ -55,15 +53,14 @@
             eSelect.appendChild(opt.cloneNode(true));
         });
 
-        // 3. Kampf-Logik
-        window.berechneKampf = function() {
+        // Event-Listener statt onclick im HTML
+        document.getElementById('kampfBtn').addEventListener('click', () => {
             const pAlphaId = pSelect.value;
             const eAlphaId = eSelect.value;
             const pCount = parseInt(document.getElementById('eigeneTruppen').value) || 0;
             const eCount = parseInt(document.getElementById('gegnerTruppen').value) || 0;
             const ausgabe = document.getElementById('ergebnis');
 
-            // Armee erstellen (Hier wird eine Beispiel-Reihe genutzt)
             const playerArmy = [{ id: "P1", alphaId: pAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: pCount }];
             const enemyArmy = [{ id: "E1", alphaId: eAlphaId, troopStats: { atk: 100, def: 50, hp: 1000 }, count: eCount }];
 
@@ -71,12 +68,11 @@
                 const state = BattleManager.initializeBattleState(playerArmy, enemyArmy);
                 const winner = BattleManager.runBattle(state);
                 ausgabe.innerText = "Kampf beendet! Sieger: " + winner;
-                ausgabe.style.color = (winner === 'Player') ? "green" : "red";
             } catch (e) {
                 console.error(e);
-                ausgabe.innerText = "Fehler in der Simulation.";
+                ausgabe.innerText = "Fehler: Prüfe die Konsole (F12).";
             }
-        };
+        });
     </script>
 </body>
 </html>
