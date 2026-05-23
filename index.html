@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beast Lord: Alpha-Bestien Auswahl</title>
+    <title>Beast Lord: Alpha & Bestien Auswahl</title>
     <style>
         :root {
             --bg: #1a1a2e;
@@ -45,7 +45,7 @@
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 48px 40px;
-            max-width: 560px;
+            max-width: 600px;
             width: 100%;
             box-shadow:
                 0 24px 64px rgba(0, 0, 0, 0.5),
@@ -190,6 +190,17 @@
             font-style: italic;
         }
 
+        /* Gruppen zunächst versteckt */
+        #alphaGroup,
+        #beastGroup {
+            display: none;
+        }
+
+        #alphaGroup.visible,
+        #beastGroup.visible {
+            display: block;
+        }
+
         /* Ergebnis-Anzeige */
         .result-box {
             background: #0f0f1a;
@@ -197,7 +208,7 @@
             border-radius: 16px;
             padding: 28px 20px;
             text-align: center;
-            min-height: 130px;
+            min-height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -251,7 +262,7 @@
             text-transform: uppercase;
         }
 
-        .result-beast-name {
+        .result-alpha-name {
             font-size: 1.1rem;
             font-weight: 600;
             color: #ffffff;
@@ -259,21 +270,38 @@
         }
 
         .result-position {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 1rem;
+            gap: 6px;
+            font-size: 0.9rem;
             font-weight: 700;
             letter-spacing: 0.04em;
             text-transform: uppercase;
             background: rgba(0, 0, 0, 0.3);
-            padding: 6px 16px;
+            padding: 4px 14px;
             border-radius: 30px;
-            margin-top: 4px;
+            margin-left: 8px;
         }
 
         .position-icon {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
+        }
+
+        .result-beast-line {
+            margin-top: 8px;
+            font-size: 1rem;
+            color: #c0b090;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px 16px;
+            border-radius: 20px;
+        }
+
+        .result-beast-line span {
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
 
         /* Typ-Farben */
@@ -329,22 +357,13 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
-
-        /* Zweites Dropdown standardmäßig ausgeblendet */
-        #alphaGroup {
-            display: none;
-        }
-
-        #alphaGroup.visible {
-            display: block;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-icon">🐺</div>
-        <h1>Alpha-Bestien</h1>
-        <p class="subtitle">Wähle zuerst den Typ, dann deine Bestie</p>
+        <h1>Alpha & Bestien</h1>
+        <p class="subtitle">Typ wählen, dann Alpha und Begleitbestie</p>
 
         <!-- Erstes Dropdown: Bestientyp -->
         <div class="form-group">
@@ -359,7 +378,7 @@
             </div>
         </div>
 
-        <!-- Zweites Dropdown: Alpha-Auswahl (wird eingeblendet) -->
+        <!-- Zweites Dropdown: Alpha-Auswahl -->
         <div class="form-group" id="alphaGroup">
             <label for="alphaSelect">Alpha auswählen</label>
             <div class="select-wrapper">
@@ -369,17 +388,27 @@
             </div>
         </div>
 
+        <!-- Drittes Dropdown: Bestien-Auswahl (T1-T10) -->
+        <div class="form-group" id="beastGroup">
+            <label for="beastSelect">Begleitbestie (T1–T10)</label>
+            <div class="select-wrapper">
+                <select id="beastSelect">
+                    <option value="" disabled selected>-- Bitte Bestie wählen --</option>
+                </select>
+            </div>
+        </div>
+
         <!-- Ergebnis-Box -->
         <div id="resultBox" class="result-box idle">
             <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
         </div>
 
-        <p class="footer-note">Beast Lord: The New Land &mdash; Alpha-Tool v2.0</p>
+        <p class="footer-note">Beast Lord: The New Land &mdash; Auswahl-Tool v3.0</p>
     </div>
 
     <script>
         // =============================================
-        // DATENBANK: Alle Alphas mit Typ und Position
+        // DATENBANK: Alphas (unverändert)
         // =============================================
         const alphaDaten = {
             Fleischfresser: [
@@ -446,6 +475,27 @@
             ]
         };
 
+        // =============================================
+        // DATENBANK: Begleitbestien (T1–T10)
+        // =============================================
+        const beastDaten = {
+            Pflanzenfresser: [
+                'T1 Impala', 'T2 Argali', 'T3 Alpensteinbock', 'T4 Markhor',
+                'T5 Oryxantilope', 'T6 Elenamtilope', 'T7 Gnu', 'T8 Afrikanischer Büffel',
+                'T9 Takin', 'T10 Amerikanischer Bison'
+            ],
+            Allesfresser: [
+                'T1 Makake', 'T2 Stumpfnasenaffe', 'T3 Marmoset', 'T4 Roter Brüllaffe',
+                'T5 Siamang', 'T6 Guinea-Pavian', 'T7 Mandrill', 'T8 Schimpanse',
+                'T9 Sumatra-Orang-Utan', 'T10 Westlicher Flachlandgorilla'
+            ],
+            Fleischfresser: [
+                'T1 Rotfuchs', 'T2 SchabrackenSchakal', 'T3 Afrikanischer Wildhund',
+                'T4 Schakal', 'T5 Mähnenwolf', 'T6 Kojote', 'T7 Hyäne',
+                'T8 Polarwolf', 'T9 Nordwestlicher Wolf', 'T10 British-Colombia-Wolf'
+            ]
+        };
+
         // Emoji und CSS-Klasse pro Typ
         const typConfig = {
             Fleischfresser: { emoji: '🍖', cssClass: 'type-carnivore' },
@@ -463,72 +513,104 @@
         // DOM-Elemente
         const typeSelect = document.getElementById('typeSelect');
         const alphaGroup = document.getElementById('alphaGroup');
+        const beastGroup = document.getElementById('beastGroup');
         const alphaSelect = document.getElementById('alphaSelect');
+        const beastSelect = document.getElementById('beastSelect');
         const resultBox = document.getElementById('resultBox');
 
-        // Event: Typ-Auswahl -> zweites Dropdown befüllen & anzeigen
+        // Hilfsfunktion: Dropdown mit Optionen befüllen
+        function populateSelect(selectElement, optionsArray, placeholderText) {
+            selectElement.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
+            optionsArray.forEach(item => {
+                const option = document.createElement('option');
+                // Wenn item ein String ist (Bestien), sonst Objekt mit name (Alphas)
+                if (typeof item === 'string') {
+                    option.value = item;
+                    option.textContent = item;
+                } else {
+                    option.value = item.name;
+                    option.textContent = item.name;
+                }
+                selectElement.appendChild(option);
+            });
+        }
+
+        // Typ-Auswahl -> beide Gruppen befüllen & anzeigen
         typeSelect.addEventListener('change', function() {
             const gewaehlterTyp = this.value;
 
-            // Zweites Dropdown zurücksetzen
-            alphaSelect.innerHTML = '<option value="" disabled selected>-- Bitte Alpha wählen --</option>';
-
-            // Ergebnis zurücksetzen
+            // Beide Dropdowns zurücksetzen
+            populateSelect(alphaSelect, [], '-- Bitte Alpha wählen --');
+            populateSelect(beastSelect, [], '-- Bitte Bestie wählen --');
             resultBox.className = 'result-box idle';
             resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
 
             if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
                 alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
                 return;
             }
 
             // Alphas für diesen Typ einfügen
             const alphas = alphaDaten[gewaehlterTyp];
-            alphas.forEach(alpha => {
-                const option = document.createElement('option');
-                option.value = alpha.name;
-                option.textContent = alpha.name;
-                alphaSelect.appendChild(option);
-            });
+            populateSelect(alphaSelect, alphas, '-- Bitte Alpha wählen --');
 
-            // Zweites Dropdown einblenden
+            // Bestien für diesen Typ einfügen
+            const beasts = beastDaten[gewaehlterTyp];
+            populateSelect(beastSelect, beasts, '-- Bitte Bestie wählen --');
+
+            // Beide Gruppen einblenden
             alphaGroup.classList.add('visible');
+            beastGroup.classList.add('visible');
         });
 
-        // Event: Alpha-Auswahl -> Ergebnis anzeigen
-        alphaSelect.addEventListener('change', function() {
-            const gewaehlterAlphaName = this.value;
+        // Gemeinsame Ergebnis-Aktualisierung
+        function updateResult() {
             const gewaehlterTyp = typeSelect.value;
+            const gewaehlterAlphaName = alphaSelect.value;
+            const gewaehlteBeast = beastSelect.value;
 
-            if (!gewaehlterAlphaName || !gewaehlterTyp) {
+            // Wenn kein Typ oder kein Alpha gewählt -> idle
+            if (!gewaehlterTyp || !gewaehlterAlphaName) {
                 resultBox.className = 'result-box idle';
                 resultBox.innerHTML = '<span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>';
                 return;
             }
 
-            // Alpha-Daten aus der Datenbank holen
+            // Alpha-Objekt finden
             const alphas = alphaDaten[gewaehlterTyp];
             const alphaObjekt = alphas.find(a => a.name === gewaehlterAlphaName);
-
             if (!alphaObjekt) return;
 
             const typInfo = typConfig[gewaehlterTyp];
             const posInfo = positionConfig[alphaObjekt.position];
 
-            // Ergebnis-Box aktualisieren
-            resultBox.className = 'result-box active ' + typInfo.cssClass + ' ' + posInfo.cssClass;
+            // Bestien-Anzeige vorbereiten
+            const beastDisplay = gewaehlteBeast 
+                ? `<div class="result-beast-line">🐾 <span>${gewaehlteBeast}</span></div>`
+                : `<div class="result-beast-line">🐾 <span>—</span></div>`;
+
+            // Ergebnis-Box zusammenbauen
+            resultBox.className = `result-box active ${typInfo.cssClass} ${posInfo.cssClass}`;
             resultBox.innerHTML = `
-                        <div class="result-content">
-                            <span class="result-emoji">${typInfo.emoji}</span>
-                            <span class="result-type">${gewaehlterTyp}</span>
-                            <span class="result-beast-name">${gewaehlterAlphaName}</span>
-                            <span class="result-position">
-                                <span class="position-icon">${posInfo.icon}</span>
-                                ${alphaObjekt.position}
-                            </span>
-                        </div>
-                    `;
-        });
+                <div class="result-content">
+                    <span class="result-emoji">${typInfo.emoji}</span>
+                    <span class="result-type">${gewaehlterTyp}</span>
+                    <div>
+                        <span class="result-alpha-name">${gewaehlterAlphaName}</span>
+                        <span class="result-position">
+                            <span class="position-icon">${posInfo.icon}</span>
+                            ${alphaObjekt.position}
+                        </span>
+                    </div>
+                    ${beastDisplay}
+                </div>
+            `;
+        }
+
+        // Events für Alpha- und Bestien-Auswahl
+        alphaSelect.addEventListener('change', updateResult);
+        beastSelect.addEventListener('change', updateResult);
     </script>
 </body>
 </html>
