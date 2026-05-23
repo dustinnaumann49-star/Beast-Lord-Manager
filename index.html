@@ -11,18 +11,33 @@
 <body>
 
     <h1>Clan Kampf-Simulator</h1>
-    <p>Die Seite wird geladen...</p>
+    <div id="status">Lade Daten...</div>
 
     <div class="input-group">
-        <label>Test-Alpha:</label>
-        <select id="playerAlphaSelect">
-            <option value="test">Test-Alpha geladen</option>
-        </select>
+        <label>Dein Alpha:</label>
+        <select id="playerAlphaSelect"></select>
     </div>
 
-    <script>
-        console.log("Seite wurde geladen!");
-        document.querySelector('p').innerText = "Seite erfolgreich geladen.";
+    <script type="module">
+        try {
+            // Wir versuchen hier, nur EINE Datei zu importieren, um den Fehler einzugrenzen
+            import CarnivoreAlphas from './data/alphas/carnivores.js';
+            
+            const pSelect = document.getElementById('playerAlphaSelect');
+            pSelect.innerHTML = ''; // Leeren
+            
+            // Testweise einen Eintrag hinzufügen
+            Object.keys(CarnivoreAlphas).forEach(name => {
+                let opt = document.createElement('option');
+                opt.textContent = name;
+                pSelect.appendChild(opt);
+            });
+            
+            document.getElementById('status').innerText = "Daten erfolgreich geladen!";
+        } catch (err) {
+            document.getElementById('status').innerText = "Fehler beim Laden: " + err.message;
+            console.error(err);
+        }
     </script>
 </body>
 </html>
