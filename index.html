@@ -38,75 +38,95 @@
 
     <button id="kampfBtn">Kampf starten</button>
 
-   <script>
-    window.onload = function() {
-        // 1. Alle Alphas zusammenführen
-        const allAlphas = { 
-            ...window.CarnivoreAlphas, 
-            ...window.Herbivores, 
-            ...window.Omnivores 
-        };
-        
-        // 2. Direkte Zuordnung der Truppen-Objekte zu den Klassennamen
-        // WICHTIG: Die Schlüssel hier müssen exakt wie deine Alpha-Klassen ("Fleischfresser", etc.) sein
-        const troopMapping = { 
-            "Fleischfresser": window.CarnivoreTroops, 
-            "Pflanzenfresser": window.HerbivoreTroops, 
-            "Allesfresser": window.OmnivoreTroops 
-        };
-        
-        GameEngine.allAlphas = allAlphas;
-
-        function setupSlot(id) {
+    <script>
+        // Hilfsfunktion zum Auslesen der Daten aus einem Slot
+        function getSlotData(id) {
             const el = document.getElementById(id);
-            if (!el) return;
-            
-            el.innerHTML = `
-                <select class="aSel"><option value="">Wähle Alpha</option></select>
-                <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
-                <input type="number" class="cIn" placeholder="Anzahl">
-            `;
-            
-            const aSel = el.querySelector('.aSel');
-            const tSel = el.querySelector('.tSel');
-
-            // Alphas befüllen
-            Object.keys(allAlphas).forEach(name => {
-                let o = document.createElement('option'); 
-                o.value = name; 
-                o.textContent = name;
-                // Hier greifen wir auf .class zu
-                o.dataset.class = allAlphas[name].class; 
-                aSel.appendChild(o);
-            });
-
-            // Logik: Filtern bei Änderung
-            aSel.onchange = function() {
-                tSel.innerHTML = '<option value="">Wähle Truppe</option>';
-                const selectedClass = this.options[this.selectedIndex].dataset.class;
-                
-                // Wir schauen in unserem mapping nach, ob wir Truppen für diese Klasse haben
-                if (selectedClass && troopMapping[selectedClass]) {
-                    tSel.disabled = false;
-                    const troops = troopMapping[selectedClass];
-                    
-                    Object.keys(troops).forEach(tier => {
-                        Object.keys(troops[tier]).forEach(troopName => {
-                            let o = document.createElement('option');
-                            o.value = troopName;
-                            o.textContent = `${troopName} (${tier})`;
-                            tSel.appendChild(o);
-                        });
-                    });
-                } else {
-                    tSel.disabled = true;
-                    tSel.innerHTML = '<option>Nicht kompatibel</option>';
-                }
+            return {
+                alpha: el.querySelector('.aSel').value,
+                troop: el.querySelector('.tSel').value,
+                count: parseInt(el.querySelector('.cIn').value) || 0
             };
         }
 
-        ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
-    };
-</script> 
+        window.onload = function() {
+            const allAlphas = { 
+                ...window.CarnivoreAlphas, 
+                ...window.Herbivores, 
+                ...window.Omnivores 
+            };
+            
+            const troopMapping = { 
+                "Fleischfresser": window.CarnivoreTroops, 
+                "Pflanzenfresser": window.HerbivoreTroops, 
+                "Allesfresser": window.OmnivoreTroops 
+            };
+            
+            GameEngine.allAlphas = allAlphas;
+
+            function setupSlot(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                el.innerHTML = `
+                    <select class="aSel"><option value="">Wähle Alpha</option></select>
+                    <select class="tSel" disabled><option>Erst Alpha wählen</option></select>
+                    <input type="number" class="cIn" placeholder="Anzahl">
+                `;
+                
+                const aSel = el.querySelector('.aSel');
+                const tSel = el.querySelector('.tSel');
+
+                Object.keys(allAlphas).forEach(name => {
+                    let o = document.createElement('option'); 
+                    o.value = name; 
+                    o.textContent = name;
+                    o.dataset.class = allAlphas[name].class; 
+                    aSel.appendChild(o);
+                });
+
+                aSel.onchange = function() {
+                    tSel.innerHTML = '<option value="">Wähle Truppe</option>';
+                    const selectedClass = this.options[this.selectedIndex].dataset.class;
+                    
+                    if (selectedClass && troopMapping[selectedClass]) {
+                        tSel.disabled = false;
+                        const troops = troopMapping[selectedClass];
+                        Object.keys(troops).forEach(tier => {
+                            Object.keys(troops[tier]).forEach(troopName => {
+                                let o = document.createElement('option');
+                                o.value = troopName;
+                                o.textContent = `${troopName} (${tier})`;
+                                tSel.appendChild(o);
+                            });
+                        });
+                    } else {
+                        tSel.disabled = true;
+                        tSel.innerHTML = '<option>Nicht kompatibel</option>';
+                    }
+                };
+            }
+
+            ['p1','p2','p3','e1','e2','e3'].forEach(setupSlot);
+
+            // Button Event
+            document.getElementById('kampfBtn').onclick = () => {
+                const team1 = ['p1', 'p2', 'p3'].map(getSlotData);
+                const team2 = ['e1', 'e2', 'e3'].map(getSlotData);
+
+                if (team1.some(s => !s.alpha) || team2.some(s => !s.alpha)) {
+                    alert("Bitte wähle in jedem Slot einen Alpha aus!");
+                    return;
+                }
+
+                if (typeof BattleManager !== 'undefined' && typeof BattleManager.startBattle === 'function') {
+                    BattleManager.startBattle(team1, team2);
+                } else {
+                    console.error("BattleManager.startBattle wurde nicht gefunden!");
+                    alert("Kampf-Logik nicht gefunden. Prüfe die Konsole (F12).");
+                }
+            };
+        };
+    </script> 
 </body>
 </html>
