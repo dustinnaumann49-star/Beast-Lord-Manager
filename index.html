@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beast Lord: Alpha & Bestien Auswahl</title>
+    <title>VCF Beast Synergie</title>
+
+    <!-- PWA: Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme-Color für Browser-Leiste (Safari, Android) -->
+    <meta name="theme-color" content="#d8c000">
+
     <style>
+        /* … dein gesamtes bisheriges CSS … */
         :root {
             --bg: #1a1a2e;
             --card: #16213e;
@@ -40,9 +48,6 @@
             padding: 20px;
         }
 
-        /* ============================== */
-        /* PASSWORT-OVERLAY               */
-        /* ============================== */
         #passwordOverlay {
             position: fixed;
             top: 0;
@@ -142,9 +147,6 @@
             display: block;
         }
 
-        /* ============================== */
-        /* HAUPT-TOOL (anfangs versteckt)  */
-        /* ============================== */
         #mainTool {
             display: none;
             width: 100%;
@@ -183,7 +185,6 @@
             opacity: 0.7;
         }
 
-        /* Sprachumschalter */
         .lang-switch {
             display: flex;
             justify-content: flex-end;
@@ -497,12 +498,9 @@
     </style>
 </head>
 <body>
-    <!-- ============================== -->
-    <!-- PASSWORT-OVERLAY               -->
-    <!-- ============================== -->
+    <!-- Passwort-Overlay (unverändert) -->
     <div id="passwordOverlay">
         <div class="password-box">
-            <!-- Sprachumschalter im Overlay -->
             <div class="lang-switch" id="overlayLangSwitch">
                 <button class="lang-btn active" data-lang="de">DE</button>
                 <button class="lang-btn" data-lang="en">EN</button>
@@ -515,12 +513,9 @@
         </div>
     </div>
 
-    <!-- ============================== -->
-    <!-- HAUPT-TOOL (anfangs versteckt)  -->
-    <!-- ============================== -->
+    <!-- Haupt-Tool (unverändert) -->
     <div id="mainTool">
         <div class="container">
-            <!-- Sprachumschalter im Haupttool -->
             <div class="lang-switch" id="mainLangSwitch">
                 <button class="lang-btn active" data-lang="de">DE</button>
                 <button class="lang-btn" data-lang="en">EN</button>
@@ -530,7 +525,6 @@
             <h1 id="mainTitle">Alpha & Bestien</h1>
             <p class="subtitle" id="mainSubtitle">Typ wählen, dann Alpha und Begleitbestie</p>
 
-            <!-- Erstes Dropdown: Bestientyp -->
             <div class="form-group">
                 <label for="typeSelect" id="labelType">Bestientyp wählen</label>
                 <div class="select-wrapper">
@@ -540,7 +534,6 @@
                 </div>
             </div>
 
-            <!-- Zweites Dropdown: Alpha-Auswahl -->
             <div class="form-group" id="alphaGroup">
                 <label for="alphaSelect" id="labelAlpha">Alpha auswählen</label>
                 <div class="select-wrapper">
@@ -550,7 +543,6 @@
                 </div>
             </div>
 
-            <!-- Drittes Dropdown: Bestien-Auswahl -->
             <div class="form-group" id="beastGroup">
                 <label for="beastSelect" id="labelBeast">Begleitbestie (T1–T10)</label>
                 <div class="select-wrapper">
@@ -560,18 +552,17 @@
                 </div>
             </div>
 
-            <!-- Ergebnis-Box -->
             <div id="resultBox" class="result-box idle">
                 <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
             </div>
 
-            <p class="footer-note" id="footerText">Beast Lord: The New Land &mdash; Auswahl-Tool v3.3</p>
+            <p class="footer-note" id="footerText">Beast Lord: The New Land — Auswahl-Tool v3.3</p>
         </div>
     </div>
 
     <script>
         // =============================================
-        // PASSWORTSCHUTZ
+        // PASSWORTSCHUTZ (unverändert)
         // =============================================
         const password = 'VCF';
 
@@ -582,7 +573,6 @@
         const passwordError = document.getElementById('passwordError');
         const overlayTitle = document.getElementById('overlayTitle');
 
-        // Overlay-Übersetzungen
         const overlayTranslations = {
             de: {
                 title: 'Clan-Zugang',
@@ -614,7 +604,6 @@
             });
         }
 
-        // Event-Listener für Sprachbuttons im Overlay
         document.querySelectorAll('#overlayLangSwitch .lang-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const lang = this.dataset.lang;
@@ -624,7 +613,6 @@
             });
         });
 
-        // Initiale Overlay-Sprache setzen
         setOverlayLanguage('de');
 
         function checkPassword() {
@@ -632,7 +620,6 @@
                 overlay.classList.add('hidden');
                 mainTool.classList.add('visible');
                 passwordError.classList.remove('visible');
-                // Sprache an Haupttool übergeben
                 switchLanguage(overlayLang);
             } else {
                 passwordError.classList.add('visible');
@@ -647,7 +634,7 @@
         });
 
         // =============================================
-        // SPRACHKONFIGURATION HAUPTTOOL
+        // SPRACHKONFIGURATION HAUPTTOOL (unverändert)
         // =============================================
         let currentLang = 'de';
 
@@ -698,7 +685,6 @@
             }
         };
 
-        // Übersetzungstabellen für Alpha- und Bestiennamen
         const alphaNamesEN = {
             'Tibetdogge': 'Tibetan Mastiff',
             'Jaguarundi': 'Jaguarundi',
@@ -805,9 +791,6 @@
             return germanName;
         }
 
-        // =============================================
-        // DATENBANK (unverändert, deutsche Schlüssel)
-        // =============================================
         const alphaDaten = {
             Fleischfresser: [
                 { name: 'Tibetdogge', position: 'Nahkampf' },
@@ -903,7 +886,6 @@
             Support: { icon: '🛡️', cssClass: 'position-support' }
         };
 
-        // DOM-Elemente Haupttool
         const typeSelect = document.getElementById('typeSelect');
         const alphaGroup = document.getElementById('alphaGroup');
         const beastGroup = document.getElementById('beastGroup');
@@ -918,7 +900,6 @@
         const labelBeast = document.getElementById('labelBeast');
         const footerText = document.getElementById('footerText');
 
-        // Hilfsfunktionen für Dropdowns
         function populateTypeSelect() {
             const t = translations[currentLang];
             typeSelect.innerHTML = `<option value="" disabled selected>${t.typePlaceholder}</option>`;
@@ -1013,7 +994,6 @@
             `;
         }
 
-        // Event: Typ-Auswahl
         typeSelect.addEventListener('change', function() {
             const gewaehlterTyp = this.value;
 
@@ -1037,31 +1017,23 @@
         alphaSelect.addEventListener('change', updateResult);
         beastSelect.addEventListener('change', updateResult);
 
-        // =============================================
-        // SPRACHUMSCHALTUNG HAUPTTOOL
-        // =============================================
         function switchLanguage(lang) {
             currentLang = lang;
 
-            // Aktive Buttons im Haupttool markieren
             const mainLangButtons = document.querySelectorAll('#mainLangSwitch .lang-btn');
             mainLangButtons.forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
 
-            // Gespeicherte Werte sichern
             const savedType = typeSelect.value;
             const savedAlpha = alphaSelect.value;
             const savedBeast = beastSelect.value;
 
-            // UI-Texte aktualisieren
             updateStaticUITexts();
 
-            // Typ-Dropdown neu bauen
             populateTypeSelect();
             typeSelect.value = savedType;
 
-            // Alpha- und Bestien-Dropdowns abhängig vom gewählten Typ neu bauen
             if (savedType && alphaDaten[savedType]) {
                 populateAlphaSelect(alphaDaten[savedType]);
                 populateBeastSelect(beastDaten[savedType]);
@@ -1077,11 +1049,9 @@
             alphaSelect.value = savedAlpha;
             beastSelect.value = savedBeast;
 
-            // Ergebnis neu rendern
             updateResult();
         }
 
-        // Event-Listener für Sprachbuttons im Haupttool
         document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const lang = this.dataset.lang;
@@ -1090,6 +1060,21 @@
                 }
             });
         });
+
+        // =============================================
+        // SERVICE WORKER REGISTRIERUNG (PWA)
+        // =============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
