@@ -518,33 +518,34 @@
         }
 
         /* ============================== */
-        /* FORMATION TRAINER              */
+        /* FORMATION TRAINER (NEU)        */
         /* ============================== */
         .formation-row {
             display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            position: relative;
             background: #0f0f1a;
             border-radius: 14px;
             padding: 20px 18px;
+            margin-bottom: 20px;
             border: 1px solid var(--border);
+            transition: border-color 0.3s;
         }
 
         .formation-row .row-label {
-            min-width: 80px;
             font-weight: 700;
             color: var(--accent);
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding-top: 14px;
-            flex-shrink: 0;
+            margin-bottom: 10px;
+            /* Label oben, volle Breite */
         }
 
         .formation-row .row-select {
-            flex: 1;
-            min-width: 0;
+            width: 100%;
+            margin-bottom: 8px;
+            position: relative;
         }
 
         .formation-row .row-select .select-wrapper {
@@ -553,6 +554,7 @@
 
         .formation-select {
             width: 100% !important;
+            box-sizing: border-box !important;
             display: block !important;
             padding: 14px 48px 14px 16px !important;
             font-size: 16px !important;
@@ -583,13 +585,29 @@
             font-style: italic;
         }
 
+        .row-feedback {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--error);
+            letter-spacing: 0.02em;
+            display: none;
+            word-break: break-word;
+            /* Steht unter dem Dropdown, rutscht nicht rein */
+        }
+
+        .row-feedback.visible {
+            display: block;
+        }
+
+        /* Status-Icon absolut positioniert – stört nicht den Fluss */
         .row-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 60px;
+            position: absolute;
+            top: 15px;
+            right: 18px;
             font-size: 1.8rem;
-            flex-shrink: 0;
+            line-height: 1;
+            pointer-events: none;
+            z-index: 2;
         }
 
         .row-status.valid {
@@ -600,19 +618,6 @@
             color: var(--error);
         }
 
-        .row-feedback {
-            margin-top: 6px;
-            font-size: 0.8rem;
-            color: var(--error);
-            letter-spacing: 0.02em;
-            display: none;
-            word-break: break-word;
-        }
-
-        .row-feedback.visible {
-            display: block;
-        }
-
         .formation-row.invalid-highlight {
             border-color: rgba(231, 76, 60, 0.4);
         }
@@ -621,6 +626,7 @@
             border-color: rgba(46, 204, 113, 0.4);
         }
 
+        /* Pfeil-Icon im Select-Wrapper (gleiche Position) */
         .formation-row .select-wrapper::after {
             color: var(--accent);
         }
@@ -699,7 +705,7 @@
             <p class="subtitle" id="formationSubtitle">Weise jedem Alpha die optimale Reihe zu</p>
 
             <div id="formationRows">
-                <!-- Wird dynamisch per JS befüllt -->
+                <!-- Dynamisch per JS befüllt -->
             </div>
         </div>
     </div>
@@ -1251,7 +1257,7 @@
         });
 
         // =============================================
-        // FORMATION TRAINER
+        // FORMATION TRAINER (NEU AUFGEBAUT)
         // =============================================
         const recommendedRows = {
             'Berglöwe': [1, 2],
@@ -1337,6 +1343,7 @@
                 rowDiv.className = 'formation-row';
                 rowDiv.dataset.row = row;
 
+                // NEUE STRUKTUR: Label oben, dann Dropdown, dann Feedback; Status absolut
                 rowDiv.innerHTML = `
                     <div class="row-label">${t.rowLabel} ${row}</div>
                     <div class="row-select">
@@ -1368,7 +1375,7 @@
             const alphaName = select.value;
 
             rowDiv.classList.remove('valid-highlight', 'invalid-highlight');
-            statusDiv.className = 'row-status';
+            statusDiv.className = 'row-status'; // Reset
             feedbackDiv.classList.remove('visible');
 
             if (!alphaName) return;
