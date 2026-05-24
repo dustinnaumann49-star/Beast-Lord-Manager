@@ -5,14 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VCF Beast Synergie</title>
 
-    <!-- PWA: Manifest -->
     <link rel="manifest" href="manifest.json">
-
-    <!-- Theme-Color für Browser-Leiste (Safari, Android) -->
     <meta name="theme-color" content="#d8c000">
 
     <style>
-        /* … dein gesamtes bisheriges CSS … */
         :root {
             --bg: #1a1a2e;
             --card: #16213e;
@@ -26,6 +22,8 @@
             --melee: #e67e22;
             --ranged: #3498db;
             --support: #2ecc71;
+            --success: #2ecc71;
+            --error: #e74c3c;
         }
 
         * {
@@ -48,6 +46,9 @@
             padding: 20px;
         }
 
+        /* ============================== */
+        /* PASSWORT-OVERLAY               */
+        /* ============================== */
         #passwordOverlay {
             position: fixed;
             top: 0;
@@ -147,10 +148,13 @@
             display: block;
         }
 
+        /* ============================== */
+        /* HAUPT-TOOL (anfangs versteckt)  */
+        /* ============================== */
         #mainTool {
             display: none;
             width: 100%;
-            max-width: 620px;
+            max-width: 700px;
         }
 
         #mainTool.visible {
@@ -161,13 +165,18 @@
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 24px;
-            padding: 48px 40px;
+            padding: 40px 36px;
             box-shadow:
                 0 24px 64px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(255, 255, 255, 0.03) inset,
                 0 1px 0 rgba(255, 255, 255, 0.04) inset;
             position: relative;
             overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .container:last-child {
+            margin-bottom: 0;
         }
 
         .container::before {
@@ -183,6 +192,18 @@
                     var(--accent) 70%,
                     transparent 100%);
             opacity: 0.7;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
         }
 
         .lang-switch {
@@ -495,10 +516,74 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
+
+        /* ============================== */
+        /* FORMATION TRAINER              */
+        /* ============================== */
+        .formation-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            background: #0f0f1a;
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .formation-row .row-label {
+            min-width: 80px;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-top: 16px;
+        }
+
+        .formation-row .row-select {
+            flex: 1;
+        }
+
+        .row-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            font-size: 1.8rem;
+        }
+
+        .row-status.valid {
+            color: var(--success);
+        }
+
+        .row-status.invalid {
+            color: var(--error);
+        }
+
+        .row-feedback {
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--error);
+            letter-spacing: 0.02em;
+            display: none;
+        }
+
+        .row-feedback.visible {
+            display: block;
+        }
+
+        .formation-row.invalid-highlight {
+            border-color: rgba(231, 76, 60, 0.4);
+        }
+
+        .formation-row.valid-highlight {
+            border-color: rgba(46, 204, 113, 0.4);
+        }
     </style>
 </head>
 <body>
-    <!-- Passwort-Overlay (unverändert) -->
+    <!-- Passwort-Overlay -->
     <div id="passwordOverlay">
         <div class="password-box">
             <div class="lang-switch" id="overlayLangSwitch">
@@ -513,14 +598,17 @@
         </div>
     </div>
 
-    <!-- Haupt-Tool (unverändert) -->
+    <!-- Haupt-Tool -->
     <div id="mainTool">
-        <div class="container">
+        <!-- ======================== -->
+        <!-- SYNERGY MANAGER          -->
+        <!-- ======================== -->
+        <div class="container" id="synergyManager">
             <div class="lang-switch" id="mainLangSwitch">
                 <button class="lang-btn active" data-lang="de">DE</button>
                 <button class="lang-btn" data-lang="en">EN</button>
             </div>
-
+            <div class="module-title">🐺 Synergy Manager</div>
             <div class="header-icon">🐺</div>
             <h1 id="mainTitle">Alpha & Bestien</h1>
             <p class="subtitle" id="mainSubtitle">Typ wählen, dann Alpha und Begleitbestie</p>
@@ -558,11 +646,23 @@
 
             <p class="footer-note" id="footerText">Beast Lord: The New Land — Auswahl-Tool v3.3</p>
         </div>
+
+        <!-- ======================== -->
+        <!-- FORMATION TRAINER        -->
+        <!-- ======================== -->
+        <div class="container" id="formationTrainer">
+            <div class="module-title">⚔️ Formation Trainer</div>
+            <p class="subtitle" id="formationSubtitle">Weise jedem Alpha die optimale Reihe zu</p>
+
+            <div id="formationRows">
+                <!-- Wird dynamisch per JS befüllt -->
+            </div>
+        </div>
     </div>
 
     <script>
         // =============================================
-        // PASSWORTSCHUTZ (unverändert)
+        // PASSWORTSCHUTZ
         // =============================================
         const password = 'VCF';
 
@@ -620,7 +720,10 @@
                 overlay.classList.add('hidden');
                 mainTool.classList.add('visible');
                 passwordError.classList.remove('visible');
+                // Sprache an Haupttool übergeben
                 switchLanguage(overlayLang);
+                // Formation Trainer initialisieren
+                buildFormationTrainer();
             } else {
                 passwordError.classList.add('visible');
                 passwordInput.value = '';
@@ -634,7 +737,7 @@
         });
 
         // =============================================
-        // SPRACHKONFIGURATION HAUPTTOOL (unverändert)
+        // SPRACHKONFIGURATION
         // =============================================
         let currentLang = 'de';
 
@@ -659,6 +762,14 @@
                     Nahkampf: 'Nahkampf',
                     Fernkampf: 'Fernkampf',
                     Support: 'Support'
+                },
+                formation: {
+                    subtitle: 'Weise jedem Alpha die optimale Reihe zu',
+                    rowLabel: 'Reihe',
+                    alphaPlaceholder: '-- Alpha wählen --',
+                    correct: '✔️',
+                    incorrect: '❌',
+                    recommended: 'Empfohlene Reihe(n) für diesen Alpha:'
                 }
             },
             en: {
@@ -681,6 +792,14 @@
                     Nahkampf: 'Melee',
                     Fernkampf: 'Ranged',
                     Support: 'Support'
+                },
+                formation: {
+                    subtitle: 'Assign each Alpha to the optimal row',
+                    rowLabel: 'Row',
+                    alphaPlaceholder: '-- Select Alpha --',
+                    correct: '✔️',
+                    incorrect: '❌',
+                    recommended: 'Recommended row(s) for this Alpha:'
                 }
             }
         };
@@ -741,7 +860,20 @@
             'Weißer Pfau': 'White Peacock',
             'Elefantenvogel': 'Elephant Bird',
             'Kurznasenbär': 'Short-faced Bear',
-            'Kodiakbär': 'Kodiak Bear'
+            'Kodiakbär': 'Kodiak Bear',
+            'Berglöwe': 'Mountain Lion',
+            'Riesenkänguru': 'Giant Kangaroo',
+            'Breitmaulnashorn': 'White Rhino',
+            'Gepard': 'Cheetah',
+            'Sekretär': 'Secretary Bird',
+            'Strauß': 'Ostrich',
+            'Schuhschnabel': 'Shoebill',
+            'Kasuar': 'Cassowary',
+            'Leopard': 'Leopard',
+            'Sibirischer Tiger': 'Siberian Tiger',
+            'Giraffe': 'Giraffe',
+            'Löwe': 'Lion',
+            'Riesenelch': 'Giant Moose'
         };
 
         const beastNamesEN = {
@@ -791,6 +923,9 @@
             return germanName;
         }
 
+        // =============================================
+        // DATENBANK SYNERGY MANAGER (unverändert)
+        // =============================================
         const alphaDaten = {
             Fleischfresser: [
                 { name: 'Tibetdogge', position: 'Nahkampf' },
@@ -886,6 +1021,7 @@
             Support: { icon: '🛡️', cssClass: 'position-support' }
         };
 
+        // DOM-Elemente Synergy Manager
         const typeSelect = document.getElementById('typeSelect');
         const alphaGroup = document.getElementById('alphaGroup');
         const beastGroup = document.getElementById('beastGroup');
@@ -948,6 +1084,17 @@
             if (resultBox.classList.contains('idle')) {
                 resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
             }
+            // Formation Trainer Texte aktualisieren
+            document.getElementById('formationSubtitle').textContent = t.formation.subtitle;
+            document.querySelectorAll('.row-label').forEach((label, index) => {
+                label.textContent = t.formation.rowLabel + ' ' + (index + 1);
+            });
+            document.querySelectorAll('.row-select select').forEach(select => {
+                const placeholder = select.querySelector('option[disabled]');
+                if (placeholder) {
+                    placeholder.textContent = t.formation.alphaPlaceholder;
+                }
+            });
         }
 
         function updateResult() {
@@ -1050,6 +1197,8 @@
             beastSelect.value = savedBeast;
 
             updateResult();
+            // Formation Trainer ebenfalls aktualisieren
+            updateFormationTrainerLanguage();
         }
 
         document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
@@ -1062,8 +1211,185 @@
         });
 
         // =============================================
-        // SERVICE WORKER REGISTRIERUNG (PWA)
+        // FORMATION TRAINER
         // =============================================
+        const recommendedRows = {
+            'Berglöwe': [1, 2],
+            'Riesenkänguru': [2],
+            'Breitmaulnashorn': [2, 3],
+            'Gepard': [2, 3],
+            'Sekretär': [2, 3],
+            'Strauß': [1],
+            'Schuhschnabel': [1, 2],
+            'Kasuar': [2, 3],
+            'Leopard': [2, 3],
+            'Sibirischer Tiger': [2, 3],
+            'Giraffe': [1, 2],
+            'Löwe': [1, 2],
+            'Riesenelch': [1, 2],
+            'Hebriden-Schaf': [1],
+            'Weißes Rentier': [2],
+            'Yak': [2, 3],
+            'Doedicurus': [1],
+            'Wollnashorn': [2, 3],
+            'Riesen Sivatherium': [1],
+            'Meiolania': [2],
+            'Wildpferd': [1],
+            'Asiatischer Elefant': [1],
+            'Rentier': [2],
+            'Ankole': [2, 3],
+            'Spanisches Kampfrind': [1],
+            'Geochelone': [2, 3],
+            'Spitzmaulnashorn': [1],
+            'Afrikanischer Elefant': [2, 3],
+            'Mammut': [1],
+            'Megatherium': [2, 3],
+            'Panzernashorn': [2, 3],
+            'Brabanter': [2, 3],
+            'Geierschildkröte': [1],
+            'Klapperschlange': [1, 2],
+            'Komodowaran': [3],
+            'Höhlenbär': [1],
+            'Riesenbiber': [2],
+            'Metridiochoerus': [2],
+            'Dinopithecus': [2, 3],
+            'Schwarzbär': [2, 3],
+            'Pinselohrschwein': [1],
+            'Weißkopfsaki': [2],
+            'Bärenmarder': [2],
+            'Drill': [1, 2],
+            'Flusspferd': [1],
+            'Geisterbär': [2, 3],
+            'Südafrika-Kronenkranich': [2],
+            'Weißer Pfau': [1],
+            'Elefantenvogel': [1],
+            'Kurznasenbär': [2],
+            'Kodiakbär': [3],
+            'Tibetdogge': [1],
+            'Jaguarundi': [1, 2],
+            'Weißer Löwe': [2, 3],
+            'Titanis': [1, 2],
+            'Amerikanischer Löwe': [2],
+            'Hyaenodon': [1, 2],
+            'Smilodon': [3],
+            'Schwarzer Panther': [2, 3],
+            'Schneeleopard': [1, 2],
+            'Weißer Tiger': [2, 3],
+            'Kanadischer Luchs': [2],
+            'Leistenkrokodil': [3],
+            'Bindenwaran': [1],
+            'Schwarzer Löwe': [2],
+            'Weißes Krokodil': [2, 3],
+            'Affenadler': [1],
+            'Beutellöwe': [1],
+            'Amerikanischer Gepard': [2]
+        };
+
+        // Liste aller Alphas für Formation Trainer (alphabetisch sortiert)
+        const formationAlphas = Object.keys(recommendedRows).sort((a, b) => a.localeCompare(b));
+
+        function buildFormationTrainer() {
+            const container = document.getElementById('formationRows');
+            container.innerHTML = '';
+            const t = translations[currentLang].formation;
+
+            for (let row = 1; row <= 3; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'formation-row';
+                rowDiv.dataset.row = row;
+
+                rowDiv.innerHTML = `
+                    <div class="row-label">${t.rowLabel} ${row}</div>
+                    <div class="row-select">
+                        <div class="select-wrapper">
+                            <select class="formation-select">
+                                <option value="" disabled selected>${t.alphaPlaceholder}</option>
+                                ${formationAlphas.map(name => `<option value="${name}">${translateAlphaName(name)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="row-feedback"></div>
+                    </div>
+                    <div class="row-status"></div>
+                `;
+
+                container.appendChild(rowDiv);
+
+                const select = rowDiv.querySelector('.formation-select');
+                select.addEventListener('change', function() {
+                    validateFormationRow(rowDiv, row);
+                });
+            }
+        }
+
+        function validateFormationRow(rowDiv, rowNumber) {
+            const select = rowDiv.querySelector('.formation-select');
+            const statusDiv = rowDiv.querySelector('.row-status');
+            const feedbackDiv = rowDiv.querySelector('.row-feedback');
+            const t = translations[currentLang].formation;
+            const alphaName = select.value;
+
+            // Zurücksetzen
+            rowDiv.classList.remove('valid-highlight', 'invalid-highlight');
+            statusDiv.className = 'row-status';
+            feedbackDiv.classList.remove('visible');
+
+            if (!alphaName) return;
+
+            const rows = recommendedRows[alphaName];
+            if (!rows) return; // Sollte nicht vorkommen
+
+            if (rows.includes(rowNumber)) {
+                statusDiv.textContent = t.correct;
+                statusDiv.className = 'row-status valid';
+                rowDiv.classList.add('valid-highlight');
+            } else {
+                statusDiv.textContent = t.incorrect;
+                statusDiv.className = 'row-status invalid';
+                rowDiv.classList.add('invalid-highlight');
+                feedbackDiv.textContent = `${t.recommended} ${rows.join(', ')}`;
+                feedbackDiv.classList.add('visible');
+            }
+        }
+
+        function updateFormationTrainerLanguage() {
+            const t = translations[currentLang].formation;
+            document.getElementById('formationSubtitle').textContent = t.subtitle;
+
+            const rows = document.querySelectorAll('.formation-row');
+            rows.forEach((row, index) => {
+                const rowNumber = index + 1;
+                row.querySelector('.row-label').textContent = t.rowLabel + ' ' + rowNumber;
+
+                const select = row.querySelector('.formation-select');
+                const currentValue = select.value;
+                const placeholder = select.querySelector('option[disabled]');
+                if (placeholder) {
+                    placeholder.textContent = t.alphaPlaceholder;
+                }
+                // Aktualisiere die Options-Texte
+                Array.from(select.options).forEach(option => {
+                    if (option.value) {
+                        option.textContent = translateAlphaName(option.value);
+                    }
+                });
+                select.value = currentValue; // Wert beibehalten
+
+                // Feedback aktualisieren, falls sichtbar
+                const feedbackDiv = row.querySelector('.row-feedback');
+                if (feedbackDiv.classList.contains('visible')) {
+                    const alphaName = select.value;
+                    if (alphaName) {
+                        const rows = recommendedRows[alphaName];
+                        if (rows) {
+                            feedbackDiv.textContent = `${t.recommended} ${rows.join(', ')}`;
+                        }
+                    }
+                }
+                // Status-Icons behalten
+            });
+        }
+
+        // Service Worker Registrierung
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
