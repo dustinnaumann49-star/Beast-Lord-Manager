@@ -527,7 +527,7 @@
             margin-bottom: 20px;
             background: #0f0f1a;
             border-radius: 14px;
-            padding: 16px;
+            padding: 20px 18px;
             border: 1px solid var(--border);
         }
 
@@ -538,11 +538,49 @@
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding-top: 16px;
+            padding-top: 14px;
+            flex-shrink: 0;
         }
 
         .formation-row .row-select {
             flex: 1;
+            min-width: 0;
+        }
+
+        .formation-row .row-select .select-wrapper {
+            width: 100%;
+        }
+
+        .formation-select {
+            width: 100% !important;
+            display: block !important;
+            padding: 14px 48px 14px 16px !important;
+            font-size: 16px !important;
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            color: var(--text) !important;
+            background: #0f0f1a;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            line-height: 1.4;
+        }
+
+        .formation-select option {
+            color: var(--text);
+            background: #1a1a2e;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .formation-select option:first-child {
+            color: #6b6b7a;
+            font-style: italic;
         }
 
         .row-status {
@@ -551,6 +589,7 @@
             justify-content: center;
             min-width: 60px;
             font-size: 1.8rem;
+            flex-shrink: 0;
         }
 
         .row-status.valid {
@@ -567,6 +606,7 @@
             color: var(--error);
             letter-spacing: 0.02em;
             display: none;
+            word-break: break-word;
         }
 
         .row-feedback.visible {
@@ -581,38 +621,6 @@
             border-color: rgba(46, 204, 113, 0.4);
         }
 
-        /* Formation Trainer Dropdown-Fix (Lesbarkeit) */
-        .formation-select {
-            width: 100% !important;
-            color: var(--text) !important;
-            padding: 16px 48px 16px 20px !important;
-            background: #0f0f1a;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-family: inherit;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .formation-select option {
-            color: var(--text);
-            background: #1a1a2e;
-            padding: 12px;
-            font-size: 1rem;
-        }
-
-        .formation-select option:first-child {
-            color: #6b6b7a;
-            font-style: italic;
-        }
-
-        /* Sicherstellen, dass das Wrapper-Pfeil-Symbol sichtbar bleibt */
         .formation-row .select-wrapper::after {
             color: var(--accent);
         }
@@ -1118,7 +1126,6 @@
             if (resultBox.classList.contains('idle')) {
                 resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
             }
-            // Formation Trainer Texte aktualisieren
             document.getElementById('formationSubtitle').textContent = t.formation.subtitle;
             document.querySelectorAll('.row-label').forEach((label, index) => {
                 label.textContent = t.formation.rowLabel + ' ' + (index + 1);
