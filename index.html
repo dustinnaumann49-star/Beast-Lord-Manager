@@ -580,6 +580,42 @@
         .formation-row.valid-highlight {
             border-color: rgba(46, 204, 113, 0.4);
         }
+
+        /* Formation Trainer Dropdown-Fix (Lesbarkeit) */
+        .formation-select {
+            width: 100% !important;
+            color: var(--text) !important;
+            padding: 16px 48px 16px 20px !important;
+            background: #0f0f1a;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .formation-select option {
+            color: var(--text);
+            background: #1a1a2e;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .formation-select option:first-child {
+            color: #6b6b7a;
+            font-style: italic;
+        }
+
+        /* Sicherstellen, dass das Wrapper-Pfeil-Symbol sichtbar bleibt */
+        .formation-row .select-wrapper::after {
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -720,9 +756,7 @@
                 overlay.classList.add('hidden');
                 mainTool.classList.add('visible');
                 passwordError.classList.remove('visible');
-                // Sprache an Haupttool übergeben
                 switchLanguage(overlayLang);
-                // Formation Trainer initialisieren
                 buildFormationTrainer();
             } else {
                 passwordError.classList.add('visible');
@@ -1197,7 +1231,6 @@
             beastSelect.value = savedBeast;
 
             updateResult();
-            // Formation Trainer ebenfalls aktualisieren
             updateFormationTrainerLanguage();
         }
 
@@ -1285,7 +1318,6 @@
             'Amerikanischer Gepard': [2]
         };
 
-        // Liste aller Alphas für Formation Trainer (alphabetisch sortiert)
         const formationAlphas = Object.keys(recommendedRows).sort((a, b) => a.localeCompare(b));
 
         function buildFormationTrainer() {
@@ -1328,7 +1360,6 @@
             const t = translations[currentLang].formation;
             const alphaName = select.value;
 
-            // Zurücksetzen
             rowDiv.classList.remove('valid-highlight', 'invalid-highlight');
             statusDiv.className = 'row-status';
             feedbackDiv.classList.remove('visible');
@@ -1336,7 +1367,7 @@
             if (!alphaName) return;
 
             const rows = recommendedRows[alphaName];
-            if (!rows) return; // Sollte nicht vorkommen
+            if (!rows) return;
 
             if (rows.includes(rowNumber)) {
                 statusDiv.textContent = t.correct;
@@ -1366,26 +1397,23 @@
                 if (placeholder) {
                     placeholder.textContent = t.alphaPlaceholder;
                 }
-                // Aktualisiere die Options-Texte
                 Array.from(select.options).forEach(option => {
                     if (option.value) {
                         option.textContent = translateAlphaName(option.value);
                     }
                 });
-                select.value = currentValue; // Wert beibehalten
+                select.value = currentValue;
 
-                // Feedback aktualisieren, falls sichtbar
                 const feedbackDiv = row.querySelector('.row-feedback');
                 if (feedbackDiv.classList.contains('visible')) {
                     const alphaName = select.value;
                     if (alphaName) {
-                        const rows = recommendedRows[alphaName];
-                        if (rows) {
-                            feedbackDiv.textContent = `${t.recommended} ${rows.join(', ')}`;
+                        const rowsRec = recommendedRows[alphaName];
+                        if (rowsRec) {
+                            feedbackDiv.textContent = `${t.recommended} ${rowsRec.join(', ')}`;
                         }
                     }
                 }
-                // Status-Icons behalten
             });
         }
 
