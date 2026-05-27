@@ -8,7 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d8c000">
 
-    <!-- Firebase SDKs (kostenlos, von CDN) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
@@ -696,13 +696,8 @@
             margin-right: 10px;
         }
 
-        .feedback-bar-label.yes {
-            color: var(--success);
-        }
-
-        .feedback-bar-label.no {
-            color: var(--error);
-        }
+        .feedback-bar-label.yes { color: var(--success); }
+        .feedback-bar-label.no { color: var(--error); }
 
         .feedback-bar-track {
             flex: 1;
@@ -720,13 +715,8 @@
             min-width: 0;
         }
 
-        .feedback-bar-fill.yes {
-            background: var(--success);
-        }
-
-        .feedback-bar-fill.no {
-            background: var(--error);
-        }
+        .feedback-bar-fill.yes { background: var(--success); }
+        .feedback-bar-fill.no { background: var(--error); }
 
         .feedback-bar-percent {
             min-width: 50px;
@@ -811,7 +801,7 @@
                 <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
             </div>
 
-            <p class="footer-note" id="footerText">Beast Lord: The New Land — Auswahl-Tool v3.3</p>
+            <p class="footer-note" id="footerText">Beast Lord: The New Land — Auswahl-Tool v3.4</p>
         </div>
 
         <!-- FORMATION TRAINER -->
@@ -832,16 +822,16 @@
                     <div class="feedback-bar-wrapper">
                         <span class="feedback-bar-label yes">👍</span>
                         <div class="feedback-bar-track">
-                            <div class="feedback-bar-fill yes" id="barYes" style="width: 50%;"></div>
+                            <div class="feedback-bar-fill yes" id="barYes" style="width: 0%;"></div>
                         </div>
-                        <span class="feedback-bar-percent" id="percentYes">50%</span>
+                        <span class="feedback-bar-percent" id="percentYes">0%</span>
                     </div>
                     <div class="feedback-bar-wrapper">
                         <span class="feedback-bar-label no">👎</span>
                         <div class="feedback-bar-track">
-                            <div class="feedback-bar-fill no" id="barNo" style="width: 50%;"></div>
+                            <div class="feedback-bar-fill no" id="barNo" style="width: 0%;"></div>
                         </div>
-                        <span class="feedback-bar-percent" id="percentNo">50%</span>
+                        <span class="feedback-bar-percent" id="percentNo">0%</span>
                     </div>
                     <p class="feedback-total" id="feedbackTotal">Gesamt: 0 Stimmen</p>
                 </div>
@@ -852,41 +842,22 @@
 
     <script>
         // =============================================
-        // FIREBASE-KONFIGURATION (ANPASSEN!)
+        // FIREBASE INITIALISIERUNG (DEINE KONFIGURATION)
         // =============================================
-        // 1. Gehe zu https://console.firebase.google.com
-        // 2. Erstelle ein neues Projekt (kostenlos, Spark-Tarif)
-        // 3. Gehe zu "Realtime Database" -> "Daten" -> "Regeln"
-        // 4. Setze die Regeln auf:
-        //    {
-        //      "rules": {
-        //        ".read": true,
-        //        ".write": true
-        //      }
-        //    }
-        // 5. Kopiere deine Config aus Projekteinstellungen -> Allgemein -> Deine Apps -> Web-App
         const firebaseConfig = {
-            apiKey: "DEIN_API_KEY",
-            authDomain: "DEIN_PROJEKT.firebaseapp.com",
-            databaseURL: "https://DEIN_PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "DEIN_PROJEKT",
-            storageBucket: "DEIN_PROJEKT.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abc123def456"
+            apiKey: "AIzaSyAE27s-bg98QdaMWdrz0PB2GMrDu6_AFOM",
+            authDomain: "clantool-5cd76.firebaseapp.com",
+            projectId: "clantool-5cd76",
+            storageBucket: "clantool-5cd76.firebasestorage.app",
+            messagingSenderId: "165584038565",
+            appId: "1:165584038565:web:d4c63dfeb4b2ac1d1abb4c",
+            measurementId: "G-GE106EFTEG"
         };
 
-        // Firebase initialisieren (nur wenn Config gesetzt ist)
-        let db = null;
-        let feedbackRef = null;
-        try {
-            if (firebaseConfig.apiKey !== 'DEIN_API_KEY') {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                feedbackRef = db.ref('feedback/formation');
-            }
-        } catch (e) {
-            console.log('Firebase nicht konfiguriert – Feedback läuft lokal.');
-        }
+        // Firebase initialisieren
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const feedbackRef = db.ref('feedback/formation');
 
         // =============================================
         // PASSWORTSCHUTZ
@@ -978,7 +949,7 @@
                 beastLabel: 'Begleitbestie (T1–T10)',
                 beastPlaceholder: '-- Bitte Bestie wählen --',
                 resultPlaceholder: '🐾 Hier erscheint das Ergebnis',
-                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.3',
+                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.4',
                 types: {
                     Fleischfresser: 'Fleischfresser',
                     Allesfresser: 'Allesfresser',
@@ -1015,7 +986,7 @@
                 beastLabel: 'Companion Beast (T1–T10)',
                 beastPlaceholder: '-- Select Beast --',
                 resultPlaceholder: '🐾 Result appears here',
-                footer: 'Beast Lord: The New Land — Selection Tool v3.3',
+                footer: 'Beast Lord: The New Land — Selection Tool v3.4',
                 types: {
                     Fleischfresser: 'Carnivore',
                     Allesfresser: 'Omnivore',
@@ -1045,17 +1016,501 @@
         };
 
         const alphaNamesEN = {
-            'Tibetdogge': 'Tibetan Mastiff',
-            'Jaguarundi': 'Jaguarundi',
-            'Weißer Löwe': 'White Lion',
-            'Titanis': 'Titanis',
-            'Amerikanischer Löwe': 'American Lion',
-            'Hyaenodon': 'Hyaenodon',
-            'Smilodon': 'Smilodon',
-            'Schwarzer Panther': 'Black Panther',
-            'Schneeleopard': 'Snow Leopard',
-            'Weißer Tiger': 'White Tiger',
-            'Kanadischer Luchs': 'Canadian Lynx',
-            'Leistenkrokodil': 'Saltwater Crocodile',
-            'Bindenwaran': 'Banded Monitor',
-            'Schwarzer Löwe': 'Black Lion',
+            'Tibetdogge': 'Tibetan Mastiff', 'Jaguarundi': 'Jaguarundi', 'Weißer Löwe': 'White Lion',
+            'Titanis': 'Titanis', 'Amerikanischer Löwe': 'American Lion', 'Hyaenodon': 'Hyaenodon',
+            'Smilodon': 'Smilodon', 'Schwarzer Panther': 'Black Panther', 'Schneeleopard': 'Snow Leopard',
+            'Weißer Tiger': 'White Tiger', 'Kanadischer Luchs': 'Canadian Lynx', 'Leistenkrokodil': 'Saltwater Crocodile',
+            'Bindenwaran': 'Banded Monitor', 'Schwarzer Löwe': 'Black Lion', 'Weißes Krokodil': 'White Crocodile',
+            'Affenadler': 'Monkey Eagle', 'Beutellöwe': 'Marsupial Lion', 'Amerikanischer Gepard': 'American Cheetah',
+            'Hebriden-Schaf': 'Hebridean Sheep', 'Weißes Rentier': 'White Reindeer', 'Yak': 'Yak',
+            'Doedicurus': 'Doedicurus', 'Wollnashorn': 'Woolly Rhino', 'Riesen Sivatherium': 'Giant Sivatherium',
+            'Meiolania': 'Meiolania', 'Wildpferd': 'Wild Horse', 'Asiatischer Elefant': 'Asian Elephant',
+            'Rentier': 'Reindeer', 'Ankole': 'Ankole', 'Spanisches Kampfrind': 'Spanish Fighting Bull',
+            'Geochelone': 'Geochelone', 'Spitzmaulnashorn': 'Black Rhino', 'Afrikanischer Elefant': 'African Elephant',
+            'Mammut': 'Mammoth', 'Megatherium': 'Megatherium', 'Panzernashorn': 'Armored Rhino', 'Brabanter': 'Brabanter',
+            'Geierschildkröte': 'Vulture Turtle', 'Klapperschlange': 'Rattlesnake', 'Komodowaran': 'Komodo Dragon',
+            'Höhlenbär': 'Cave Bear', 'Riesenbiber': 'Giant Beaver', 'Metridiochoerus': 'Metridiochoerus',
+            'Dinopithecus': 'Dinopithecus', 'Schwarzbär': 'Black Bear', 'Pinselohrschwein': 'Bush Pig',
+            'Weißkopfsaki': 'White-faced Saki', 'Bärenmarder': 'Bear Marten', 'Drill': 'Drill',
+            'Flusspferd': 'Hippopotamus', 'Geisterbär': 'Ghost Bear', 'Südafrika-Kronenkranich': 'South African Crowned Crane',
+            'Weißer Pfau': 'White Peacock', 'Elefantenvogel': 'Elephant Bird', 'Kurznasenbär': 'Short-faced Bear',
+            'Kodiakbär': 'Kodiak Bear', 'Berglöwe': 'Mountain Lion', 'Riesenkänguru': 'Giant Kangaroo',
+            'Breitmaulnashorn': 'White Rhino', 'Gepard': 'Cheetah', 'Sekretär': 'Secretary Bird',
+            'Strauß': 'Ostrich', 'Schuhschnabel': 'Shoebill', 'Kasuar': 'Cassowary', 'Leopard': 'Leopard',
+            'Sibirischer Tiger': 'Siberian Tiger', 'Giraffe': 'Giraffe', 'Löwe': 'Lion', 'Riesenelch': 'Giant Moose'
+        };
+
+        const beastNamesEN = {
+            'T1 Impala': 'T1 Impala', 'T2 Argali': 'T2 Argali', 'T3 Alpensteinbock': 'T3 Alpine Ibex',
+            'T4 Markhor': 'T4 Markhor', 'T5 Oryxantilope': 'T5 Oryx', 'T6 Elenamtilope': 'T6 Eland',
+            'T7 Gnu': 'T7 Wildebeest', 'T8 Afrikanischer Büffel': 'T8 African Buffalo', 'T9 Takin': 'T9 Takin',
+            'T10 Amerikanischer Bison': 'T10 American Bison', 'T1 Makake': 'T1 Macaque', 'T2 Stumpfnasenaffe': 'T2 Snub-nosed Monkey',
+            'T3 Marmoset': 'T3 Marmoset', 'T4 Roter Brüllaffe': 'T4 Red Howler', 'T5 Siamang': 'T5 Siamang',
+            'T6 Guinea-Pavian': 'T6 Guinea Baboon', 'T7 Mandrill': 'T7 Mandrill', 'T8 Schimpanse': 'T8 Chimpanzee',
+            'T9 Sumatra-Orang-Utan': 'T9 Sumatran Orangutan', 'T10 Westlicher Flachlandgorilla': 'T10 Western Lowland Gorilla',
+            'T1 Rotfuchs': 'T1 Red Fox', 'T2 SchabrackenSchakal': 'T2 Black-backed Jackal', 'T3 Afrikanischer Wildhund': 'T3 African Wild Dog',
+            'T4 Schakal': 'T4 Jackal', 'T5 Mähnenwolf': 'T5 Maned Wolf', 'T6 Kojote': 'T6 Coyote',
+            'T7 Hyäne': 'T7 Hyena', 'T8 Polarwolf': 'T8 Arctic Wolf', 'T9 Nordwestlicher Wolf': 'T9 Northwestern Wolf',
+            'T10 British-Colombia-Wolf': 'T10 British Columbia Wolf'
+        };
+
+        function translateAlphaName(germanName) {
+            if (currentLang === 'en' && alphaNamesEN[germanName]) return alphaNamesEN[germanName];
+            return germanName;
+        }
+
+        function translateBeastName(germanName) {
+            if (currentLang === 'en' && beastNamesEN[germanName]) return beastNamesEN[germanName];
+            return germanName;
+        }
+
+        // =============================================
+        // DATENBANK SYNERGY MANAGER
+        // =============================================
+        const alphaDaten = {
+            Fleischfresser: [
+                { name: 'Tibetdogge', position: 'Nahkampf' }, { name: 'Jaguarundi', position: 'Support' },
+                { name: 'Weißer Löwe', position: 'Fernkampf' }, { name: 'Titanis', position: 'Nahkampf' },
+                { name: 'Amerikanischer Löwe', position: 'Support' }, { name: 'Hyaenodon', position: 'Nahkampf' },
+                { name: 'Smilodon', position: 'Fernkampf' }, { name: 'Schwarzer Panther', position: 'Fernkampf' },
+                { name: 'Schneeleopard', position: 'Support' }, { name: 'Weißer Tiger', position: 'Fernkampf' },
+                { name: 'Kanadischer Luchs', position: 'Support' }, { name: 'Leistenkrokodil', position: 'Fernkampf' },
+                { name: 'Bindenwaran', position: 'Nahkampf' }, { name: 'Schwarzer Löwe', position: 'Support' },
+                { name: 'Weißes Krokodil', position: 'Fernkampf' }, { name: 'Affenadler', position: 'Nahkampf' },
+                { name: 'Beutellöwe', position: 'Nahkampf' }, { name: 'Amerikanischer Gepard', position: 'Support' }
+            ],
+            Pflanzenfresser: [
+                { name: 'Hebriden-Schaf', position: 'Nahkampf' }, { name: 'Weißes Rentier', position: 'Support' },
+                { name: 'Yak', position: 'Fernkampf' }, { name: 'Doedicurus', position: 'Nahkampf' },
+                { name: 'Wollnashorn', position: 'Fernkampf' }, { name: 'Riesen Sivatherium', position: 'Nahkampf' },
+                { name: 'Meiolania', position: 'Support' }, { name: 'Wildpferd', position: 'Nahkampf' },
+                { name: 'Asiatischer Elefant', position: 'Nahkampf' }, { name: 'Rentier', position: 'Support' },
+                { name: 'Ankole', position: 'Fernkampf' }, { name: 'Spanisches Kampfrind', position: 'Nahkampf' },
+                { name: 'Geochelone', position: 'Fernkampf' }, { name: 'Spitzmaulnashorn', position: 'Nahkampf' },
+                { name: 'Afrikanischer Elefant', position: 'Fernkampf' }, { name: 'Mammut', position: 'Nahkampf' },
+                { name: 'Megatherium', position: 'Fernkampf' }, { name: 'Panzernashorn', position: 'Fernkampf' },
+                { name: 'Brabanter', position: 'Fernkampf' }
+            ],
+            Allesfresser: [
+                { name: 'Geierschildkröte', position: 'Nahkampf' }, { name: 'Klapperschlange', position: 'Support' },
+                { name: 'Komodowaran', position: 'Fernkampf' }, { name: 'Höhlenbär', position: 'Nahkampf' },
+                { name: 'Riesenbiber', position: 'Support' }, { name: 'Metridiochoerus', position: 'Support' },
+                { name: 'Dinopithecus', position: 'Fernkampf' }, { name: 'Schwarzbär', position: 'Fernkampf' },
+                { name: 'Pinselohrschwein', position: 'Nahkampf' }, { name: 'Weißkopfsaki', position: 'Support' },
+                { name: 'Bärenmarder', position: 'Fernkampf' }, { name: 'Drill', position: 'Support' },
+                { name: 'Flusspferd', position: 'Nahkampf' }, { name: 'Geisterbär', position: 'Fernkampf' },
+                { name: 'Südafrika-Kronenkranich', position: 'Support' }, { name: 'Weißer Pfau', position: 'Nahkampf' },
+                { name: 'Elefantenvogel', position: 'Nahkampf' }, { name: 'Kurznasenbär', position: 'Support' },
+                { name: 'Kodiakbär', position: 'Fernkampf' }
+            ]
+        };
+
+        const beastDaten = {
+            Pflanzenfresser: [
+                'T1 Impala', 'T2 Argali', 'T3 Alpensteinbock', 'T4 Markhor', 'T5 Oryxantilope',
+                'T6 Elenamtilope', 'T7 Gnu', 'T8 Afrikanischer Büffel', 'T9 Takin', 'T10 Amerikanischer Bison'
+            ],
+            Allesfresser: [
+                'T1 Makake', 'T2 Stumpfnasenaffe', 'T3 Marmoset', 'T4 Roter Brüllaffe', 'T5 Siamang',
+                'T6 Guinea-Pavian', 'T7 Mandrill', 'T8 Schimpanse', 'T9 Sumatra-Orang-Utan', 'T10 Westlicher Flachlandgorilla'
+            ],
+            Fleischfresser: [
+                'T1 Rotfuchs', 'T2 SchabrackenSchakal', 'T3 Afrikanischer Wildhund', 'T4 Schakal', 'T5 Mähnenwolf',
+                'T6 Kojote', 'T7 Hyäne', 'T8 Polarwolf', 'T9 Nordwestlicher Wolf', 'T10 British-Colombia-Wolf'
+            ]
+        };
+
+        const typConfig = {
+            Fleischfresser: { emoji: '🍖', cssClass: 'type-carnivore' },
+            Allesfresser: { emoji: '🥩', cssClass: 'type-omnivore' },
+            Pflanzenfresser: { emoji: '🥗', cssClass: 'type-herbivore' }
+        };
+
+        const positionConfig = {
+            Nahkampf: { icon: '⚔️', cssClass: 'position-melee' },
+            Fernkampf: { icon: '🏹', cssClass: 'position-ranged' },
+            Support: { icon: '🛡️', cssClass: 'position-support' }
+        };
+
+        // DOM-Elemente
+        const typeSelect = document.getElementById('typeSelect');
+        const alphaGroup = document.getElementById('alphaGroup');
+        const beastGroup = document.getElementById('beastGroup');
+        const alphaSelect = document.getElementById('alphaSelect');
+        const beastSelect = document.getElementById('beastSelect');
+        const resultBox = document.getElementById('resultBox');
+        const mainTitle = document.getElementById('mainTitle');
+        const mainSubtitle = document.getElementById('mainSubtitle');
+        const labelType = document.getElementById('labelType');
+        const labelAlpha = document.getElementById('labelAlpha');
+        const labelBeast = document.getElementById('labelBeast');
+        const footerText = document.getElementById('footerText');
+
+        function populateTypeSelect() {
+            const t = translations[currentLang];
+            typeSelect.innerHTML = `<option value="" disabled selected>${t.typePlaceholder}</option>`;
+            ['Fleischfresser', 'Allesfresser', 'Pflanzenfresser'].forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = typConfig[key].emoji + ' ' + t.types[key];
+                typeSelect.appendChild(option);
+            });
+        }
+
+        function populateAlphaSelect(alphaList) {
+            const t = translations[currentLang];
+            alphaSelect.innerHTML = `<option value="" disabled selected>${t.alphaPlaceholder}</option>`;
+            if (!alphaList) return;
+            alphaList.forEach(alpha => {
+                const option = document.createElement('option');
+                option.value = alpha.name;
+                option.textContent = translateAlphaName(alpha.name);
+                alphaSelect.appendChild(option);
+            });
+        }
+
+        function populateBeastSelect(beastList) {
+            const t = translations[currentLang];
+            beastSelect.innerHTML = `<option value="" disabled selected>${t.beastPlaceholder}</option>`;
+            if (!beastList) return;
+            beastList.forEach(beast => {
+                const option = document.createElement('option');
+                option.value = beast;
+                option.textContent = translateBeastName(beast);
+                beastSelect.appendChild(option);
+            });
+        }
+
+        function updateStaticUITexts() {
+            const t = translations[currentLang];
+            mainTitle.textContent = t.title;
+            mainSubtitle.textContent = t.subtitle;
+            labelType.textContent = t.typeLabel;
+            labelAlpha.textContent = t.alphaLabel;
+            labelBeast.textContent = t.beastLabel;
+            footerText.textContent = t.footer;
+            if (resultBox.classList.contains('idle')) {
+                resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
+            }
+            document.getElementById('formationSubtitle').textContent = t.formation.subtitle;
+            document.querySelectorAll('.row-label').forEach((label, index) => {
+                label.textContent = t.formation.rowLabel + ' ' + (index + 1);
+            });
+            document.querySelectorAll('.row-select select').forEach(select => {
+                const placeholder = select.querySelector('option[disabled]');
+                if (placeholder) placeholder.textContent = t.formation.alphaPlaceholder;
+            });
+            // Feedback-Texte aktualisieren
+            document.getElementById('feedbackQuestion').textContent = t.feedback.question;
+            document.getElementById('btnFeedbackYes').textContent = t.feedback.yes;
+            document.getElementById('btnFeedbackNo').textContent = t.feedback.no;
+            document.getElementById('feedbackInfo').textContent = t.feedback.info;
+            updateFeedbackTotalText();
+        }
+
+        function updateResult() {
+            const gewaehlterTyp = typeSelect.value;
+            const gewaehlterAlphaName = alphaSelect.value;
+            const gewaehlteBeast = beastSelect.value;
+            const t = translations[currentLang];
+
+            if (!gewaehlterTyp || !gewaehlterAlphaName) {
+                resultBox.className = 'result-box idle';
+                resultBox.innerHTML = `<span class="placeholder-text">${t.resultPlaceholder}</span>`;
+                return;
+            }
+
+            const alphas = alphaDaten[gewaehlterTyp];
+            const alphaObjekt = alphas.find(a => a.name === gewaehlterAlphaName);
+            if (!alphaObjekt) return;
+
+            const typInfo = typConfig[gewaehlterTyp];
+            const posInfo = positionConfig[alphaObjekt.position];
+            const translatedType = t.types[gewaehlterTyp];
+            const translatedPos = t.positions[alphaObjekt.position];
+            const displayAlphaName = translateAlphaName(gewaehlterAlphaName);
+            const displayBeast = gewaehlteBeast ? translateBeastName(gewaehlteBeast) : null;
+
+            const beastDisplay = displayBeast
+                ? `<div class="result-beast-line">🐾 <span>${displayBeast}</span></div>`
+                : `<div class="result-beast-line">🐾 <span>—</span></div>`;
+
+            resultBox.className = `result-box active ${typInfo.cssClass} ${posInfo.cssClass}`;
+            resultBox.innerHTML = `
+                <div class="result-content">
+                    <span class="result-emoji">${typInfo.emoji}</span>
+                    <span class="result-type">${translatedType}</span>
+                    <div>
+                        <span class="result-alpha-name">${displayAlphaName}</span>
+                        <span class="result-position">
+                            <span class="position-icon">${posInfo.icon}</span> ${translatedPos}
+                        </span>
+                    </div>
+                    ${beastDisplay}
+                </div>`;
+        }
+
+        typeSelect.addEventListener('change', function() {
+            const gewaehlterTyp = this.value;
+            if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
+                alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
+                populateAlphaSelect([]);
+                populateBeastSelect([]);
+            } else {
+                populateAlphaSelect(alphaDaten[gewaehlterTyp]);
+                populateBeastSelect(beastDaten[gewaehlterTyp]);
+                alphaGroup.classList.add('visible');
+                beastGroup.classList.add('visible');
+            }
+            updateResult();
+        });
+
+        alphaSelect.addEventListener('change', updateResult);
+        beastSelect.addEventListener('change', updateResult);
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            const mainLangButtons = document.querySelectorAll('#mainLangSwitch .lang-btn');
+            mainLangButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+
+            const savedType = typeSelect.value;
+            const savedAlpha = alphaSelect.value;
+            const savedBeast = beastSelect.value;
+
+            updateStaticUITexts();
+            populateTypeSelect();
+            typeSelect.value = savedType;
+
+            if (savedType && alphaDaten[savedType]) {
+                populateAlphaSelect(alphaDaten[savedType]);
+                populateBeastSelect(beastDaten[savedType]);
+                alphaGroup.classList.add('visible');
+                beastGroup.classList.add('visible');
+            } else {
+                populateAlphaSelect([]);
+                populateBeastSelect([]);
+                alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
+            }
+
+            alphaSelect.value = savedAlpha;
+            beastSelect.value = savedBeast;
+            updateResult();
+            updateFormationTrainerLanguage();
+        }
+
+        document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const lang = this.dataset.lang;
+                if (lang !== currentLang) switchLanguage(lang);
+            });
+        });
+
+        // =============================================
+        // FORMATION TRAINER
+        // =============================================
+        const recommendedRows = {
+            'Berglöwe': [1,2], 'Riesenkänguru': [2], 'Breitmaulnashorn': [2,3], 'Gepard': [2,3],
+            'Sekretär': [2,3], 'Strauß': [1], 'Schuhschnabel': [1,2], 'Kasuar': [2,3],
+            'Leopard': [2,3], 'Sibirischer Tiger': [2,3], 'Giraffe': [1,2], 'Löwe': [1,2],
+            'Riesenelch': [1,2], 'Hebriden-Schaf': [1], 'Weißes Rentier': [2], 'Yak': [2,3],
+            'Doedicurus': [1], 'Wollnashorn': [2,3], 'Riesen Sivatherium': [1], 'Meiolania': [2],
+            'Wildpferd': [1], 'Asiatischer Elefant': [1], 'Rentier': [2], 'Ankole': [2,3],
+            'Spanisches Kampfrind': [1], 'Geochelone': [2,3], 'Spitzmaulnashorn': [1],
+            'Afrikanischer Elefant': [2,3], 'Mammut': [1], 'Megatherium': [2,3],
+            'Panzernashorn': [2,3], 'Brabanter': [2,3], 'Geierschildkröte': [1],
+            'Klapperschlange': [1,2], 'Komodowaran': [3], 'Höhlenbär': [1], 'Riesenbiber': [2],
+            'Metridiochoerus': [2], 'Dinopithecus': [2,3], 'Schwarzbär': [2,3],
+            'Pinselohrschwein': [1], 'Weißkopfsaki': [2], 'Bärenmarder': [2], 'Drill': [1,2],
+            'Flusspferd': [1], 'Geisterbär': [2,3], 'Südafrika-Kronenkranich': [2],
+            'Weißer Pfau': [1], 'Elefantenvogel': [1], 'Kurznasenbär': [2], 'Kodiakbär': [3],
+            'Tibetdogge': [1], 'Jaguarundi': [1,2], 'Weißer Löwe': [2,3], 'Titanis': [1,2],
+            'Amerikanischer Löwe': [2], 'Hyaenodon': [1,2], 'Smilodon': [3],
+            'Schwarzer Panther': [2,3], 'Schneeleopard': [1,2], 'Weißer Tiger': [2,3],
+            'Kanadischer Luchs': [2], 'Leistenkrokodil': [3], 'Bindenwaran': [1],
+            'Schwarzer Löwe': [2], 'Weißes Krokodil': [2,3], 'Affenadler': [1],
+            'Beutellöwe': [1], 'Amerikanischer Gepard': [2]
+        };
+
+        const formationAlphas = Object.keys(recommendedRows).sort((a, b) => a.localeCompare(b));
+
+        function buildFormationTrainer() {
+            const container = document.getElementById('formationRows');
+            container.innerHTML = '';
+            const t = translations[currentLang].formation;
+
+            for (let row = 1; row <= 3; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'formation-row';
+                rowDiv.dataset.row = row;
+                rowDiv.innerHTML = `
+                    <div class="row-label">${t.rowLabel} ${row}</div>
+                    <div class="row-select">
+                        <div class="select-wrapper">
+                            <select class="formation-select">
+                                <option value="" disabled selected>${t.alphaPlaceholder}</option>
+                                ${formationAlphas.map(name => `<option value="${name}">${translateAlphaName(name)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="row-feedback"></div>
+                    </div>
+                    <div class="row-status"></div>`;
+                container.appendChild(rowDiv);
+                const select = rowDiv.querySelector('.formation-select');
+                select.addEventListener('change', () => validateFormationRow(rowDiv, row));
+            }
+        }
+
+        function validateFormationRow(rowDiv, rowNumber) {
+            const select = rowDiv.querySelector('.formation-select');
+            const statusDiv = rowDiv.querySelector('.row-status');
+            const feedbackDiv = rowDiv.querySelector('.row-feedback');
+            const t = translations[currentLang].formation;
+            const alphaName = select.value;
+
+            rowDiv.classList.remove('valid-highlight', 'invalid-highlight');
+            statusDiv.className = 'row-status';
+            feedbackDiv.classList.remove('visible');
+            if (!alphaName) return;
+
+            const rows = recommendedRows[alphaName];
+            if (!rows) return;
+
+            if (rows.includes(rowNumber)) {
+                statusDiv.textContent = t.correct;
+                statusDiv.className = 'row-status valid';
+                rowDiv.classList.add('valid-highlight');
+            } else {
+                statusDiv.textContent = t.incorrect;
+                statusDiv.className = 'row-status invalid';
+                rowDiv.classList.add('invalid-highlight');
+                feedbackDiv.textContent = `${t.recommended} ${rows.join(', ')}`;
+                feedbackDiv.classList.add('visible');
+            }
+        }
+
+        function updateFormationTrainerLanguage() {
+            const t = translations[currentLang].formation;
+            document.getElementById('formationSubtitle').textContent = t.subtitle;
+            document.querySelectorAll('.formation-row').forEach((row, index) => {
+                row.querySelector('.row-label').textContent = t.rowLabel + ' ' + (index + 1);
+                const select = row.querySelector('.formation-select');
+                const currentValue = select.value;
+                const placeholder = select.querySelector('option[disabled]');
+                if (placeholder) placeholder.textContent = t.alphaPlaceholder;
+                Array.from(select.options).forEach(option => {
+                    if (option.value) option.textContent = translateAlphaName(option.value);
+                });
+                select.value = currentValue;
+                const feedbackDiv = row.querySelector('.row-feedback');
+                if (feedbackDiv.classList.contains('visible') && currentValue) {
+                    const rowsRec = recommendedRows[currentValue];
+                    if (rowsRec) feedbackDiv.textContent = `${t.recommended} ${rowsRec.join(', ')}`;
+                }
+            });
+        }
+
+        // =============================================
+        // FEEDBACK-LOGIK (FIREBASE)
+        // =============================================
+        let myVote = null; // 'yes' | 'no' | null
+        const STORAGE_KEY = 'vcf_feedback_vote';
+
+        // Versuche gespeicherte Stimme aus localStorage zu laden
+        try {
+            myVote = localStorage.getItem(STORAGE_KEY);
+        } catch(e) {}
+
+        const btnYes = document.getElementById('btnFeedbackYes');
+        const btnNo = document.getElementById('btnFeedbackNo');
+        const barYes = document.getElementById('barYes');
+        const barNo = document.getElementById('barNo');
+        const percentYes = document.getElementById('percentYes');
+        const percentNo = document.getElementById('percentNo');
+        const feedbackTotal = document.getElementById('feedbackTotal');
+
+        function highlightMyVote() {
+            btnYes.classList.toggle('selected', myVote === 'yes');
+            btnNo.classList.toggle('selected', myVote === 'no');
+        }
+
+        function updateFeedbackTotalText() {
+            const t = translations[currentLang].feedback;
+            const total = (parseInt(percentYes.textContent) || 0) + (parseInt(percentNo.textContent) || 0);
+            // Prozentwerte werden von Firebase aktualisiert, daher hier nur den Text erneuern
+            const yesPct = parseInt(percentYes.textContent) || 0;
+            const noPct = parseInt(percentNo.textContent) || 0;
+            const totalVotes = yesPct + noPct;
+            feedbackTotal.textContent = t.total.replace('{count}', totalVotes);
+        }
+
+        function updateFeedbackUI(snapshot) {
+            const data = snapshot.val() || { yes: 0, no: 0 };
+            const yes = data.yes || 0;
+            const no = data.no || 0;
+            const total = yes + no;
+
+            const yesPercent = total > 0 ? Math.round((yes / total) * 100) : 0;
+            const noPercent = total > 0 ? Math.round((no / total) * 100) : 0;
+
+            barYes.style.width = yesPercent + '%';
+            barNo.style.width = noPercent + '%';
+            percentYes.textContent = yesPercent + '%';
+            percentNo.textContent = noPercent + '%';
+
+            updateFeedbackTotalText();
+        }
+
+        function castVote(vote) {
+            if (myVote === vote) return; // Keine doppelte gleiche Stimme
+
+            // Transaktion: Alte Stimme entfernen, neue hinzufügen
+            feedbackRef.transaction(currentData => {
+                if (!currentData) currentData = { yes: 0, no: 0 };
+
+                // Alte Stimme abziehen
+                if (myVote === 'yes') currentData.yes = Math.max(0, (currentData.yes || 0) - 1);
+                if (myVote === 'no') currentData.no = Math.max(0, (currentData.no || 0) - 1);
+
+                // Neue Stimme hinzufügen
+                if (vote === 'yes') currentData.yes = (currentData.yes || 0) + 1;
+                if (vote === 'no') currentData.no = (currentData.no || 0) + 1;
+
+                return currentData;
+            }, (error, committed) => {
+                if (error) {
+                    console.error('Feedback-Fehler:', error);
+                } else if (committed) {
+                    myVote = vote;
+                    try { localStorage.setItem(STORAGE_KEY, myVote); } catch(e) {}
+                    highlightMyVote();
+                }
+            });
+        }
+
+        function initFeedback() {
+            // Echtzeit-Listener für Feedback-Daten
+            feedbackRef.on('value', snapshot => {
+                updateFeedbackUI(snapshot);
+                highlightMyVote();
+            });
+
+            // Button-Events
+            btnYes.addEventListener('click', () => castVote('yes'));
+            btnNo.addEventListener('click', () => castVote('no'));
+
+            highlightMyVote();
+        }
+
+        // Service Worker Registrierung
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered:', registration.scope))
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+    </script>
+</body>
+</html>
