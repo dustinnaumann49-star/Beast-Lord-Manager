@@ -4,1264 +4,671 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VCF Beast Synergie</title>
-
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d8c000">
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
     <style>
         :root {
-            --bg: #1a1a2e;
-            --card: #16213e;
+            --bg: #0e0e1a;
+            --surface: #14142a;
+            --card: #1a1a30;
             --accent: #e2a03f;
-            --text: #e0d7c6;
-            --text-light: #b0a58e;
-            --border: #2a2a3a;
-            --carnivore: #c0392b;
-            --omnivore: #d4a017;
-            --herbivore: #27ae60;
+            --text: #e8dfd0;
+            --text-muted: #7a7085;
+            --border: rgba(255,255,255,0.07);
+            --carnivore: #e74c3c;
+            --omnivore: #f0b830;
+            --herbivore: #2ecc71;
             --melee: #e67e22;
-            --ranged: #3498db;
-            --support: #2ecc71;
+            --ranged: #5dade2;
+            --support: #58d68d;
             --success: #2ecc71;
             --error: #e74c3c;
+            --radius: 16px;
+            --radius-sm: 10px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
 
         body {
             background: var(--bg);
             background-image:
-                radial-gradient(ellipse at 50% 0%, rgba(226, 160, 63, 0.08) 0%, transparent 70%),
-                radial-gradient(ellipse at 80% 100%, rgba(192, 57, 43, 0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 20% 100%, rgba(39, 174, 96, 0.05) 0%, transparent 60%);
+                radial-gradient(ellipse at 50% -10%, rgba(226,160,63,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 100% 80%, rgba(192,57,43,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 0% 80%, rgba(39,174,96,0.04) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: 'Segoe UI', 'Georgia', 'Times New Roman', serif;
-            padding: 20px 10px;
-        }
-
-        #passwordOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 10, 22, 0.96);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        #passwordOverlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .password-box {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 48px 20px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
-        }
-
-        .password-box h2 {
-            color: var(--text);
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            letter-spacing: 0.04em;
-        }
-
-        .password-box .lock-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .password-box input {
-            width: 100%;
-            padding: 14px 18px;
-            font-size: 1.1rem;
-            font-family: inherit;
-            background: #0f0f1a;
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-            letter-spacing: 0.1em;
-            transition: all 0.3s ease;
-        }
-
-        .password-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(226, 160, 63, 0.12);
-        }
-
-        .password-box button {
-            width: 100%;
-            padding: 14px 0;
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            background: var(--accent);
-            color: #1a1a2e;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 14px rgba(226, 160, 63, 0.3);
-        }
-
-        .password-box button:hover {
-            background: #f0b030;
-            box-shadow: 0 6px 20px rgba(226, 160, 63, 0.45);
-            transform: translateY(-1px);
-        }
-
-        .password-error {
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-top: 10px;
-            display: none;
-            letter-spacing: 0.02em;
-        }
-
-        .password-error.visible {
-            display: block;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 16px 12px 40px;
         }
 
         #mainTool {
-            display: none;
             width: 100%;
-            max-width: 700px;
+            max-width: 660px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
-        #mainTool.visible {
-            display: block;
-        }
-
-        .container {
+        /* ================================
+           APP HEADER
+        ================================ */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px 15px;
-            box-shadow:
-                0 24px 64px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.03) inset,
-                0 1px 0 rgba(255, 255, 255, 0.04) inset;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 24px;
-            width: 100%;
-            max-width: 100%;
+            border-top: 2px solid var(--accent);
+            border-radius: var(--radius);
         }
 
-        .container:last-child {
-            margin-bottom: 0;
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    var(--accent) 30%,
-                    var(--accent) 70%,
-                    transparent 100%);
-            opacity: 0.7;
-        }
+        .brand-icon { font-size: 1.7rem; line-height: 1; }
 
-        .module-title {
-            font-size: 1.2rem;
+        .brand-text h1 {
+            font-size: 1.05rem;
             font-weight: 700;
             color: var(--text);
-            text-align: center;
-            margin-bottom: 24px;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
+            letter-spacing: 0.02em;
         }
 
-        .lang-switch {
-            display: flex;
-            justify-content: flex-end;
-            gap: 4px;
-            margin-bottom: 16px;
+        .brand-sub {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 2px;
         }
+
+        .lang-switch { display: flex; gap: 4px; }
 
         .lang-btn {
             background: transparent;
             border: 1px solid var(--border);
-            color: var(--text-light);
-            padding: 6px 14px;
+            color: var(--text-muted);
+            padding: 5px 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            transition: all 0.25s ease;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         .lang-btn.active {
             background: var(--accent);
-            color: #1a1a2e;
+            color: #0e0e1a;
             border-color: var(--accent);
-            box-shadow: 0 2px 8px rgba(226, 160, 63, 0.3);
         }
 
-        .header-icon {
-            text-align: center;
-            font-size: 42px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-            animation: float 3s ease-in-out infinite;
+        /* ================================
+           MODULE CARDS
+        ================================ */
+        .module-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.015);
         }
 
-        h1 {
-            text-align: center;
-            color: var(--text);
-            font-size: 1.5rem;
+        .mod-icon { font-size: 1.1rem; }
+
+        .module-header h2 {
+            font-size: 0.82rem;
             font-weight: 700;
-            letter-spacing: 0.03em;
-            margin-bottom: 6px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
         }
 
-        .subtitle {
-            text-align: center;
-            color: var(--text-light);
-            font-size: 0.85rem;
-            margin-bottom: 24px;
+        .mod-desc {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: var(--text-muted);
             font-style: italic;
-            letter-spacing: 0.02em;
         }
 
-        .form-group {
-            margin-bottom: 24px;
-        }
+        .module-body { padding: 18px; }
+
+        /* ================================
+           FORM ELEMENTS
+        ================================ */
+        .form-group { margin-bottom: 14px; }
+        .form-group:last-child { margin-bottom: 0; }
 
         label {
             display: block;
-            color: var(--accent);
-            font-size: 0.8rem;
-            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
+            letter-spacing: 0.09em;
+            margin-bottom: 6px;
         }
 
-        .select-wrapper {
-            position: relative;
-        }
+        .select-wrapper { position: relative; }
 
         select {
             width: 100%;
-            padding: 16px 48px 16px 20px;
-            font-size: 1rem;
+            padding: 12px 40px 12px 14px;
+            font-size: 0.92rem;
             font-family: inherit;
-            background: #0f0f1a;
+            background: var(--surface);
             color: var(--text);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius-sm);
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            letter-spacing: 0.02em;
+            transition: border-color 0.2s, box-shadow 0.2s;
             font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        select:hover {
-            border-color: #4a4a5a;
-            background: #141425;
-        }
+        select:hover { border-color: rgba(255,255,255,0.14); }
 
         select:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow:
-                0 0 0 3px rgba(226, 160, 63, 0.12),
-                0 4px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 3px rgba(226,160,63,0.12);
         }
 
-        select:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            background: #0a0a14;
-        }
+        select:disabled { opacity: 0.35; cursor: not-allowed; }
 
         .select-wrapper::after {
             content: '▾';
             position: absolute;
-            right: 18px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--accent);
-            font-size: 1.2rem;
-            pointer-events: none;
-            transition: transform 0.3s ease;
-        }
-
-        .select-wrapper:has(select:focus)::after {
-            transform: translateY(-50%) rotate(180deg);
-        }
-
-        select option {
-            background: #1a1a2e;
-            color: var(--text);
-            padding: 12px;
             font-size: 1rem;
+            pointer-events: none;
         }
 
-        select option:first-child {
-            color: #6b6b7a;
-            font-style: italic;
-        }
+        select option { background: #1a1a30; color: var(--text); }
+        select option:first-child { color: var(--text-muted); }
 
-        #alphaGroup,
-        #beastGroup {
-            display: none;
-        }
+        #alphaGroup, #beastGroup { display: none; }
+        #alphaGroup.visible, #beastGroup.visible { display: block; }
 
-        #alphaGroup.visible,
-        #beastGroup.visible {
-            display: block;
-        }
-
+        /* ================================
+           RESULT BOX
+        ================================ */
         .result-box {
-            background: #0f0f1a;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px 15px;
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 22px 16px;
             text-align: center;
-            min-height: 140px;
+            min-height: 110px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: 14px;
         }
 
-        .result-box.idle {
-            border-style: dashed;
-            opacity: 0.55;
-        }
-
-        .result-box.active {
-            border-style: solid;
-            opacity: 1;
-        }
+        .result-box.active { border-style: solid; }
 
         .result-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
+            gap: 7px;
         }
 
         .result-emoji {
-            font-size: 2.5rem;
+            font-size: 2rem;
             line-height: 1;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
         }
 
         @keyframes popIn {
             0% { transform: scale(0); opacity: 0; }
-            70% { transform: scale(1.2); }
+            70% { transform: scale(1.15); }
             100% { transform: scale(1); opacity: 1; }
         }
 
         .result-type {
-            font-size: 1.1rem;
+            font-size: 0.67rem;
             font-weight: 700;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
+            opacity: 0.75;
         }
 
         .result-alpha-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.02em;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
         }
 
-        .result-position {
+        .result-tags {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 3px;
+        }
+
+        .result-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 4px 14px;
-            border-radius: 30px;
-            margin-left: 8px;
-        }
-
-        .position-icon {
-            font-size: 1rem;
-        }
-
-        .result-beast-line {
-            margin-top: 8px;
-            font-size: 0.9rem;
-            color: #c0b090;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 6px 16px;
-            border-radius: 20px;
-        }
-
-        .result-beast-line span {
+            gap: 5px;
+            font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
-        .type-carnivore .result-type { color: #e74c3c; }
-        .type-omnivore .result-type { color: #f0b830; }
-        .type-herbivore .result-type { color: #2ecc71; }
-
-        .type-carnivore {
-            border-color: rgba(231, 76, 60, 0.35) !important;
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.08) !important;
-        }
-        .type-omnivore {
-            border-color: rgba(240, 184, 48, 0.35) !important;
-            box-shadow: 0 0 30px rgba(240, 184, 48, 0.08) !important;
-        }
-        .type-herbivore {
-            border-color: rgba(46, 204, 113, 0.35) !important;
-            box-shadow: 0 0 30px rgba(46, 204, 113, 0.08) !important;
-        }
-
-        .position-melee .result-position {
-            color: #e67e22;
-            border: 1px solid rgba(230, 126, 34, 0.3);
-        }
-        .position-ranged .result-position {
-            color: #5dade2;
-            border: 1px solid rgba(52, 152, 219, 0.3);
-        }
-        .position-support .result-position {
-            color: #58d68d;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .placeholder-text {
-            color: #5a5a6e;
-            font-style: italic;
-            font-size: 0.9rem;
-            letter-spacing: 0.02em;
-        }
-
-        .footer-note {
-            text-align: center;
-            margin-top: 28px;
-            color: #4a4a5a;
-            font-size: 0.7rem;
             letter-spacing: 0.04em;
-            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+
+        .result-tag.beast { color: #b0a080; border-color: rgba(176,160,128,0.2); }
+
+        .placeholder-text { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
+
+        .type-carnivore { border-color: rgba(231,76,60,0.28) !important; box-shadow: 0 0 20px rgba(231,76,60,0.05); }
+        .type-omnivore  { border-color: rgba(240,184,48,0.28) !important; box-shadow: 0 0 20px rgba(240,184,48,0.05); }
+        .type-herbivore { border-color: rgba(46,204,113,0.28) !important; box-shadow: 0 0 20px rgba(46,204,113,0.05); }
+
+        .type-carnivore .result-type { color: var(--carnivore); }
+        .type-omnivore  .result-type { color: var(--omnivore); }
+        .type-herbivore .result-type { color: var(--herbivore); }
+
+        .position-melee   .result-tag.pos { color: var(--melee);   border-color: rgba(230,126,34,0.28); }
+        .position-ranged  .result-tag.pos { color: var(--ranged);  border-color: rgba(93,173,226,0.28); }
+        .position-support .result-tag.pos { color: var(--support); border-color: rgba(88,214,141,0.28); }
+
+        /* ================================
+           FORMATION TRAINER
+        ================================ */
+        .formation-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
         }
 
         .formation-row {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            background: #0f0f1a;
-            border-radius: 14px;
-            padding: 20px 12px;
-            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 54px 1fr 32px;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
             border: 1px solid var(--border);
-            transition: border-color 0.3s;
-            width: 100%;
+            border-radius: var(--radius-sm);
+            padding: 11px 13px;
+            transition: border-color 0.25s;
         }
 
-        .formation-row .row-label {
+        .row-label {
+            font-size: 0.68rem;
             font-weight: 700;
             color: var(--accent);
-            font-size: 0.95rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 10px;
+            letter-spacing: 0.07em;
+            white-space: nowrap;
         }
 
-        .formation-row .row-select {
-            width: 100%;
-            margin-bottom: 8px;
-            position: relative;
-        }
-
-        .formation-row .row-select .select-wrapper {
-            width: 100%;
-        }
+        .row-select { display: flex; flex-direction: column; gap: 3px; }
 
         .formation-select {
-            width: 100% !important;
-            box-sizing: border-box !important;
-            display: block !important;
-            padding: 10px 40px 10px 12px !important;
-            font-size: 14px !important;
+            width: 100%;
+            padding: 8px 32px 8px 11px !important;
+            font-size: 0.85rem !important;
             font-family: inherit;
-            font-weight: 500;
-            letter-spacing: 0.02em;
             color: var(--text) !important;
-            background: #0f0f1a;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 8px;
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            line-height: 1.4;
+            transition: border-color 0.2s;
         }
 
-        .formation-select option {
-            color: var(--text);
-            background: #1a1a2e;
-            padding: 12px;
-            font-size: 1rem;
-        }
+        .formation-select:focus { outline: none; border-color: var(--accent); }
+        .formation-select option { color: var(--text); background: #1a1a30; }
 
-        .formation-select option:first-child {
-            color: #6b6b7a;
-            font-style: italic;
-        }
+        .row-feedback { font-size: 0.68rem; color: var(--error); display: none; }
+        .row-feedback.visible { display: block; }
 
-        .row-feedback {
-            margin-top: 6px;
-            font-size: 13px;
-            color: var(--error);
-            letter-spacing: 0.02em;
-            display: none;
-            word-break: break-word;
-        }
+        .row-status { font-size: 1.15rem; line-height: 1; text-align: center; }
 
-        .row-feedback.visible {
-            display: block;
-        }
+        .formation-row.valid-highlight   { border-color: rgba(46,204,113,0.3); }
+        .formation-row.invalid-highlight { border-color: rgba(231,76,60,0.3); }
 
-        .row-status {
-            position: absolute;
-            top: 15px;
-            right: 12px;
-            font-size: 1.6rem;
-            line-height: 1;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .row-status.valid {
-            color: var(--success);
-        }
-
-        .row-status.invalid {
-            color: var(--error);
-        }
-
-        .formation-row.invalid-highlight {
-            border-color: rgba(231, 76, 60, 0.4);
-        }
-
-        .formation-row.valid-highlight {
-            border-color: rgba(46, 204, 113, 0.4);
-        }
-
-        .formation-row .select-wrapper::after {
-            color: var(--accent);
-        }
-
-        /* ============================== */
-        /* FEEDBACK-BOX                   */
-        /* ============================== */
-        .feedback-box {
-            background: #0f0f1a;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px 20px;
-            margin-top: 20px;
+        /* ================================
+           FOOTER
+        ================================ */
+        .app-footer {
             text-align: center;
-        }
-
-        .feedback-box .feedback-question {
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            letter-spacing: 0.03em;
-        }
-
-        .feedback-box .feedback-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .feedback-btn {
-            padding: 12px 36px;
-            font-size: 1rem;
-            font-weight: 700;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: transparent;
-            color: var(--text);
-        }
-
-        .feedback-btn.btn-yes:hover,
-        .feedback-btn.btn-yes.selected {
-            background: var(--success);
-            border-color: var(--success);
-            color: #fff;
-        }
-
-        .feedback-btn.btn-no:hover,
-        .feedback-btn.btn-no.selected {
-            background: var(--error);
-            border-color: var(--error);
-            color: #fff;
-        }
-
-        .feedback-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .feedback-results {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .feedback-bar-wrapper {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .feedback-bar-wrapper:last-child {
-            margin-bottom: 0;
-        }
-
-        .feedback-bar-label {
-            min-width: 30px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-align: right;
-            margin-right: 10px;
-        }
-
-        .feedback-bar-label.yes { color: var(--success); }
-        .feedback-bar-label.no { color: var(--error); }
-
-        .feedback-bar-track {
-            flex: 1;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .feedback-bar-fill {
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.5s ease;
-            min-width: 0;
-        }
-
-        .feedback-bar-fill.yes { background: var(--success); }
-        .feedback-bar-fill.no { background: var(--error); }
-
-        .feedback-bar-percent {
-            min-width: 50px;
-            margin-left: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-light);
-        }
-
-        .feedback-total {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: var(--text-light);
-            letter-spacing: 0.03em;
-        }
-
-        .feedback-info {
-            margin-top: 12px;
-            font-size: 0.75rem;
-            color: #5a5a6e;
-            font-style: italic;
+            margin-top: 4px;
+            opacity: 0.4;
         }
     </style>
 </head>
 <body>
-    <!-- Passwort-Overlay -->
-    <div id="passwordOverlay">
-        <div class="password-box">
-            <div class="lang-switch" id="overlayLangSwitch">
-                <button class="lang-btn active" data-lang="de">DE</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <div class="lock-icon">🔒</div>
-            <h2 id="overlayTitle">Clan-Zugang</h2>
-            <input type="password" id="passwordInput" placeholder="Passwort eingeben" autofocus>
-            <button id="passwordSubmit">Freischalten</button>
-            <p class="password-error" id="passwordError">Falsches Passwort</p>
-        </div>
-    </div>
 
-    <!-- Haupt-Tool -->
     <div id="mainTool">
-        <!-- SYNERGY MANAGER -->
-        <div class="container" id="synergyManager">
+
+        <!-- APP HEADER -->
+        <header class="app-header">
+            <div class="app-brand">
+                <span class="brand-icon">🐺</span>
+                <div class="brand-text">
+                    <h1 id="mainTitle">VCF Beast Synergie</h1>
+                    <div class="brand-sub" id="mainSubtitle">Beast Lord: The New Land</div>
+                </div>
+            </div>
             <div class="lang-switch" id="mainLangSwitch">
                 <button class="lang-btn active" data-lang="de">DE</button>
                 <button class="lang-btn" data-lang="en">EN</button>
             </div>
-            <div class="module-title">🐺 Synergy Manager</div>
-            <div class="header-icon">🐺</div>
-            <h1 id="mainTitle">Alpha & Bestien</h1>
-            <p class="subtitle" id="mainSubtitle">Typ wählen, dann Alpha und Begleitbestie</p>
+        </header>
 
-            <div class="form-group">
-                <label for="typeSelect" id="labelType">Bestientyp wählen</label>
-                <div class="select-wrapper">
-                    <select id="typeSelect">
-                        <option value="" disabled selected>-- Bitte Typ wählen --</option>
-                    </select>
+        <!-- SYNERGY MANAGER -->
+        <div class="module-card">
+            <div class="module-header">
+                <span class="mod-icon">🐾</span>
+                <h2>Synergy Manager</h2>
+                <span class="mod-desc" id="mainModDesc">Alpha &amp; Begleitbestie</span>
+            </div>
+            <div class="module-body">
+                <div class="form-group">
+                    <label for="typeSelect" id="labelType">Bestientyp</label>
+                    <div class="select-wrapper">
+                        <select id="typeSelect">
+                            <option value="" disabled selected>-- Typ wählen --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="alphaGroup">
+                    <label for="alphaSelect" id="labelAlpha">Alpha</label>
+                    <div class="select-wrapper">
+                        <select id="alphaSelect">
+                            <option value="" disabled selected>-- Alpha wählen --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="beastGroup">
+                    <label for="beastSelect" id="labelBeast">Begleitbestie (T1–T10)</label>
+                    <div class="select-wrapper">
+                        <select id="beastSelect">
+                            <option value="" disabled selected>-- Bestie wählen --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="resultBox" class="result-box">
+                    <span class="placeholder-text">🐾 Ergebnis erscheint hier</span>
                 </div>
             </div>
-
-            <div class="form-group" id="alphaGroup">
-                <label for="alphaSelect" id="labelAlpha">Alpha auswählen</label>
-                <div class="select-wrapper">
-                    <select id="alphaSelect">
-                        <option value="" disabled selected>-- Bitte Alpha wählen --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group" id="beastGroup">
-                <label for="beastSelect" id="labelBeast">Begleitbestie (T1–T10)</label>
-                <div class="select-wrapper">
-                    <select id="beastSelect">
-                        <option value="" disabled selected>-- Bitte Bestie wählen --</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="resultBox" class="result-box idle">
-                <span class="placeholder-text">🐾 Hier erscheint das Ergebnis</span>
-            </div>
-
-            <p class="footer-note" id="footerText">Beast Lord: The New Land — Auswahl-Tool v3.4</p>
         </div>
 
         <!-- FORMATION TRAINER -->
-        <div class="container" id="formationTrainer">
-            <div class="module-title">⚔️ Formation Trainer</div>
-            <p class="subtitle" id="formationSubtitle">Weise jedem Alpha die optimale Reihe zu</p>
-
-            <div id="formationRows"></div>
-
-            <!-- FEEDBACK-BOX -->
-            <div class="feedback-box">
-                <p class="feedback-question" id="feedbackQuestion">Haben Sie die Logik der Formation verstanden?</p>
-                <div class="feedback-buttons">
-                    <button class="feedback-btn btn-yes" id="btnFeedbackYes">Ja</button>
-                    <button class="feedback-btn btn-no" id="btnFeedbackNo">Nein</button>
-                </div>
-                <div class="feedback-results" id="feedbackResults">
-                    <div class="feedback-bar-wrapper">
-                        <span class="feedback-bar-label yes">👍</span>
-                        <div class="feedback-bar-track">
-                            <div class="feedback-bar-fill yes" id="barYes" style="width: 0%;"></div>
-                        </div>
-                        <span class="feedback-bar-percent" id="percentYes">0%</span>
-                    </div>
-                    <div class="feedback-bar-wrapper">
-                        <span class="feedback-bar-label no">👎</span>
-                        <div class="feedback-bar-track">
-                            <div class="feedback-bar-fill no" id="barNo" style="width: 0%;"></div>
-                        </div>
-                        <span class="feedback-bar-percent" id="percentNo">0%</span>
-                    </div>
-                    <p class="feedback-total" id="feedbackTotal">Gesamt: 0 Stimmen</p>
-                </div>
-                <p class="feedback-info" id="feedbackInfo">Deine Stimme wird gespeichert. Du kannst sie einmal ändern.</p>
+        <div class="module-card">
+            <div class="module-header">
+                <span class="mod-icon">⚔️</span>
+                <h2>Formation Trainer</h2>
+                <span class="mod-desc" id="formationSubtitle">Alpha → optimale Reihe</span>
+            </div>
+            <div class="module-body">
+                <div class="formation-grid" id="formationRows"></div>
             </div>
         </div>
+
+        <p class="app-footer" id="footerText">VCF · Allianz intern · v3.4</p>
+
     </div>
 
     <script>
-        // =============================================
-        // FIREBASE INITIALISIERUNG (DEINE KONFIGURATION)
-        // =============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAE27s-bg98QdaMWdrz0PB2GMrDu6_AFOM",
-            authDomain: "clantool-5cd76.firebaseapp.com",
-            projectId: "clantool-5cd76",
-            storageBucket: "clantool-5cd76.firebasestorage.app",
-            messagingSenderId: "165584038565",
-            appId: "1:165584038565:web:d4c63dfeb4b2ac1d1abb4c",
-            measurementId: "G-GE106EFTEG"
-        };
-
-        // Firebase initialisieren
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const feedbackRef = db.ref('feedback/formation');
-
-        // =============================================
-        // PASSWORTSCHUTZ
-        // =============================================
-        const password = 'VCF';
-
-        const overlay = document.getElementById('passwordOverlay');
-        const mainTool = document.getElementById('mainTool');
-        const passwordInput = document.getElementById('passwordInput');
-        const passwordSubmit = document.getElementById('passwordSubmit');
-        const passwordError = document.getElementById('passwordError');
-        const overlayTitle = document.getElementById('overlayTitle');
-
-        const overlayTranslations = {
-            de: {
-                title: 'Clan-Zugang',
-                placeholder: 'Passwort eingeben',
-                button: 'Freischalten',
-                error: 'Falsches Passwort'
-            },
-            en: {
-                title: 'Clan Access',
-                placeholder: 'Please enter password',
-                button: 'Unlock',
-                error: 'Wrong password'
-            }
-        };
-
-        let overlayLang = 'de';
-
-        function setOverlayLanguage(lang) {
-            overlayLang = lang;
-            const t = overlayTranslations[lang];
-            overlayTitle.textContent = t.title;
-            passwordInput.placeholder = t.placeholder;
-            passwordSubmit.textContent = t.button;
-            passwordError.textContent = t.error;
-
-            const buttons = document.querySelectorAll('#overlayLangSwitch .lang-btn');
-            buttons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-        }
-
-        document.querySelectorAll('#overlayLangSwitch .lang-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const lang = this.dataset.lang;
-                if (lang !== overlayLang) {
-                    setOverlayLanguage(lang);
-                }
-            });
-        });
-
-        setOverlayLanguage('de');
-
-        function checkPassword() {
-            if (passwordInput.value === password) {
-                overlay.classList.add('hidden');
-                mainTool.classList.add('visible');
-                passwordError.classList.remove('visible');
-                switchLanguage(overlayLang);
-                buildFormationTrainer();
-                initFeedback();
-            } else {
-                passwordError.classList.add('visible');
-                passwordInput.value = '';
-                passwordInput.focus();
-            }
-        }
-
-        passwordSubmit.addEventListener('click', checkPassword);
-        passwordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkPassword();
-        });
-
-        // =============================================
-        // SPRACHKONFIGURATION
-        // =============================================
         let currentLang = 'de';
 
         const translations = {
             de: {
-                title: 'Alpha & Bestien',
-                subtitle: 'Typ wählen, dann Alpha und Begleitbestie',
-                typeLabel: 'Bestientyp wählen',
-                typePlaceholder: '-- Bitte Typ wählen --',
-                alphaLabel: 'Alpha auswählen',
-                alphaPlaceholder: '-- Bitte Alpha wählen --',
+                title: 'VCF Beast Synergie',
+                subtitle: 'Beast Lord: The New Land',
+                modDesc: 'Alpha & Begleitbestie',
+                typeLabel: 'Bestientyp',
+                typePlaceholder: '-- Typ wählen --',
+                alphaLabel: 'Alpha',
+                alphaPlaceholder: '-- Alpha wählen --',
                 beastLabel: 'Begleitbestie (T1–T10)',
-                beastPlaceholder: '-- Bitte Bestie wählen --',
-                resultPlaceholder: '🐾 Hier erscheint das Ergebnis',
-                footer: 'Beast Lord: The New Land — Auswahl-Tool v3.4',
-                types: {
-                    Fleischfresser: 'Fleischfresser',
-                    Allesfresser: 'Allesfresser',
-                    Pflanzenfresser: 'Pflanzenfresser'
-                },
-                positions: {
-                    Nahkampf: 'Nahkampf',
-                    Fernkampf: 'Fernkampf',
-                    Support: 'Support'
-                },
+                beastPlaceholder: '-- Bestie wählen --',
+                resultPlaceholder: '🐾 Ergebnis erscheint hier',
+                footer: 'VCF · Allianz intern · v3.4',
+                types: { Fleischfresser: 'Fleischfresser', Allesfresser: 'Allesfresser', Pflanzenfresser: 'Pflanzenfresser' },
+                positions: { Nahkampf: 'Nahkampf', Fernkampf: 'Fernkampf', Support: 'Support' },
                 formation: {
-                    subtitle: 'Weise jedem Alpha die optimale Reihe zu',
+                    subtitle: 'Alpha → optimale Reihe',
                     rowLabel: 'Reihe',
                     alphaPlaceholder: '-- Alpha wählen --',
-                    correct: '✔️',
-                    incorrect: '❌',
-                    recommended: 'Empfohlene Reihe(n) für diesen Alpha:'
-                },
-                feedback: {
-                    question: 'Haben Sie die Logik der Formation verstanden?',
-                    yes: 'Ja',
-                    no: 'Nein',
-                    total: 'Gesamt: {count} Stimmen',
-                    info: 'Deine Stimme wird gespeichert. Du kannst sie einmal ändern.'
+                    correct: '✔️', incorrect: '❌',
+                    recommended: 'Empfohlen: Reihe'
                 }
             },
             en: {
-                title: 'Alpha & Beasts',
-                subtitle: 'Choose type, then Alpha and companion',
-                typeLabel: 'Select Type',
+                title: 'VCF Beast Synergy',
+                subtitle: 'Beast Lord: The New Land',
+                modDesc: 'Alpha & Companion Beast',
+                typeLabel: 'Beast Type',
                 typePlaceholder: '-- Select Type --',
-                alphaLabel: 'Select Alpha',
+                alphaLabel: 'Alpha',
                 alphaPlaceholder: '-- Select Alpha --',
                 beastLabel: 'Companion Beast (T1–T10)',
                 beastPlaceholder: '-- Select Beast --',
                 resultPlaceholder: '🐾 Result appears here',
-                footer: 'Beast Lord: The New Land — Selection Tool v3.4',
-                types: {
-                    Fleischfresser: 'Carnivore',
-                    Allesfresser: 'Omnivore',
-                    Pflanzenfresser: 'Herbivore'
-                },
-                positions: {
-                    Nahkampf: 'Melee',
-                    Fernkampf: 'Ranged',
-                    Support: 'Support'
-                },
+                footer: 'VCF · Alliance internal · v3.4',
+                types: { Fleischfresser: 'Carnivore', Allesfresser: 'Omnivore', Pflanzenfresser: 'Herbivore' },
+                positions: { Nahkampf: 'Melee', Fernkampf: 'Ranged', Support: 'Support' },
                 formation: {
-                    subtitle: 'Assign each Alpha to the optimal row',
+                    subtitle: 'Alpha → optimal row',
                     rowLabel: 'Row',
                     alphaPlaceholder: '-- Select Alpha --',
-                    correct: '✔️',
-                    incorrect: '❌',
-                    recommended: 'Recommended row(s) for this Alpha:'
-                },
-                feedback: {
-                    question: 'Did you understand the formation logic?',
-                    yes: 'Yes',
-                    no: 'No',
-                    total: 'Total: {count} votes',
-                    info: 'Your vote is saved. You can change it once.'
+                    correct: '✔️', incorrect: '❌',
+                    recommended: 'Recommended: Row'
                 }
             }
         };
 
         const alphaNamesEN = {
-            'Tibetdogge': 'Tibetan Mastiff', 'Jaguarundi': 'Jaguarundi', 'Weißer Löwe': 'White Lion',
-            'Titanis': 'Titanis', 'Amerikanischer Löwe': 'American Lion', 'Hyaenodon': 'Hyaenodon',
-            'Smilodon': 'Smilodon', 'Schwarzer Panther': 'Black Panther', 'Schneeleopard': 'Snow Leopard',
-            'Weißer Tiger': 'White Tiger', 'Kanadischer Luchs': 'Canadian Lynx', 'Leistenkrokodil': 'Saltwater Crocodile',
-            'Bindenwaran': 'Banded Monitor', 'Schwarzer Löwe': 'Black Lion', 'Weißes Krokodil': 'White Crocodile',
-            'Affenadler': 'Monkey Eagle', 'Beutellöwe': 'Marsupial Lion', 'Amerikanischer Gepard': 'American Cheetah',
-            'Hebriden-Schaf': 'Hebridean Sheep', 'Weißes Rentier': 'White Reindeer', 'Yak': 'Yak',
-            'Doedicurus': 'Doedicurus', 'Wollnashorn': 'Woolly Rhino', 'Riesen Sivatherium': 'Giant Sivatherium',
-            'Meiolania': 'Meiolania', 'Wildpferd': 'Wild Horse', 'Asiatischer Elefant': 'Asian Elephant',
-            'Rentier': 'Reindeer', 'Ankole': 'Ankole', 'Spanisches Kampfrind': 'Spanish Fighting Bull',
-            'Geochelone': 'Geochelone', 'Spitzmaulnashorn': 'Black Rhino', 'Afrikanischer Elefant': 'African Elephant',
-            'Mammut': 'Mammoth', 'Megatherium': 'Megatherium', 'Panzernashorn': 'Armored Rhino', 'Brabanter': 'Brabanter',
-            'Geierschildkröte': 'Vulture Turtle', 'Klapperschlange': 'Rattlesnake', 'Komodowaran': 'Komodo Dragon',
-            'Höhlenbär': 'Cave Bear', 'Riesenbiber': 'Giant Beaver', 'Metridiochoerus': 'Metridiochoerus',
-            'Dinopithecus': 'Dinopithecus', 'Schwarzbär': 'Black Bear', 'Pinselohrschwein': 'Bush Pig',
-            'Weißkopfsaki': 'White-faced Saki', 'Bärenmarder': 'Bear Marten', 'Drill': 'Drill',
-            'Flusspferd': 'Hippopotamus', 'Geisterbär': 'Ghost Bear', 'Südafrika-Kronenkranich': 'South African Crowned Crane',
-            'Weißer Pfau': 'White Peacock', 'Elefantenvogel': 'Elephant Bird', 'Kurznasenbär': 'Short-faced Bear',
-            'Kodiakbär': 'Kodiak Bear', 'Berglöwe': 'Mountain Lion', 'Riesenkänguru': 'Giant Kangaroo',
-            'Breitmaulnashorn': 'White Rhino', 'Gepard': 'Cheetah', 'Sekretär': 'Secretary Bird',
-            'Strauß': 'Ostrich', 'Schuhschnabel': 'Shoebill', 'Kasuar': 'Cassowary', 'Leopard': 'Leopard',
-            'Sibirischer Tiger': 'Siberian Tiger', 'Giraffe': 'Giraffe', 'Löwe': 'Lion', 'Riesenelch': 'Giant Moose'
+            'Tibetdogge':'Tibetan Mastiff','Jaguarundi':'Jaguarundi','Weißer Löwe':'White Lion',
+            'Titanis':'Titanis','Amerikanischer Löwe':'American Lion','Hyaenodon':'Hyaenodon',
+            'Smilodon':'Smilodon','Schwarzer Panther':'Black Panther','Schneeleopard':'Snow Leopard',
+            'Weißer Tiger':'White Tiger','Kanadischer Luchs':'Canadian Lynx','Leistenkrokodil':'Saltwater Crocodile',
+            'Bindenwaran':'Banded Monitor','Schwarzer Löwe':'Black Lion','Weißes Krokodil':'White Crocodile',
+            'Affenadler':'Monkey Eagle','Beutellöwe':'Marsupial Lion','Amerikanischer Gepard':'American Cheetah',
+            'Hebriden-Schaf':'Hebridean Sheep','Weißes Rentier':'White Reindeer','Yak':'Yak',
+            'Doedicurus':'Doedicurus','Wollnashorn':'Woolly Rhino','Riesen Sivatherium':'Giant Sivatherium',
+            'Meiolania':'Meiolania','Wildpferd':'Wild Horse','Asiatischer Elefant':'Asian Elephant',
+            'Rentier':'Reindeer','Ankole':'Ankole','Spanisches Kampfrind':'Spanish Fighting Bull',
+            'Geochelone':'Geochelone','Spitzmaulnashorn':'Black Rhino','Afrikanischer Elefant':'African Elephant',
+            'Mammut':'Mammoth','Megatherium':'Megatherium','Panzernashorn':'Armored Rhino','Brabanter':'Brabanter',
+            'Geierschildkröte':'Vulture Turtle','Klapperschlange':'Rattlesnake','Komodowaran':'Komodo Dragon',
+            'Höhlenbär':'Cave Bear','Riesenbiber':'Giant Beaver','Metridiochoerus':'Metridiochoerus',
+            'Dinopithecus':'Dinopithecus','Schwarzbär':'Black Bear','Pinselohrschwein':'Bush Pig',
+            'Weißkopfsaki':'White-faced Saki','Bärenmarder':'Bear Marten','Drill':'Drill',
+            'Flusspferd':'Hippopotamus','Geisterbär':'Ghost Bear','Südafrika-Kronenkranich':'South African Crowned Crane',
+            'Weißer Pfau':'White Peacock','Elefantenvogel':'Elephant Bird','Kurznasenbär':'Short-faced Bear',
+            'Kodiakbär':'Kodiak Bear','Berglöwe':'Mountain Lion','Riesenkänguru':'Giant Kangaroo',
+            'Breitmaulnashorn':'White Rhino','Gepard':'Cheetah','Sekretär':'Secretary Bird',
+            'Strauß':'Ostrich','Schuhschnabel':'Shoebill','Kasuar':'Cassowary','Leopard':'Leopard',
+            'Sibirischer Tiger':'Siberian Tiger','Giraffe':'Giraffe','Löwe':'Lion','Riesenelch':'Giant Moose'
         };
 
         const beastNamesEN = {
-            'T1 Impala': 'T1 Impala', 'T2 Argali': 'T2 Argali', 'T3 Alpensteinbock': 'T3 Alpine Ibex',
-            'T4 Markhor': 'T4 Markhor', 'T5 Oryxantilope': 'T5 Oryx', 'T6 Elenamtilope': 'T6 Eland',
-            'T7 Gnu': 'T7 Wildebeest', 'T8 Afrikanischer Büffel': 'T8 African Buffalo', 'T9 Takin': 'T9 Takin',
-            'T10 Amerikanischer Bison': 'T10 American Bison', 'T1 Makake': 'T1 Macaque', 'T2 Stumpfnasenaffe': 'T2 Snub-nosed Monkey',
-            'T3 Marmoset': 'T3 Marmoset', 'T4 Roter Brüllaffe': 'T4 Red Howler', 'T5 Siamang': 'T5 Siamang',
-            'T6 Guinea-Pavian': 'T6 Guinea Baboon', 'T7 Mandrill': 'T7 Mandrill', 'T8 Schimpanse': 'T8 Chimpanzee',
-            'T9 Sumatra-Orang-Utan': 'T9 Sumatran Orangutan', 'T10 Westlicher Flachlandgorilla': 'T10 Western Lowland Gorilla',
-            'T1 Rotfuchs': 'T1 Red Fox', 'T2 SchabrackenSchakal': 'T2 Black-backed Jackal', 'T3 Afrikanischer Wildhund': 'T3 African Wild Dog',
-            'T4 Schakal': 'T4 Jackal', 'T5 Mähnenwolf': 'T5 Maned Wolf', 'T6 Kojote': 'T6 Coyote',
-            'T7 Hyäne': 'T7 Hyena', 'T8 Polarwolf': 'T8 Arctic Wolf', 'T9 Nordwestlicher Wolf': 'T9 Northwestern Wolf',
-            'T10 British-Colombia-Wolf': 'T10 British Columbia Wolf'
+            'T1 Impala':'T1 Impala','T2 Argali':'T2 Argali','T3 Alpensteinbock':'T3 Alpine Ibex',
+            'T4 Markhor':'T4 Markhor','T5 Oryxantilope':'T5 Oryx','T6 Elenamtilope':'T6 Eland',
+            'T7 Gnu':'T7 Wildebeest','T8 Afrikanischer Büffel':'T8 African Buffalo','T9 Takin':'T9 Takin',
+            'T10 Amerikanischer Bison':'T10 American Bison','T1 Makake':'T1 Macaque','T2 Stumpfnasenaffe':'T2 Snub-nosed Monkey',
+            'T3 Marmoset':'T3 Marmoset','T4 Roter Brüllaffe':'T4 Red Howler','T5 Siamang':'T5 Siamang',
+            'T6 Guinea-Pavian':'T6 Guinea Baboon','T7 Mandrill':'T7 Mandrill','T8 Schimpanse':'T8 Chimpanzee',
+            'T9 Sumatra-Orang-Utan':'T9 Sumatran Orangutan','T10 Westlicher Flachlandgorilla':'T10 Western Lowland Gorilla',
+            'T1 Rotfuchs':'T1 Red Fox','T2 SchabrackenSchakal':'T2 Black-backed Jackal','T3 Afrikanischer Wildhund':'T3 African Wild Dog',
+            'T4 Schakal':'T4 Jackal','T5 Mähnenwolf':'T5 Maned Wolf','T6 Kojote':'T6 Coyote',
+            'T7 Hyäne':'T7 Hyena','T8 Polarwolf':'T8 Arctic Wolf','T9 Nordwestlicher Wolf':'T9 Northwestern Wolf',
+            'T10 British-Colombia-Wolf':'T10 British Columbia Wolf'
         };
 
-        function translateAlphaName(germanName) {
-            if (currentLang === 'en' && alphaNamesEN[germanName]) return alphaNamesEN[germanName];
-            return germanName;
-        }
+        function translateAlphaName(n) { return currentLang==='en'&&alphaNamesEN[n]?alphaNamesEN[n]:n; }
+        function translateBeastName(n)  { return currentLang==='en'&&beastNamesEN[n]?beastNamesEN[n]:n; }
 
-        function translateBeastName(germanName) {
-            if (currentLang === 'en' && beastNamesEN[germanName]) return beastNamesEN[germanName];
-            return germanName;
-        }
-
-        // =============================================
-        // DATENBANK SYNERGY MANAGER
-        // =============================================
         const alphaDaten = {
             Fleischfresser: [
-                { name: 'Tibetdogge', position: 'Nahkampf' }, { name: 'Jaguarundi', position: 'Support' },
-                { name: 'Weißer Löwe', position: 'Fernkampf' }, { name: 'Titanis', position: 'Nahkampf' },
-                { name: 'Amerikanischer Löwe', position: 'Support' }, { name: 'Hyaenodon', position: 'Nahkampf' },
-                { name: 'Smilodon', position: 'Fernkampf' }, { name: 'Schwarzer Panther', position: 'Fernkampf' },
-                { name: 'Schneeleopard', position: 'Support' }, { name: 'Weißer Tiger', position: 'Fernkampf' },
-                { name: 'Kanadischer Luchs', position: 'Support' }, { name: 'Leistenkrokodil', position: 'Fernkampf' },
-                { name: 'Bindenwaran', position: 'Nahkampf' }, { name: 'Schwarzer Löwe', position: 'Support' },
-                { name: 'Weißes Krokodil', position: 'Fernkampf' }, { name: 'Affenadler', position: 'Nahkampf' },
-                { name: 'Beutellöwe', position: 'Nahkampf' }, { name: 'Amerikanischer Gepard', position: 'Support' }
+                {name:'Tibetdogge',position:'Nahkampf'},{name:'Jaguarundi',position:'Support'},
+                {name:'Weißer Löwe',position:'Fernkampf'},{name:'Titanis',position:'Nahkampf'},
+                {name:'Amerikanischer Löwe',position:'Support'},{name:'Hyaenodon',position:'Nahkampf'},
+                {name:'Smilodon',position:'Fernkampf'},{name:'Schwarzer Panther',position:'Fernkampf'},
+                {name:'Schneeleopard',position:'Support'},{name:'Weißer Tiger',position:'Fernkampf'},
+                {name:'Kanadischer Luchs',position:'Support'},{name:'Leistenkrokodil',position:'Fernkampf'},
+                {name:'Bindenwaran',position:'Nahkampf'},{name:'Schwarzer Löwe',position:'Support'},
+                {name:'Weißes Krokodil',position:'Fernkampf'},{name:'Affenadler',position:'Nahkampf'},
+                {name:'Beutellöwe',position:'Nahkampf'},{name:'Amerikanischer Gepard',position:'Support'}
             ],
             Pflanzenfresser: [
-                { name: 'Hebriden-Schaf', position: 'Nahkampf' }, { name: 'Weißes Rentier', position: 'Support' },
-                { name: 'Yak', position: 'Fernkampf' }, { name: 'Doedicurus', position: 'Nahkampf' },
-                { name: 'Wollnashorn', position: 'Fernkampf' }, { name: 'Riesen Sivatherium', position: 'Nahkampf' },
-                { name: 'Meiolania', position: 'Support' }, { name: 'Wildpferd', position: 'Nahkampf' },
-                { name: 'Asiatischer Elefant', position: 'Nahkampf' }, { name: 'Rentier', position: 'Support' },
-                { name: 'Ankole', position: 'Fernkampf' }, { name: 'Spanisches Kampfrind', position: 'Nahkampf' },
-                { name: 'Geochelone', position: 'Fernkampf' }, { name: 'Spitzmaulnashorn', position: 'Nahkampf' },
-                { name: 'Afrikanischer Elefant', position: 'Fernkampf' }, { name: 'Mammut', position: 'Nahkampf' },
-                { name: 'Megatherium', position: 'Fernkampf' }, { name: 'Panzernashorn', position: 'Fernkampf' },
-                { name: 'Brabanter', position: 'Fernkampf' }
+                {name:'Hebriden-Schaf',position:'Nahkampf'},{name:'Weißes Rentier',position:'Support'},
+                {name:'Yak',position:'Fernkampf'},{name:'Doedicurus',position:'Nahkampf'},
+                {name:'Wollnashorn',position:'Fernkampf'},{name:'Riesen Sivatherium',position:'Nahkampf'},
+                {name:'Meiolania',position:'Support'},{name:'Wildpferd',position:'Nahkampf'},
+                {name:'Asiatischer Elefant',position:'Nahkampf'},{name:'Rentier',position:'Support'},
+                {name:'Ankole',position:'Fernkampf'},{name:'Spanisches Kampfrind',position:'Nahkampf'},
+                {name:'Geochelone',position:'Fernkampf'},{name:'Spitzmaulnashorn',position:'Nahkampf'},
+                {name:'Afrikanischer Elefant',position:'Fernkampf'},{name:'Mammut',position:'Nahkampf'},
+                {name:'Megatherium',position:'Fernkampf'},{name:'Panzernashorn',position:'Fernkampf'},
+                {name:'Brabanter',position:'Fernkampf'}
             ],
             Allesfresser: [
-                { name: 'Geierschildkröte', position: 'Nahkampf' }, { name: 'Klapperschlange', position: 'Support' },
-                { name: 'Komodowaran', position: 'Fernkampf' }, { name: 'Höhlenbär', position: 'Nahkampf' },
-                { name: 'Riesenbiber', position: 'Support' }, { name: 'Metridiochoerus', position: 'Support' },
-                { name: 'Dinopithecus', position: 'Fernkampf' }, { name: 'Schwarzbär', position: 'Fernkampf' },
-                { name: 'Pinselohrschwein', position: 'Nahkampf' }, { name: 'Weißkopfsaki', position: 'Support' },
-                { name: 'Bärenmarder', position: 'Fernkampf' }, { name: 'Drill', position: 'Support' },
-                { name: 'Flusspferd', position: 'Nahkampf' }, { name: 'Geisterbär', position: 'Fernkampf' },
-                { name: 'Südafrika-Kronenkranich', position: 'Support' }, { name: 'Weißer Pfau', position: 'Nahkampf' },
-                { name: 'Elefantenvogel', position: 'Nahkampf' }, { name: 'Kurznasenbär', position: 'Support' },
-                { name: 'Kodiakbär', position: 'Fernkampf' }
+                {name:'Geierschildkröte',position:'Nahkampf'},{name:'Klapperschlange',position:'Support'},
+                {name:'Komodowaran',position:'Fernkampf'},{name:'Höhlenbär',position:'Nahkampf'},
+                {name:'Riesenbiber',position:'Support'},{name:'Metridiochoerus',position:'Support'},
+                {name:'Dinopithecus',position:'Fernkampf'},{name:'Schwarzbär',position:'Fernkampf'},
+                {name:'Pinselohrschwein',position:'Nahkampf'},{name:'Weißkopfsaki',position:'Support'},
+                {name:'Bärenmarder',position:'Fernkampf'},{name:'Drill',position:'Support'},
+                {name:'Flusspferd',position:'Nahkampf'},{name:'Geisterbär',position:'Fernkampf'},
+                {name:'Südafrika-Kronenkranich',position:'Support'},{name:'Weißer Pfau',position:'Nahkampf'},
+                {name:'Elefantenvogel',position:'Nahkampf'},{name:'Kurznasenbär',position:'Support'},
+                {name:'Kodiakbär',position:'Fernkampf'}
             ]
         };
 
         const beastDaten = {
-            Pflanzenfresser: [
-                'T1 Impala', 'T2 Argali', 'T3 Alpensteinbock', 'T4 Markhor', 'T5 Oryxantilope',
-                'T6 Elenamtilope', 'T7 Gnu', 'T8 Afrikanischer Büffel', 'T9 Takin', 'T10 Amerikanischer Bison'
-            ],
-            Allesfresser: [
-                'T1 Makake', 'T2 Stumpfnasenaffe', 'T3 Marmoset', 'T4 Roter Brüllaffe', 'T5 Siamang',
-                'T6 Guinea-Pavian', 'T7 Mandrill', 'T8 Schimpanse', 'T9 Sumatra-Orang-Utan', 'T10 Westlicher Flachlandgorilla'
-            ],
-            Fleischfresser: [
-                'T1 Rotfuchs', 'T2 SchabrackenSchakal', 'T3 Afrikanischer Wildhund', 'T4 Schakal', 'T5 Mähnenwolf',
-                'T6 Kojote', 'T7 Hyäne', 'T8 Polarwolf', 'T9 Nordwestlicher Wolf', 'T10 British-Colombia-Wolf'
-            ]
+            Pflanzenfresser: ['T1 Impala','T2 Argali','T3 Alpensteinbock','T4 Markhor','T5 Oryxantilope','T6 Elenamtilope','T7 Gnu','T8 Afrikanischer Büffel','T9 Takin','T10 Amerikanischer Bison'],
+            Allesfresser:    ['T1 Makake','T2 Stumpfnasenaffe','T3 Marmoset','T4 Roter Brüllaffe','T5 Siamang','T6 Guinea-Pavian','T7 Mandrill','T8 Schimpanse','T9 Sumatra-Orang-Utan','T10 Westlicher Flachlandgorilla'],
+            Fleischfresser:  ['T1 Rotfuchs','T2 SchabrackenSchakal','T3 Afrikanischer Wildhund','T4 Schakal','T5 Mähnenwolf','T6 Kojote','T7 Hyäne','T8 Polarwolf','T9 Nordwestlicher Wolf','T10 British-Colombia-Wolf']
         };
 
         const typConfig = {
-            Fleischfresser: { emoji: '🍖', cssClass: 'type-carnivore' },
-            Allesfresser: { emoji: '🥩', cssClass: 'type-omnivore' },
-            Pflanzenfresser: { emoji: '🥗', cssClass: 'type-herbivore' }
+            Fleischfresser:  {emoji:'🍖',cssClass:'type-carnivore'},
+            Allesfresser:    {emoji:'🥩',cssClass:'type-omnivore'},
+            Pflanzenfresser: {emoji:'🥗',cssClass:'type-herbivore'}
         };
 
         const positionConfig = {
-            Nahkampf: { icon: '⚔️', cssClass: 'position-melee' },
-            Fernkampf: { icon: '🏹', cssClass: 'position-ranged' },
-            Support: { icon: '🛡️', cssClass: 'position-support' }
+            Nahkampf: {icon:'⚔️',cssClass:'position-melee'},
+            Fernkampf:{icon:'🏹',cssClass:'position-ranged'},
+            Support:  {icon:'🛡️',cssClass:'position-support'}
         };
 
-        // DOM-Elemente
-        const typeSelect = document.getElementById('typeSelect');
-        const alphaGroup = document.getElementById('alphaGroup');
-        const beastGroup = document.getElementById('beastGroup');
+        const typeSelect  = document.getElementById('typeSelect');
+        const alphaGroup  = document.getElementById('alphaGroup');
+        const beastGroup  = document.getElementById('beastGroup');
         const alphaSelect = document.getElementById('alphaSelect');
         const beastSelect = document.getElementById('beastSelect');
-        const resultBox = document.getElementById('resultBox');
-        const mainTitle = document.getElementById('mainTitle');
-        const mainSubtitle = document.getElementById('mainSubtitle');
-        const labelType = document.getElementById('labelType');
-        const labelAlpha = document.getElementById('labelAlpha');
-        const labelBeast = document.getElementById('labelBeast');
-        const footerText = document.getElementById('footerText');
+        const resultBox   = document.getElementById('resultBox');
 
         function populateTypeSelect() {
             const t = translations[currentLang];
             typeSelect.innerHTML = `<option value="" disabled selected>${t.typePlaceholder}</option>`;
-            ['Fleischfresser', 'Allesfresser', 'Pflanzenfresser'].forEach(key => {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = typConfig[key].emoji + ' ' + t.types[key];
-                typeSelect.appendChild(option);
+            ['Fleischfresser','Allesfresser','Pflanzenfresser'].forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = typConfig[key].emoji + ' ' + t.types[key];
+                typeSelect.appendChild(opt);
             });
         }
 
-        function populateAlphaSelect(alphaList) {
+        function populateAlphaSelect(list) {
             const t = translations[currentLang];
             alphaSelect.innerHTML = `<option value="" disabled selected>${t.alphaPlaceholder}</option>`;
-            if (!alphaList) return;
-            alphaList.forEach(alpha => {
-                const option = document.createElement('option');
-                option.value = alpha.name;
-                option.textContent = translateAlphaName(alpha.name);
-                alphaSelect.appendChild(option);
+            (list||[]).forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.name; opt.textContent = translateAlphaName(a.name);
+                alphaSelect.appendChild(opt);
             });
         }
 
-        function populateBeastSelect(beastList) {
+        function populateBeastSelect(list) {
             const t = translations[currentLang];
             beastSelect.innerHTML = `<option value="" disabled selected>${t.beastPlaceholder}</option>`;
-            if (!beastList) return;
-            beastList.forEach(beast => {
-                const option = document.createElement('option');
-                option.value = beast;
-                option.textContent = translateBeastName(beast);
-                beastSelect.appendChild(option);
+            (list||[]).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b; opt.textContent = translateBeastName(b);
+                beastSelect.appendChild(opt);
             });
-        }
-
-        function updateStaticUITexts() {
-            const t = translations[currentLang];
-            mainTitle.textContent = t.title;
-            mainSubtitle.textContent = t.subtitle;
-            labelType.textContent = t.typeLabel;
-            labelAlpha.textContent = t.alphaLabel;
-            labelBeast.textContent = t.beastLabel;
-            footerText.textContent = t.footer;
-            if (resultBox.classList.contains('idle')) {
-                resultBox.querySelector('.placeholder-text').textContent = t.resultPlaceholder;
-            }
-            document.getElementById('formationSubtitle').textContent = t.formation.subtitle;
-            document.querySelectorAll('.row-label').forEach((label, index) => {
-                label.textContent = t.formation.rowLabel + ' ' + (index + 1);
-            });
-            document.querySelectorAll('.row-select select').forEach(select => {
-                const placeholder = select.querySelector('option[disabled]');
-                if (placeholder) placeholder.textContent = t.formation.alphaPlaceholder;
-            });
-            // Feedback-Texte aktualisieren
-            document.getElementById('feedbackQuestion').textContent = t.feedback.question;
-            document.getElementById('btnFeedbackYes').textContent = t.feedback.yes;
-            document.getElementById('btnFeedbackNo').textContent = t.feedback.no;
-            document.getElementById('feedbackInfo').textContent = t.feedback.info;
-            updateFeedbackTotalText();
         }
 
         function updateResult() {
-            const gewaehlterTyp = typeSelect.value;
-            const gewaehlterAlphaName = alphaSelect.value;
-            const gewaehlteBeast = beastSelect.value;
+            const typ = typeSelect.value, alphaName = alphaSelect.value, beast = beastSelect.value;
             const t = translations[currentLang];
-
-            if (!gewaehlterTyp || !gewaehlterAlphaName) {
-                resultBox.className = 'result-box idle';
+            if (!typ || !alphaName) {
+                resultBox.className = 'result-box';
                 resultBox.innerHTML = `<span class="placeholder-text">${t.resultPlaceholder}</span>`;
                 return;
             }
-
-            const alphas = alphaDaten[gewaehlterTyp];
-            const alphaObjekt = alphas.find(a => a.name === gewaehlterAlphaName);
-            if (!alphaObjekt) return;
-
-            const typInfo = typConfig[gewaehlterTyp];
-            const posInfo = positionConfig[alphaObjekt.position];
-            const translatedType = t.types[gewaehlterTyp];
-            const translatedPos = t.positions[alphaObjekt.position];
-            const displayAlphaName = translateAlphaName(gewaehlterAlphaName);
-            const displayBeast = gewaehlteBeast ? translateBeastName(gewaehlteBeast) : null;
-
-            const beastDisplay = displayBeast
-                ? `<div class="result-beast-line">🐾 <span>${displayBeast}</span></div>`
-                : `<div class="result-beast-line">🐾 <span>—</span></div>`;
-
+            const alphaObj = alphaDaten[typ].find(a => a.name === alphaName);
+            if (!alphaObj) return;
+            const typInfo = typConfig[typ], posInfo = positionConfig[alphaObj.position];
+            const dispAlpha = translateAlphaName(alphaName), dispBeast = beast ? translateBeastName(beast) : null;
             resultBox.className = `result-box active ${typInfo.cssClass} ${posInfo.cssClass}`;
             resultBox.innerHTML = `
                 <div class="result-content">
                     <span class="result-emoji">${typInfo.emoji}</span>
-                    <span class="result-type">${translatedType}</span>
-                    <div>
-                        <span class="result-alpha-name">${displayAlphaName}</span>
-                        <span class="result-position">
-                            <span class="position-icon">${posInfo.icon}</span> ${translatedPos}
-                        </span>
+                    <span class="result-type">${t.types[typ]}</span>
+                    <span class="result-alpha-name">${dispAlpha}</span>
+                    <div class="result-tags">
+                        <span class="result-tag pos">${posInfo.icon} ${t.positions[alphaObj.position]}</span>
+                        ${dispBeast ? `<span class="result-tag beast">🐾 ${dispBeast}</span>` : ''}
                     </div>
-                    ${beastDisplay}
                 </div>`;
         }
 
         typeSelect.addEventListener('change', function() {
-            const gewaehlterTyp = this.value;
-            if (!gewaehlterTyp || !alphaDaten[gewaehlterTyp]) {
-                alphaGroup.classList.remove('visible');
-                beastGroup.classList.remove('visible');
-                populateAlphaSelect([]);
-                populateBeastSelect([]);
-            } else {
-                populateAlphaSelect(alphaDaten[gewaehlterTyp]);
-                populateBeastSelect(beastDaten[gewaehlterTyp]);
+            const typ = this.value;
+            if (typ && alphaDaten[typ]) {
+                populateAlphaSelect(alphaDaten[typ]);
+                populateBeastSelect(beastDaten[typ]);
                 alphaGroup.classList.add('visible');
                 beastGroup.classList.add('visible');
+            } else {
+                alphaGroup.classList.remove('visible');
+                beastGroup.classList.remove('visible');
             }
             updateResult();
         });
@@ -1269,78 +676,36 @@
         alphaSelect.addEventListener('change', updateResult);
         beastSelect.addEventListener('change', updateResult);
 
-        function switchLanguage(lang) {
-            currentLang = lang;
-            const mainLangButtons = document.querySelectorAll('#mainLangSwitch .lang-btn');
-            mainLangButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
-
-            const savedType = typeSelect.value;
-            const savedAlpha = alphaSelect.value;
-            const savedBeast = beastSelect.value;
-
-            updateStaticUITexts();
-            populateTypeSelect();
-            typeSelect.value = savedType;
-
-            if (savedType && alphaDaten[savedType]) {
-                populateAlphaSelect(alphaDaten[savedType]);
-                populateBeastSelect(beastDaten[savedType]);
-                alphaGroup.classList.add('visible');
-                beastGroup.classList.add('visible');
-            } else {
-                populateAlphaSelect([]);
-                populateBeastSelect([]);
-                alphaGroup.classList.remove('visible');
-                beastGroup.classList.remove('visible');
-            }
-
-            alphaSelect.value = savedAlpha;
-            beastSelect.value = savedBeast;
-            updateResult();
-            updateFormationTrainerLanguage();
-        }
-
-        document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const lang = this.dataset.lang;
-                if (lang !== currentLang) switchLanguage(lang);
-            });
-        });
-
-        // =============================================
-        // FORMATION TRAINER
-        // =============================================
         const recommendedRows = {
-            'Berglöwe': [1,2], 'Riesenkänguru': [2], 'Breitmaulnashorn': [2,3], 'Gepard': [2,3],
-            'Sekretär': [2,3], 'Strauß': [1], 'Schuhschnabel': [1,2], 'Kasuar': [2,3],
-            'Leopard': [2,3], 'Sibirischer Tiger': [2,3], 'Giraffe': [1,2], 'Löwe': [1,2],
-            'Riesenelch': [1,2], 'Hebriden-Schaf': [1], 'Weißes Rentier': [2], 'Yak': [2,3],
-            'Doedicurus': [1], 'Wollnashorn': [2,3], 'Riesen Sivatherium': [1], 'Meiolania': [2],
-            'Wildpferd': [1], 'Asiatischer Elefant': [1], 'Rentier': [2], 'Ankole': [2,3],
-            'Spanisches Kampfrind': [1], 'Geochelone': [2,3], 'Spitzmaulnashorn': [1],
-            'Afrikanischer Elefant': [2,3], 'Mammut': [1], 'Megatherium': [2,3],
-            'Panzernashorn': [2,3], 'Brabanter': [2,3], 'Geierschildkröte': [1],
-            'Klapperschlange': [1,2], 'Komodowaran': [3], 'Höhlenbär': [1], 'Riesenbiber': [2],
-            'Metridiochoerus': [2], 'Dinopithecus': [2,3], 'Schwarzbär': [2,3],
-            'Pinselohrschwein': [1], 'Weißkopfsaki': [2], 'Bärenmarder': [2], 'Drill': [1,2],
-            'Flusspferd': [1], 'Geisterbär': [2,3], 'Südafrika-Kronenkranich': [2],
-            'Weißer Pfau': [1], 'Elefantenvogel': [1], 'Kurznasenbär': [2], 'Kodiakbär': [3],
-            'Tibetdogge': [1], 'Jaguarundi': [1,2], 'Weißer Löwe': [2,3], 'Titanis': [1,2],
-            'Amerikanischer Löwe': [2], 'Hyaenodon': [1,2], 'Smilodon': [3],
-            'Schwarzer Panther': [2,3], 'Schneeleopard': [1,2], 'Weißer Tiger': [2,3],
-            'Kanadischer Luchs': [2], 'Leistenkrokodil': [3], 'Bindenwaran': [1],
-            'Schwarzer Löwe': [2], 'Weißes Krokodil': [2,3], 'Affenadler': [1],
-            'Beutellöwe': [1], 'Amerikanischer Gepard': [2]
+            'Berglöwe':[1,2],'Riesenkänguru':[2],'Breitmaulnashorn':[2,3],'Gepard':[2,3],
+            'Sekretär':[2,3],'Strauß':[1],'Schuhschnabel':[1,2],'Kasuar':[2,3],
+            'Leopard':[2,3],'Sibirischer Tiger':[2,3],'Giraffe':[1,2],'Löwe':[1,2],
+            'Riesenelch':[1,2],'Hebriden-Schaf':[1],'Weißes Rentier':[2],'Yak':[2,3],
+            'Doedicurus':[1],'Wollnashorn':[2,3],'Riesen Sivatherium':[1],'Meiolania':[2],
+            'Wildpferd':[1],'Asiatischer Elefant':[1],'Rentier':[2],'Ankole':[2,3],
+            'Spanisches Kampfrind':[1],'Geochelone':[2,3],'Spitzmaulnashorn':[1],
+            'Afrikanischer Elefant':[2,3],'Mammut':[1],'Megatherium':[2,3],
+            'Panzernashorn':[2,3],'Brabanter':[2,3],'Geierschildkröte':[1],
+            'Klapperschlange':[1,2],'Komodowaran':[3],'Höhlenbär':[1],'Riesenbiber':[2],
+            'Metridiochoerus':[2],'Dinopithecus':[2,3],'Schwarzbär':[2,3],
+            'Pinselohrschwein':[1],'Weißkopfsaki':[2],'Bärenmarder':[2],'Drill':[1,2],
+            'Flusspferd':[1],'Geisterbär':[2,3],'Südafrika-Kronenkranich':[2],
+            'Weißer Pfau':[1],'Elefantenvogel':[1],'Kurznasenbär':[2],'Kodiakbär':[3],
+            'Tibetdogge':[1],'Jaguarundi':[1,2],'Weißer Löwe':[2,3],'Titanis':[1,2],
+            'Amerikanischer Löwe':[2],'Hyaenodon':[1,2],'Smilodon':[3],
+            'Schwarzer Panther':[2,3],'Schneeleopard':[1,2],'Weißer Tiger':[2,3],
+            'Kanadischer Luchs':[2],'Leistenkrokodil':[3],'Bindenwaran':[1],
+            'Schwarzer Löwe':[2],'Weißes Krokodil':[2,3],'Affenadler':[1],
+            'Beutellöwe':[1],'Amerikanischer Gepard':[2]
         };
 
-        const formationAlphas = Object.keys(recommendedRows).sort((a, b) => a.localeCompare(b));
+        const formationAlphas = Object.keys(recommendedRows).sort((a,b)=>a.localeCompare(b));
 
         function buildFormationTrainer() {
             const container = document.getElementById('formationRows');
             container.innerHTML = '';
             const t = translations[currentLang].formation;
-
-            for (let row = 1; row <= 3; row++) {
+            for (let row=1; row<=3; row++) {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'formation-row';
                 rowDiv.dataset.row = row;
@@ -1350,165 +715,85 @@
                         <div class="select-wrapper">
                             <select class="formation-select">
                                 <option value="" disabled selected>${t.alphaPlaceholder}</option>
-                                ${formationAlphas.map(name => `<option value="${name}">${translateAlphaName(name)}</option>`).join('')}
+                                ${formationAlphas.map(n=>`<option value="${n}">${translateAlphaName(n)}</option>`).join('')}
                             </select>
                         </div>
                         <div class="row-feedback"></div>
                     </div>
                     <div class="row-status"></div>`;
                 container.appendChild(rowDiv);
-                const select = rowDiv.querySelector('.formation-select');
-                select.addEventListener('change', () => validateFormationRow(rowDiv, row));
+                rowDiv.querySelector('.formation-select').addEventListener('change', ()=>validateFormationRow(rowDiv, row));
             }
         }
 
         function validateFormationRow(rowDiv, rowNumber) {
-            const select = rowDiv.querySelector('.formation-select');
-            const statusDiv = rowDiv.querySelector('.row-status');
-            const feedbackDiv = rowDiv.querySelector('.row-feedback');
-            const t = translations[currentLang].formation;
-            const alphaName = select.value;
-
-            rowDiv.classList.remove('valid-highlight', 'invalid-highlight');
-            statusDiv.className = 'row-status';
-            feedbackDiv.classList.remove('visible');
+            const select=rowDiv.querySelector('.formation-select'), statusDiv=rowDiv.querySelector('.row-status');
+            const feedbackDiv=rowDiv.querySelector('.row-feedback'), t=translations[currentLang].formation;
+            const alphaName=select.value;
+            rowDiv.classList.remove('valid-highlight','invalid-highlight');
+            statusDiv.textContent=''; feedbackDiv.classList.remove('visible');
             if (!alphaName) return;
-
-            const rows = recommendedRows[alphaName];
-            if (!rows) return;
-
+            const rows=recommendedRows[alphaName]; if (!rows) return;
             if (rows.includes(rowNumber)) {
-                statusDiv.textContent = t.correct;
-                statusDiv.className = 'row-status valid';
-                rowDiv.classList.add('valid-highlight');
+                statusDiv.textContent=t.correct; rowDiv.classList.add('valid-highlight');
             } else {
-                statusDiv.textContent = t.incorrect;
-                statusDiv.className = 'row-status invalid';
-                rowDiv.classList.add('invalid-highlight');
-                feedbackDiv.textContent = `${t.recommended} ${rows.join(', ')}`;
-                feedbackDiv.classList.add('visible');
+                statusDiv.textContent=t.incorrect; rowDiv.classList.add('invalid-highlight');
+                feedbackDiv.textContent=`${t.recommended} ${rows.join(', ')}`; feedbackDiv.classList.add('visible');
             }
         }
 
-        function updateFormationTrainerLanguage() {
-            const t = translations[currentLang].formation;
-            document.getElementById('formationSubtitle').textContent = t.subtitle;
-            document.querySelectorAll('.formation-row').forEach((row, index) => {
-                row.querySelector('.row-label').textContent = t.rowLabel + ' ' + (index + 1);
-                const select = row.querySelector('.formation-select');
-                const currentValue = select.value;
-                const placeholder = select.querySelector('option[disabled]');
-                if (placeholder) placeholder.textContent = t.alphaPlaceholder;
-                Array.from(select.options).forEach(option => {
-                    if (option.value) option.textContent = translateAlphaName(option.value);
-                });
-                select.value = currentValue;
-                const feedbackDiv = row.querySelector('.row-feedback');
-                if (feedbackDiv.classList.contains('visible') && currentValue) {
-                    const rowsRec = recommendedRows[currentValue];
-                    if (rowsRec) feedbackDiv.textContent = `${t.recommended} ${rowsRec.join(', ')}`;
-                }
+        function updateStaticTexts() {
+            const t = translations[currentLang];
+            document.getElementById('mainTitle').textContent = t.title;
+            document.getElementById('mainSubtitle').textContent = t.subtitle;
+            document.getElementById('mainModDesc').textContent = t.modDesc;
+            document.getElementById('labelType').textContent = t.typeLabel;
+            document.getElementById('labelAlpha').textContent = t.alphaLabel;
+            document.getElementById('labelBeast').textContent = t.beastLabel;
+            document.getElementById('footerText').textContent = t.footer;
+            document.getElementById('formationSubtitle').textContent = t.formation.subtitle;
+            const ph = resultBox.querySelector('.placeholder-text');
+            if (ph) ph.textContent = t.resultPlaceholder;
+            document.querySelectorAll('.row-label').forEach((el,i) => el.textContent = t.formation.rowLabel+' '+(i+1));
+            document.querySelectorAll('.formation-select').forEach(sel => {
+                const ph2 = sel.querySelector('option[disabled]');
+                if (ph2) ph2.textContent = t.formation.alphaPlaceholder;
+                const cur = sel.value;
+                Array.from(sel.options).forEach(opt => { if(opt.value) opt.textContent=translateAlphaName(opt.value); });
+                sel.value = cur;
             });
         }
 
-        // =============================================
-        // FEEDBACK-LOGIK (FIREBASE)
-        // =============================================
-        let myVote = null; // 'yes' | 'no' | null
-        const STORAGE_KEY = 'vcf_feedback_vote';
-
-        // Versuche gespeicherte Stimme aus localStorage zu laden
-        try {
-            myVote = localStorage.getItem(STORAGE_KEY);
-        } catch(e) {}
-
-        const btnYes = document.getElementById('btnFeedbackYes');
-        const btnNo = document.getElementById('btnFeedbackNo');
-        const barYes = document.getElementById('barYes');
-        const barNo = document.getElementById('barNo');
-        const percentYes = document.getElementById('percentYes');
-        const percentNo = document.getElementById('percentNo');
-        const feedbackTotal = document.getElementById('feedbackTotal');
-
-        function highlightMyVote() {
-            btnYes.classList.toggle('selected', myVote === 'yes');
-            btnNo.classList.toggle('selected', myVote === 'no');
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn =>
+                btn.classList.toggle('active', btn.dataset.lang===lang));
+            const savedType=typeSelect.value, savedAlpha=alphaSelect.value, savedBeast=beastSelect.value;
+            updateStaticTexts(); populateTypeSelect(); typeSelect.value=savedType;
+            if (savedType && alphaDaten[savedType]) {
+                populateAlphaSelect(alphaDaten[savedType]); populateBeastSelect(beastDaten[savedType]);
+                alphaGroup.classList.add('visible'); beastGroup.classList.add('visible');
+            } else {
+                alphaGroup.classList.remove('visible'); beastGroup.classList.remove('visible');
+            }
+            alphaSelect.value=savedAlpha; beastSelect.value=savedBeast; updateResult();
         }
 
-        function updateFeedbackTotalText() {
-            const t = translations[currentLang].feedback;
-            const total = (parseInt(percentYes.textContent) || 0) + (parseInt(percentNo.textContent) || 0);
-            // Prozentwerte werden von Firebase aktualisiert, daher hier nur den Text erneuern
-            const yesPct = parseInt(percentYes.textContent) || 0;
-            const noPct = parseInt(percentNo.textContent) || 0;
-            const totalVotes = yesPct + noPct;
-            feedbackTotal.textContent = t.total.replace('{count}', totalVotes);
-        }
-
-        function updateFeedbackUI(snapshot) {
-            const data = snapshot.val() || { yes: 0, no: 0 };
-            const yes = data.yes || 0;
-            const no = data.no || 0;
-            const total = yes + no;
-
-            const yesPercent = total > 0 ? Math.round((yes / total) * 100) : 0;
-            const noPercent = total > 0 ? Math.round((no / total) * 100) : 0;
-
-            barYes.style.width = yesPercent + '%';
-            barNo.style.width = noPercent + '%';
-            percentYes.textContent = yesPercent + '%';
-            percentNo.textContent = noPercent + '%';
-
-            updateFeedbackTotalText();
-        }
-
-        function castVote(vote) {
-            if (myVote === vote) return; // Keine doppelte gleiche Stimme
-
-            // Transaktion: Alte Stimme entfernen, neue hinzufügen
-            feedbackRef.transaction(currentData => {
-                if (!currentData) currentData = { yes: 0, no: 0 };
-
-                // Alte Stimme abziehen
-                if (myVote === 'yes') currentData.yes = Math.max(0, (currentData.yes || 0) - 1);
-                if (myVote === 'no') currentData.no = Math.max(0, (currentData.no || 0) - 1);
-
-                // Neue Stimme hinzufügen
-                if (vote === 'yes') currentData.yes = (currentData.yes || 0) + 1;
-                if (vote === 'no') currentData.no = (currentData.no || 0) + 1;
-
-                return currentData;
-            }, (error, committed) => {
-                if (error) {
-                    console.error('Feedback-Fehler:', error);
-                } else if (committed) {
-                    myVote = vote;
-                    try { localStorage.setItem(STORAGE_KEY, myVote); } catch(e) {}
-                    highlightMyVote();
-                }
+        document.querySelectorAll('#mainLangSwitch .lang-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.dataset.lang !== currentLang) switchLanguage(this.dataset.lang);
             });
-        }
+        });
 
-        function initFeedback() {
-            // Echtzeit-Listener für Feedback-Daten
-            feedbackRef.on('value', snapshot => {
-                updateFeedbackUI(snapshot);
-                highlightMyVote();
-            });
+        populateTypeSelect();
+        buildFormationTrainer();
+        updateStaticTexts();
 
-            // Button-Events
-            btnYes.addEventListener('click', () => castVote('yes'));
-            btnNo.addEventListener('click', () => castVote('no'));
-
-            highlightMyVote();
-        }
-
-        // Service Worker Registrierung
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(registration => console.log('SW registered:', registration.scope))
-                    .catch(error => console.log('SW registration failed:', error));
+                    .then(r => console.log('SW registered:', r.scope))
+                    .catch(e => console.log('SW failed:', e));
             });
         }
     </script>
